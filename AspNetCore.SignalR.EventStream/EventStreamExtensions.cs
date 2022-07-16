@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace AspNetCore.SignalR.EventStream
+﻿namespace AspNetCore.SignalR.EventStream
 {
     public static class EventStreamExtensions
     {
@@ -10,6 +8,19 @@ namespace AspNetCore.SignalR.EventStream
             services.AddEntityFrameworkSqlite().AddDbContext<SqliteDbContext>(ServiceLifetime.Transient);
 
             return services;
+        }
+
+        internal static T GetServiceOrNull<T>(this IServiceProvider serviceProvider)
+            where T : class
+        {
+            try
+            {
+                return serviceProvider.GetService<T>();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

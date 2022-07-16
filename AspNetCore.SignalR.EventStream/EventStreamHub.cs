@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace AspNetCore.SignalR.EventStream
 {
+    [EventStreamHubFilter]
     public class EventStreamHub : Hub
     {
         private readonly IRepository _repository;
