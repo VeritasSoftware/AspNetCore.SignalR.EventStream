@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.SignalR.EventStream", "AspNetCore.SignalR.EventStream\AspNetCore.SignalR.EventStream.csproj", "{EE397A6B-0B38-4E61-9F3F-8E494D885734}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.SignalR.EventStream.Tests", "AspNetCore.SignalR.EventStream.Tests\AspNetCore.SignalR.EventStream.Tests.csproj", "{680BD6AB-F0B8-4269-AB67-7827ECF13203}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0140AF7D-DA60-4AF2-8909-C3FFD754C46D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.SignalR.EventStream.Server", "AspNetCore.SignalR.EventStream.Server\AspNetCore.SignalR.EventStream.Server.csproj", "{568731EE-0C23-4887-A6A4-BC9CD2848ACB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.SignalR.EventStream.Client", "AspNetCore.SignalR.EventStream.Client\AspNetCore.SignalR.EventStream.Client.csproj", "{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE397A6B-0B38-4E61-9F3F-8E494D885734}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE397A6B-0B38-4E61-9F3F-8E494D885734}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE397A6B-0B38-4E61-9F3F-8E494D885734}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE397A6B-0B38-4E61-9F3F-8E494D885734}.Release|Any CPU.Build.0 = Release|Any CPU
+		{680BD6AB-F0B8-4269-AB67-7827ECF13203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{680BD6AB-F0B8-4269-AB67-7827ECF13203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{680BD6AB-F0B8-4269-AB67-7827ECF13203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{680BD6AB-F0B8-4269-AB67-7827ECF13203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{568731EE-0C23-4887-A6A4-BC9CD2848ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{568731EE-0C23-4887-A6A4-BC9CD2848ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{568731EE-0C23-4887-A6A4-BC9CD2848ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{568731EE-0C23-4887-A6A4-BC9CD2848ACB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A8E8BB1-E385-4C47-866F-DD0940B4991B}
+	EndGlobalSection
+EndGlobal
