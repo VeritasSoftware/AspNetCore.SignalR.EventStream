@@ -14,9 +14,40 @@ to
 * Subscribe to a stream
 * Unsubscribe from a stream
 
-### Server
+### Setting up your Server
 
-Run the Server app included in the solution.
+You can create your own Event Stream Server.
+
+To hook up Event Stream, do the following in the Startup.cs of your Server application.
+
+```c#
+        public void ConfigureServices(IServiceCollection services)
+        {
+            //Hook up EventStreamHub using SignalR
+            services.AddSignalR().AddNewtonsoftJsonProtocol(o =>
+            {
+                o.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            });
+
+            //Add EventStream
+            services.AddEventStream();
+        }
+
+        public void Configure(IApplicationBuilder app)
+        {
+            //Use Event Stream
+            app.UseEventStream(options => options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub");
+
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                //EventStreamHub endpoint
+                endpoints.MapHub<EventStreamHub>("/eventstreamhub");
+            });
+        }
+```
+
+Run the sample Server app included in the solution.
 
 ![Event Stream Server](/Docs/Server.jpg)
 

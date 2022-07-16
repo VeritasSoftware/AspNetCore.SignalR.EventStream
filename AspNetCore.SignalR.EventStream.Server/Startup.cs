@@ -3,9 +3,7 @@
 namespace AspNetCore.SignalR.EventStream.Server
 {
     public class Startup
-    {
-        private SubscriptionProcessor _processor;        
-
+    {        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -22,29 +20,19 @@ namespace AspNetCore.SignalR.EventStream.Server
                 o.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
 
+            //Add EventStream
             services.AddEventStream();
         }
 
         public void Configure(IApplicationBuilder app)
         {
-            var context = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
-            //var repository = app.ApplicationServices.GetRequiredService<IRepository>();
-            var repository = new SqliteRepository(context);
-
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-
-            _processor = new SubscriptionProcessor(repository, "https://localhost:5001/eventstreamhub")
-            {
-                Start = true
-            };
-
-            _processor.Process();
+            //Use Event Stream
+            app.UseEventStream(options => options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub");
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                //GatewayHub endpoint
+                //EventStreamHub endpoint
                 endpoints.MapHub<EventStreamHub>("/eventstreamhub");
             });
         }
