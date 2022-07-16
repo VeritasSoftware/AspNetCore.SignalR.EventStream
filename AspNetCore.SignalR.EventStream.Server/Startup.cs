@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using AspNetCore.SignalR.EventStream.Hubs;
+using Newtonsoft.Json;
 
 namespace AspNetCore.SignalR.EventStream.Server
 {

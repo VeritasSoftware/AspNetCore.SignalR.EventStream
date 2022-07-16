@@ -12,7 +12,16 @@ var conn = new HubConnectionBuilder()
                 .AddNewtonsoftJsonProtocol()
                 .Build();
 
-conn.On("ReceiveMyStreamEvent", new Type[] { typeof(object), typeof(object) }, (arg1, arg2) =>
+await conn.StartAsync();
+
+var subscriberId = Guid.NewGuid();
+var subscriberKey = Guid.NewGuid();
+var streamName = "MyStream";
+var eventType = "MyEvent";
+
+var receiveMethod = "ReceiveMyStreamEvent";
+
+conn.On(receiveMethod, new Type[] { typeof(object), typeof(object) }, (arg1, arg2) =>
 {
     dynamic parsedJson = JsonConvert.DeserializeObject(arg1[0].ToString());
     var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
@@ -21,20 +30,14 @@ conn.On("ReceiveMyStreamEvent", new Type[] { typeof(object), typeof(object) }, (
     return Task.CompletedTask;
 }, new object());
 
-await conn.StartAsync();
-
-var subscriberId = Guid.NewGuid();
-var subscriberKey = Guid.NewGuid();
-var streamName = "MyStream";
-
 Console.WriteLine($"Subscribing to Stream {streamName}.");
-await conn.InvokeAsync("Subscribe", streamName, "MyEvent", "ReceiveMyStreamEvent", subscriberId, subscriberKey, null);
+await conn.InvokeAsync("Subscribe", streamName, eventType, receiveMethod, subscriberId, subscriberKey, null);
 
 Console.WriteLine($"Publishing to Stream {streamName}.");
 await conn.InvokeAsync("Publish", streamName, subscriberId, subscriberKey, new[]
 {
     new {
-        Type = "MyEvent",
+        Type = eventType,
         Data = Encoding.UTF8.GetBytes("{\"a\":\"1\"}"),
         MetaData = Encoding.UTF8.GetBytes("{}"),
         IsJson = false

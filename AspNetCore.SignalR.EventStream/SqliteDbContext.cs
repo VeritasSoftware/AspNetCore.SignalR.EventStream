@@ -16,7 +16,12 @@ namespace AspNetCore.SignalR.EventStream
         {
             var folder = Environment.SpecialFolder.LocalApplicationData;
             var path = Environment.GetFolderPath(folder);
-            DbPath = System.IO.Path.Join(path, "eventstream.db");
+            path = Path.Join(path, "EventStream");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            DbPath = Path.Join(path, "eventstream.db");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

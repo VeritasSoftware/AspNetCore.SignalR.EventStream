@@ -2,7 +2,7 @@
 using AspNetCore.SignalR.EventStream.Models;
 using Microsoft.AspNetCore.SignalR;
 
-namespace AspNetCore.SignalR.EventStream
+namespace AspNetCore.SignalR.EventStream.Hubs
 {
     [EventStreamHubFilter]
     public class EventStreamHub : Hub
