@@ -14,6 +14,12 @@ to
 * Subscribe to a stream
 * Unsubscribe from a stream
 
+### Server
+
+Run the Server app included in the solution.
+
+![Event Stream Server](/Docs/Server.jpg)
+
 ### Setting up your Client in C#
 
 Add a Nuget package (**Microsoft.AspNetCore.SignalR.Client**) to your project.
