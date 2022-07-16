@@ -1,4 +1,5 @@
 ﻿using AspNetCore.SignalR.EventStream.Entities;
+
 namespace AspNetCore.SignalR.EventStream
 {
     public interface IRepository

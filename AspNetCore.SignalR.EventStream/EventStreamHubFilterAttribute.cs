@@ -1,10 +1,4 @@
-﻿using AspNetCore.SignalR.EventStream;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.SignalR;
 
 namespace AspNetCore.SignalR.EventStream
 {

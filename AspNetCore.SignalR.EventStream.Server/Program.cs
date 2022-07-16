@@ -1,7 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AspNetCore.SignalR.EventStream.Server;
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
 
 Console.WriteLine("Event Stream Server");
 
