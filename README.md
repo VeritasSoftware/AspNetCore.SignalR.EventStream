@@ -47,7 +47,7 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
         }
 ```
 
-Run the sample Server app included in the solution.
+There is a sample Server app included in the solution.
 
 ![Event Stream Server](/Docs/Server.jpg)
 
