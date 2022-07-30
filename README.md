@@ -75,9 +75,13 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 
 #### Administration of Server
 
-The Server exposes endpoints to perform various administrative tasks.
+The Server hosts endpoints to perform various administrative tasks.
 
-Eg. You may want to associate multiple streams into a stream.
+While the Server is running.
+
+Eg. You may want to associate multiple streams into a stream. 
+
+You can do so by calling the **associate** endpoint.
 
 ![Event Stream Server Admin Endpoints](/Docs/ServerAdminEndpoints.jpg)
 
@@ -141,7 +145,7 @@ This key has to be provided when Publishing & Unsubscribing.
 To publish an Event, call the **Publish** method on the Hub.
 
 ```c#
-await conn.InvokeAsync("Publish", streamName, subscriberId, subscriberKey, new[]
+await conn.InvokeAsync("Publish", streamName, new[]
 {
     new {
         Type = eventType,
