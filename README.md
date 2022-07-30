@@ -23,14 +23,29 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 ```c#
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+            {
+                builder
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin();
+            }));
+
             //Hook up EventStreamHub using SignalR
             services.AddSignalR().AddNewtonsoftJsonProtocol(o =>
             {
                 o.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
 
-            //Add Event Stream
+            //Add EventStream
             services.AddEventStream();
+
+            services.AddControllers();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My Event Stream Server", Version = "v1" });
+            });
         }
 
         public void Configure(IApplicationBuilder app)
@@ -38,11 +53,22 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
             //Use Event Stream
             app.UseEventStream(options => options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub");
 
+            app.UseCors("CorsPolicy");
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Event Stream Server");
+            });
+
+            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                //Event Stream Hub endpoint
+                //EventStreamHub endpoint
                 endpoints.MapHub<EventStreamHub>("/eventstreamhub");
+                endpoints.MapControllers();
             });
         }
 ```
@@ -52,6 +78,8 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 The Server exposes endpoints to perform various administrative tasks.
 
 Eg. You may want to associate multiple streams into a stream.
+
+![Event Stream Server Admin Endpoints](/Docs/ServerAdminEndpoints.jpg)
 
 #### Sample Server
 
