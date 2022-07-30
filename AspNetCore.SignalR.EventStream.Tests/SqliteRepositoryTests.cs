@@ -1,4 +1,5 @@
 using AspNetCore.SignalR.EventStream.Entities;
+using AspNetCore.SignalR.EventStream.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;

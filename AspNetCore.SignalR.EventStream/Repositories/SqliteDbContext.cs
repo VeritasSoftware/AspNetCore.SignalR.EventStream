@@ -2,12 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace AspNetCore.SignalR.EventStream
+namespace AspNetCore.SignalR.EventStream.Repositories
 {
     public class SqliteDbContext : DbContext
     {
         public DbSet<Event> Events { get; set; }
         public DbSet<Entities.EventStream> EventsStream { get; set; }
+        public DbSet<EventStreamAssociation> EventStreamsAssociation { get; set; }
         public DbSet<EventStreamSubscriber> Subscribers { get; set; }
 
         public string DbPath { get; }
@@ -34,6 +35,10 @@ namespace AspNetCore.SignalR.EventStream
 
             modelBuilder.Entity<Entities.EventStream>().HasKey(x => x.Id);
             modelBuilder.Entity<Entities.EventStream>().Property(x => x.Id).IsRequired().ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<EventStreamAssociation>().HasKey(x => x.Id);
+            modelBuilder.Entity<EventStreamAssociation>().Property(x => x.Id).IsRequired().ValueGeneratedOnAdd();
+            modelBuilder.Entity<EventStreamAssociation>().HasAlternateKey(x => new { x.StreamId, x.AssociatedStreamId });
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {

@@ -1,4 +1,5 @@
 ﻿using AspNetCore.SignalR.EventStream.Models;
+using AspNetCore.SignalR.EventStream.Repositories;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace AspNetCore.SignalR.EventStream
@@ -92,6 +93,7 @@ namespace AspNetCore.SignalR.EventStream
                                                 MetaData = x.MetaData,
                                                 StreamId = x.Stream.StreamId,
                                                 StreamName = x.Stream.Name,
+                                                OriginalEventId = x.OriginalEventId,
                                                 Type = x.Type
                                             }).ToList(),
                                             CreatedAt = subsciptionWithEvents.Stream.CreatedAt,

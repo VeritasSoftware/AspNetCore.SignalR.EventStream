@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AspNetCore.SignalR.EventStream.Entities
+﻿namespace AspNetCore.SignalR.EventStream.Entities
 {
     public class Event
     {
@@ -13,6 +11,7 @@ namespace AspNetCore.SignalR.EventStream.Entities
         public string? JsonData { get; set; }
         public byte[]? MetaData { get; set; }
         public bool IsJson { get; set; }
+        public Guid? OriginalEventId { get; set; }
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-    }
+    }    
 }

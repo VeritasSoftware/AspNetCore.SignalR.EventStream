@@ -8,12 +8,13 @@
         public byte[]? MetaData { get; set; }
         public bool IsJson { get; set; }
         public Guid StreamId { get; set; }
-        public string? StreamName { get; set; }        
+        public string? StreamName { get; set; }
     }
 
     public class EventModelResult : EventModel
     {
         public long Id { get; set; }
         public Guid EventId { get; set; }
+        public Guid? OriginalEventId { get; set; }
     }
 }

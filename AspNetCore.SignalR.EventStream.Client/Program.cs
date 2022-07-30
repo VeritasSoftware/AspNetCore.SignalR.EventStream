@@ -34,19 +34,94 @@ Console.WriteLine($"Subscribing to Stream {streamName}.");
 await conn.InvokeAsync("Subscribe", streamName, eventType, receiveMethod, subscriberId, subscriberKey, null);
 
 Console.WriteLine($"Publishing to Stream {streamName}.");
-await conn.InvokeAsync("Publish", streamName, subscriberId, subscriberKey, new[]
+await conn.InvokeAsync("Publish", streamName, new[]
 {
     new {
-        Type = eventType,
+        Type = eventType + "1",
         Data = Encoding.UTF8.GetBytes("{\"a\":\"1\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = eventType + "2",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"2\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = eventType + "3",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"3\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = eventType + "4",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"4\"}"),
         MetaData = Encoding.UTF8.GetBytes("{}"),
         IsJson = false
     }
 });
 
-Thread.Sleep(500);
+//Thread.Sleep(500);
 
-Console.WriteLine($"Unsubscribing from Stream {streamName}.");
-await conn.InvokeAsync("Unsubscribe", streamName, subscriberId, subscriberKey);
+var associateStreamName = "MyAssociatedStream";
+var associateStreamEventType = "MyAssociatedEvent";
+
+Console.WriteLine($"Publishing to Stream {associateStreamName}.");
+await conn.InvokeAsync("Publish", associateStreamName, new[]
+{
+    new {
+        Type = associateStreamEventType + "1",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"1\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = associateStreamEventType + "2",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"2\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = associateStreamEventType + "3",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"3\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = associateStreamEventType + "4",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"4\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    }
+});
+
+using var client = new HttpClient();
+
+var request = new
+{
+    Name = streamName,
+    Existing = true,
+    AssociatedStreams = new[]
+    {
+        new 
+        { 
+            Name = associateStreamName 
+        }
+    }
+};
+
+var content = new StringContent(JsonConvert.SerializeObject(request),
+  Encoding.UTF8,
+  "application/json");
+
+var result = await client.PostAsync("https://localhost:5001/api/eventstream/associate", content);
+
+result.EnsureSuccessStatusCode();
+
+Thread.Sleep(1000);
+
+//Console.WriteLine($"Unsubscribing from Stream {streamName}.");
+//await conn.InvokeAsync("Unsubscribe", streamName, subscriberId, subscriberKey);
 
 Console.ReadLine();

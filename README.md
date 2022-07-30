@@ -47,6 +47,14 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
         }
 ```
 
+#### Administration of Server
+
+The Server exposes endpoints to perform various administrative tasks.
+
+Eg. You may want to associate multiple streams into a stream.
+
+#### Sample Server
+
 There is a sample Server app included in the solution.
 
 ![Event Stream Server](/Docs/Server.jpg)
@@ -130,6 +138,7 @@ The Received Event JSON is as shown in example below:
 {
   "id": 5,
   "eventId": "24b15082-42ed-48e9-8465-a9ff678092ff",
+  "originalEventId": null,
   "type": "MyEvent",
   "data": "eyJhIjoiMSJ9",
   "jsonData": null,

@@ -1,4 +1,5 @@
 ﻿using AspNetCore.SignalR.EventStream.Hubs;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
 namespace AspNetCore.SignalR.EventStream.Server
@@ -15,6 +16,15 @@ namespace AspNetCore.SignalR.EventStream.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Hook up GatewayHub using SignalR
+            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+            {
+                builder
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin();
+            }));
+
             //Hook up EventStreamHub using SignalR
             services.AddSignalR().AddNewtonsoftJsonProtocol(o =>
             {
@@ -23,6 +33,13 @@ namespace AspNetCore.SignalR.EventStream.Server
 
             //Add EventStream
             services.AddEventStream();
+
+            services.AddControllers();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My Event Stream Server", Version = "v1" });
+            });
         }
 
         public void Configure(IApplicationBuilder app)
@@ -30,11 +47,22 @@ namespace AspNetCore.SignalR.EventStream.Server
             //Use Event Stream
             app.UseEventStream(options => options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub");
 
+            app.UseCors("CorsPolicy");
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Event Stream Server");
+            });
+
+            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 //EventStreamHub endpoint
                 endpoints.MapHub<EventStreamHub>("/eventstreamhub");
+                endpoints.MapControllers();
             });
         }
     }

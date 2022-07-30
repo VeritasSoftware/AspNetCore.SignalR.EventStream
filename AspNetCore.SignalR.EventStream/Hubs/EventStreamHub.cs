@@ -1,5 +1,6 @@
 ﻿using AspNetCore.SignalR.EventStream.Entities;
 using AspNetCore.SignalR.EventStream.Models;
+using AspNetCore.SignalR.EventStream.Repositories;
 using Microsoft.AspNetCore.SignalR;
 
 namespace AspNetCore.SignalR.EventStream.Hubs
@@ -14,18 +15,11 @@ namespace AspNetCore.SignalR.EventStream.Hubs
             _repository = repository;
         }
 
-        public async Task Publish(string streamName, Guid subscriberId, Guid subscribeKey, params EventModel[] events)
+        public async Task Publish(string streamName, params EventModel[] events)
         {            
             //If stream does not exist in db, create stream and write event to db
             //Else write event to db
             var stream = await _repository.GetStreamAsync(streamName);
-
-            var subscriber = await _repository.GetSubscriberAsync(subscriberId, stream.StreamId);   
-
-            if ((subscriber == null) || (subscriber.SubscribeKey != subscribeKey))
-            {
-                throw new ApplicationException("Subscriber not found. Please subscribe first, to then publish.");
-            }
 
             if (stream == null)
             {
@@ -47,8 +41,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                         MetaData = @event.MetaData,
                         JsonData = @event.JsonData,
                         IsJson = @event.IsJson,
-                        Type = @event.Type,
-                        EventId = Guid.NewGuid(),                        
+                        Type = @event.Type,             
                         StreamId = newStream.Id
                     };
 
@@ -66,7 +59,6 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                         JsonData = @event.JsonData,
                         IsJson = @event.IsJson,
                         Type = @event.Type,
-                        EventId = Guid.NewGuid(),
                         StreamId = stream.Id
                     };
 

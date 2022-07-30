@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AspNetCore.SignalR.EventStream.Repositories;
+using AspNetCore.SignalR.EventStream.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.SignalR.EventStream
 {
@@ -9,11 +11,13 @@ namespace AspNetCore.SignalR.EventStream
 
     public static class EventStreamExtensions
     {
-        private static SubscriptionProcessor _processor;
+        private static SubscriptionProcessor _subscriptionProcessor;
+        private static EventStreamProcessor _eventStreamProcessor;
 
         public static IServiceCollection AddEventStream(this IServiceCollection services)
         {
             services.AddScoped<IRepository, SqliteRepository>();
+            services.AddScoped<IEventStreamService, EventStreamService>();
             services.AddEntityFrameworkSqlite().AddDbContext<SqliteDbContext>(ServiceLifetime.Transient);
 
             return services;
@@ -22,7 +26,9 @@ namespace AspNetCore.SignalR.EventStream
         public static IApplicationBuilder UseEventStream(this IApplicationBuilder app, Action<EventStreamOptions> getOptions)
         {
             var context = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
+            var context1 = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
             var repository = new SqliteRepository(context);
+            var repository1 = new SqliteRepository(context1);
 
             //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
@@ -31,12 +37,19 @@ namespace AspNetCore.SignalR.EventStream
             var options = new EventStreamOptions();
             getOptions(options);
 
-            _processor = new SubscriptionProcessor(repository, options.EventStreamHubUrl)
+            _subscriptionProcessor = new SubscriptionProcessor(repository, options.EventStreamHubUrl)
             {
                 Start = true
             };
 
-            _processor.Process();
+            _subscriptionProcessor.Process();
+
+            _eventStreamProcessor = new EventStreamProcessor(repository1)
+            {
+                Start = true
+            };
+
+            _eventStreamProcessor.Process();            
 
             return app;
         }
