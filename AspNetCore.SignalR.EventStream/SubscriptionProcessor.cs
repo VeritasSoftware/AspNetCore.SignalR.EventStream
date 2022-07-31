@@ -31,7 +31,7 @@ namespace AspNetCore.SignalR.EventStream
             _processorThread.Start();
         }
 
-        public async Task ProcessAsync()
+        private async Task ProcessAsync()
         {
             HubConnection _hubConnection = null;
 
