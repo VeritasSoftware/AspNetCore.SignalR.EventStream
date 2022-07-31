@@ -21,56 +21,56 @@ You can create your own Event Stream Server.
 To hook up Event Stream, do the following in the Startup.cs of your Server application.
 
 ```c#
-        public void ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
         {
-            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
-            {
-                builder
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowAnyOrigin();
-            }));
+            builder
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowAnyOrigin();
+        }));
 
-            //Hook up EventStreamHub using SignalR
-            services.AddSignalR().AddNewtonsoftJsonProtocol(o =>
-            {
-                o.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            });
-
-            //Add EventStream
-            services.AddEventStream();
-
-            services.AddControllers();
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My Event Stream Server", Version = "v1" });
-            });
-        }
-
-        public void Configure(IApplicationBuilder app)
+        //Hook up EventStreamHub using SignalR
+        services.AddSignalR().AddNewtonsoftJsonProtocol(o =>
         {
-            //Use Event Stream
-            app.UseEventStream(options => options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub");
+            o.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        });
 
-            app.UseCors("CorsPolicy");
+        //Add EventStream
+        services.AddEventStream();
 
-            app.UseSwagger();
+        services.AddControllers();
 
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Event Stream Server");
-            });
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "My Event Stream Server", Version = "v1" });
+        });
+    }
 
-            app.UseHttpsRedirection();
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                //EventStreamHub endpoint
-                endpoints.MapHub<EventStreamHub>("/eventstreamhub");
-                endpoints.MapControllers();
-            });
-        }
+    public void Configure(IApplicationBuilder app)
+    {
+        //Use Event Stream
+        app.UseEventStream(options => options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub");
+
+        app.UseCors("CorsPolicy");
+
+        app.UseSwagger();
+
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Event Stream Server");
+        });
+
+        app.UseHttpsRedirection();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            //EventStreamHub endpoint
+            endpoints.MapHub<EventStreamHub>("/eventstreamhub");
+            endpoints.MapControllers();
+        });
+    }
 ```
 
 #### Administration of Server
