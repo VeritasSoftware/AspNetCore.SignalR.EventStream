@@ -14,6 +14,10 @@ you can
 
 using [SignalR client libraries](https://docs.microsoft.com/en-us/aspnet/core/signalr/client-features?view=aspnetcore-6.0) for .Net, Java, Javascript etc.
 
+A normal flow would look like the below sequence diagram UML. 
+
+![Event Stream Sequence Diagram UML](/Docs/NormalFlow-SequenceDiagramUML.jpg)
+
 ### Setting up your Server
 
 You can create your own Event Stream Server.
