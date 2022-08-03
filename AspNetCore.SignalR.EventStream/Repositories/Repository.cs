@@ -25,7 +25,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                 var stream = await _context.EventsStream.FirstOrDefaultAsync(s => s.Id == @event.StreamId);
                 if (stream != null)
                 {
-                    stream.LastEventInsertedAt = DateTimeOffset.UtcNow;
+                    stream.LastEventInsertedAt = DateTime.UtcNow;
 
                     _context.EventsStream.Update(stream);
 
@@ -78,7 +78,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateSubscriptionLastAccessed(Guid subsciberId, DateTimeOffset lastAccessed)
+        public async Task UpdateSubscriptionLastAccessed(Guid subsciberId, DateTime lastAccessed)
         {
             var subscriber = await _context.Subscribers.FirstOrDefaultAsync(s => s.SubscriberId == subsciberId);
             subscriber.LastAccessedEventAt = lastAccessed;
@@ -112,15 +112,25 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null)
         {
-            var events =  await _context.EventsStream.AsNoTracking().Include(es => es.Events)
-                                                     .FirstOrDefaultAsync(es => es.StreamId == streamId);
+            var eventStream =  await _context.EventsStream.AsNoTracking()
+                                                          .FirstOrDefaultAsync(es => es.StreamId == streamId);
 
             if (from.HasValue)
-                events.Events = events.Events.Where(e => e.CreatedAt > from.Value)
-                                             .OrderBy(e => e.CreatedAt)
-                                             .ToList();
+            {
+                eventStream.Events = await _context.Events.AsNoTracking()
+                                                    .Where(e => (e.StreamId == eventStream.Id) && (e.CreatedAt > from.Value))
+                                                    .OrderBy(e => e.CreatedAt)
+                                                    .ToListAsync();
+            }
+            else if (eventStream != null)
+            {
+                eventStream.Events = await _context.Events.AsNoTracking()
+                                                    .Where(e => e.StreamId == eventStream.Id)
+                                                    .OrderBy(e => e.CreatedAt)
+                                                    .ToListAsync();
+            }
 
-            return events;
+            return eventStream;
         }
 
         public async Task<Entities.EventStream> GetStreamAsync(long streamId, DateTimeOffset? from = null)
@@ -140,15 +150,25 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         {
             streamName = streamName.Trim().ToLower();
 
-            var events = await _context.EventsStream.AsNoTracking().Include(es => es.Events)
-                                                    .FirstOrDefaultAsync(es => es.Name.ToLower() == streamName);
+            var eventStream = await _context.EventsStream.AsNoTracking()
+                                                         .FirstOrDefaultAsync(es => es.Name.ToLower() == streamName);
 
             if (from.HasValue)
-                events.Events = events.Events.Where(e => e.CreatedAt > from.Value)
-                                             .OrderBy(e => e.CreatedAt)
-                                             .ToList();
+            {
+                eventStream.Events = await _context.Events.AsNoTracking()
+                                                    .Where(e => (e.StreamId == eventStream.Id) && (e.CreatedAt > from.Value))
+                                                    .OrderBy(e => e.CreatedAt)
+                                                    .ToListAsync();
+            }
+            else if (eventStream != null)
+            {
+                eventStream.Events = await _context.Events.AsNoTracking()
+                                                    .Where(e => e.StreamId == eventStream.Id)
+                                                    .OrderBy(e => e.CreatedAt)
+                                                    .ToListAsync();
+            }
 
-            return events;
+            return eventStream;
         }
 
         public async Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions()
@@ -177,22 +197,27 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, Guid streamId, DateTime? from = null)
         {
             var subscriber = await _context.Subscribers.AsNoTracking().Include(s => s.Stream)
-                                                       .Include(s => s.Stream.Events)
                                                        .FirstOrDefaultAsync(s => (s.Stream.StreamId == streamId) && (s.SubscriberId == subscriberId));
 
-            if (subscriber == null)
-            {
+            if (subscriber == null) { 
                 return null;
             }
 
             if (from.HasValue)
-                subscriber.Stream.Events = subscriber.Stream.Events.Where(e => e.CreatedAt > from.Value)
-                                                                   .OrderBy(e => e.CreatedAt)
-                                                                   .ToList();
+                subscriber.Stream.Events = await _context.Events.Include(s => s.Stream)
+                                                          .Where(e => (e.Stream.StreamId == streamId) && (e.CreatedAt > from.Value))
+                                                          .OrderBy(e => e.CreatedAt)
+                                                          .ToListAsync();
             else if (subscriber.LastAccessedEventAt.HasValue)
-                subscriber.Stream.Events = subscriber.Stream.Events.Where(e => e.CreatedAt > subscriber.LastAccessedEventAt.Value)
-                                                                   .OrderBy(e => e.CreatedAt)
-                                                                   .ToList();
+                subscriber.Stream.Events = await _context.Events.Include(s => s.Stream)
+                                                          .Where(e => (e.Stream.StreamId == streamId) && (e.CreatedAt > subscriber.LastAccessedEventAt.Value))
+                                                          .OrderBy(e => e.CreatedAt)
+                                                          .ToListAsync();
+            else
+                subscriber.Stream.Events = await _context.Events.Include(s => s.Stream)
+                                                          .Where(e => e.Stream.StreamId == streamId)
+                                                          .OrderBy(e => e.CreatedAt)
+                                                          .ToListAsync();
 
             return subscriber;
         }

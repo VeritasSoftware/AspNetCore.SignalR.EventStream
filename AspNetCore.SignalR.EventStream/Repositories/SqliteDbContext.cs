@@ -42,14 +42,14 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                var properties = entityType.ClrType.GetProperties().Where(p => p.PropertyType == typeof(DateTimeOffset)
-                                                                            || p.PropertyType == typeof(DateTimeOffset?));
+                var properties = entityType.ClrType.GetProperties().Where(p => p.PropertyType == typeof(DateTime)
+                                                                            || p.PropertyType == typeof(DateTime?));
                 foreach (var property in properties)
                 {
                     modelBuilder
                         .Entity(entityType.Name)
                         .Property(property.Name)
-                        .HasConversion(new DateTimeOffsetToBinaryConverter());
+                        .HasConversion(new DateTimeToBinaryConverter());
                 }
             }
         }

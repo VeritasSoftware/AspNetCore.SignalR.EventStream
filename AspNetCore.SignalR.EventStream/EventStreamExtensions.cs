@@ -48,10 +48,10 @@ namespace AspNetCore.SignalR.EventStream
 
             if (_options.UseSqlServer)
             {
-                var o = new DbContextOptionsBuilder().UseSqlServer(_options.SqlServerConnectionString).Options;
+                var options = new DbContextOptionsBuilder().UseSqlServer(_options.SqlServerConnectionString).Options;
 
-                var context = new SqlServerDbContext(o);
-                var context1 = new SqlServerDbContext(o);
+                var context = new SqlServerDbContext(options);
+                var context1 = new SqlServerDbContext(options);
                 repository = new Repository(context);
                 repository1 = new Repository(context1);
 

@@ -9,7 +9,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task AddAsync(EventStreamSubscriber subscriber);
         Task AddAsync(EventStreamAssociation association);
         Task UpdateAsync(Entities.EventStream eventStream);
-        Task UpdateSubscriptionLastAccessed(Guid subsciberId, DateTimeOffset lastAccessed);
+        Task UpdateSubscriptionLastAccessed(Guid subsciberId, DateTime lastAccessed);
 
         Task DeleteSubscriptionAsync(Guid subscriptionId, Guid streamId);
 

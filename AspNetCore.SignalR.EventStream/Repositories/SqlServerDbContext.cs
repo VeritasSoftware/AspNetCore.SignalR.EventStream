@@ -1,5 +1,6 @@
 ﻿using AspNetCore.SignalR.EventStream.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AspNetCore.SignalR.EventStream.Repositories
 {
@@ -27,6 +28,19 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             modelBuilder.Entity<EventStreamAssociation>().HasAlternateKey(x => new { x.StreamId, x.AssociatedStreamId });
             modelBuilder.Entity<EventStreamAssociation>().HasOne(x => x.AssociatedStream).WithMany().OnDelete(DeleteBehavior.NoAction);
             modelBuilder.Entity<EventStreamAssociation>().HasOne(x => x.Stream).WithMany().OnDelete(DeleteBehavior.NoAction);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var properties = entityType.ClrType.GetProperties().Where(p => p.PropertyType == typeof(DateTime)
+                                                                            || p.PropertyType == typeof(DateTime?));
+                foreach (var property in properties)
+                {
+                    modelBuilder
+                        .Entity(entityType.Name)
+                        .Property(property.Name)
+                        .HasConversion(new DateTimeToBinaryConverter());
+                }
+            }
         }
     }
 }
