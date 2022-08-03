@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.SignalR.EventStream.Repositories
 {
-    public class SqliteRepository : IRepository
+    public class Repository : IRepository
     {
-        private readonly SqliteDbContext _context;
+        private readonly IDbContext _context;
 
-        public SqliteRepository(SqliteDbContext context)
+        public Repository(IDbContext context)
         {
             _context = context;
         }
@@ -27,7 +27,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                 {
                     stream.LastEventInsertedAt = DateTimeOffset.UtcNow;
 
-                    _context.Update(stream);
+                    _context.EventsStream.Update(stream);
 
                     await _context.SaveChangesAsync();
                 }
@@ -48,6 +48,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task AddAsync(EventStreamSubscriber subscriber)
         {
+            subscriber.Stream = null;
             _context.Subscribers.Add(subscriber);
             await _context.SaveChangesAsync();
         }
@@ -117,7 +118,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null)
         {
-            var events =  await _context.EventsStream.Include(es => es.Events)
+            var events =  await _context.EventsStream.AsNoTracking().Include(es => es.Events)
                                                      .FirstOrDefaultAsync(es => es.StreamId == streamId);
 
             if (from.HasValue)
@@ -130,7 +131,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task<Entities.EventStream> GetStreamAsync(long streamId, DateTimeOffset? from = null)
         {
-            var eventStream = await _context.EventsStream.Include(es => es.Events)
+            var eventStream = await _context.EventsStream.AsNoTracking().Include(es => es.Events)
                                                          .FirstOrDefaultAsync(es => es.Id == streamId);
 
             if (from.HasValue)
@@ -145,8 +146,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         {
             streamName = streamName.Trim().ToLower();
 
-            var events = await _context.EventsStream.Include(es => es.Events)
-                                                     .FirstOrDefaultAsync(es => es.Name.ToLower() == streamName);
+            var events = await _context.EventsStream.AsNoTracking().Include(es => es.Events)
+                                                    .FirstOrDefaultAsync(es => es.Name.ToLower() == streamName);
 
             if (from.HasValue)
                 events.Events = events.Events.Where(e => e.CreatedAt > from.Value)
@@ -169,7 +170,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreams()
         {
-            return await _context.EventStreamsAssociation.Include(s => s.Stream)
+            return await _context.EventStreamsAssociation.AsNoTracking().Include(s => s.Stream)
                                                          .Include(s => s.AssociatedStream)
                                                          .GroupBy(s => s.StreamId, (x, y) => new ActiveAssociatedStreams 
                                                          { 
@@ -181,7 +182,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, Guid streamId, DateTime? from = null)
         {
-            var subscriber = await _context.Subscribers.Include(s => s.Stream)
+            var subscriber = await _context.Subscribers.AsNoTracking().Include(s => s.Stream)
                                                        .Include(s => s.Stream.Events)
                                                        .FirstOrDefaultAsync(s => (s.Stream.StreamId == streamId) && (s.SubscriberId == subscriberId));
 

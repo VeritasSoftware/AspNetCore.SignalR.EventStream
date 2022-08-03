@@ -31,7 +31,12 @@ namespace AspNetCore.SignalR.EventStream.Server
             });
 
             //Add EventStream
-            services.AddEventStream();
+            services.AddEventStream(options => 
+            {
+                options.UseSqlServer = false;
+                options.SqlServerConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
+                options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub";
+            });
 
             services.AddControllers();
 
@@ -44,7 +49,7 @@ namespace AspNetCore.SignalR.EventStream.Server
         public void Configure(IApplicationBuilder app)
         {
             //Use Event Stream
-            app.UseEventStream(options => options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub");
+            app.UseEventStream();
 
             app.UseCors("CorsPolicy");
 

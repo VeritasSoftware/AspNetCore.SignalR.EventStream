@@ -6,6 +6,8 @@ namespace AspNetCore.SignalR.EventStream
 {
     public class EventStreamOptions
     {
+        public bool UseSqlServer { get; set; }
+        public string? SqlServerConnectionString { get; set; }
         public string EventStreamHubUrl { get; set; }
     }
 
@@ -13,43 +15,89 @@ namespace AspNetCore.SignalR.EventStream
     {
         private static SubscriptionProcessor _subscriptionProcessor;
         private static EventStreamProcessor _eventStreamProcessor;
+        private static EventStreamOptions _options;
 
-        public static IServiceCollection AddEventStream(this IServiceCollection services)
+        public static IServiceCollection AddEventStream(this IServiceCollection services, Action<EventStreamOptions> getOptions = null)
         {
-            services.AddScoped<IRepository, SqliteRepository>();
+            services.AddScoped<IRepository, Repository>();
             services.AddScoped<IEventStreamService, EventStreamService>();
-            services.AddEntityFrameworkSqlite().AddDbContext<SqliteDbContext>(ServiceLifetime.Transient);
+
+            _options = new EventStreamOptions();
+
+            if (getOptions != null)
+            {
+                getOptions(_options);
+            }
+            
+            if (_options.UseSqlServer)
+            {
+                services.AddEntityFrameworkSqlServer().AddDbContext<IDbContext, SqlServerDbContext>(o => o.UseSqlServer(_options.SqlServerConnectionString));
+            }
+            else
+            {
+                services.AddEntityFrameworkSqlite().AddDbContext<IDbContext, SqliteDbContext>(ServiceLifetime.Transient);
+            }            
 
             return services;
         }
 
-        public static IApplicationBuilder UseEventStream(this IApplicationBuilder app, Action<EventStreamOptions> getOptions)
+        public static IApplicationBuilder UseEventStream(this IApplicationBuilder app)
         {
-            var context = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
-            var context1 = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
-            var repository = new SqliteRepository(context);
-            var repository1 = new SqliteRepository(context1);
+            Repository repository;
+            Repository repository1;
 
-            //context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-            context.Database.Migrate();
-
-            var options = new EventStreamOptions();
-            getOptions(options);
-
-            _subscriptionProcessor = new SubscriptionProcessor(repository, options.EventStreamHubUrl)
+            if (_options.UseSqlServer)
             {
-                Start = true
-            };
+                var o = new DbContextOptionsBuilder().UseSqlServer(_options.SqlServerConnectionString).Options;
 
-            _subscriptionProcessor.Process();
+                var context = new SqlServerDbContext(o);
+                var context1 = new SqlServerDbContext(o);
+                repository = new Repository(context);
+                repository1 = new Repository(context1);
 
-            _eventStreamProcessor = new EventStreamProcessor(repository1)
+                //context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                context.Database.Migrate();                
+
+                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl)
+                {
+                    Start = true
+                };
+
+                _subscriptionProcessor.Process();
+
+                _eventStreamProcessor = new EventStreamProcessor(repository1)
+                {
+                    Start = true
+                };
+
+                _eventStreamProcessor.Process();                  
+            }
+            else
             {
-                Start = true
-            };
+                var context = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
+                var context1 = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
+                repository = new Repository(context);
+                repository1 = new Repository(context1);
 
-            _eventStreamProcessor.Process();            
+                //context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                context.Database.Migrate();
+
+                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl)
+                {
+                    Start = true
+                };
+
+                _subscriptionProcessor.Process();
+
+                _eventStreamProcessor = new EventStreamProcessor(repository1)
+                {
+                    Start = true
+                };
+
+                _eventStreamProcessor.Process();
+            }                                               
 
             return app;
         }

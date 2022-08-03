@@ -30,9 +30,6 @@ conn.On(receiveMethod, new Type[] { typeof(object), typeof(object) }, (arg1, arg
     return Task.CompletedTask;
 }, new object());
 
-Console.WriteLine($"Subscribing to Stream {streamName}.");
-await conn.InvokeAsync("Subscribe", streamName, eventType, receiveMethod, subscriberId, subscriberKey, null);
-
 Console.WriteLine($"Publishing to Stream {streamName}.");
 await conn.InvokeAsync("Publish", streamName, new[]
 {
@@ -95,6 +92,11 @@ await conn.InvokeAsync("Publish", associateStreamName, new[]
         IsJson = false
     }
 });
+
+Console.WriteLine($"Subscribing to Stream {streamName}.");
+await conn.InvokeAsync("Subscribe", streamName, eventType, receiveMethod, subscriberId, subscriberKey, null);
+
+//Console.ReadLine();
 
 using var client = new HttpClient();
 

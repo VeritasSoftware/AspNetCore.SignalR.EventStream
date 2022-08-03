@@ -42,7 +42,12 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
         });
 
         //Add EventStream
-        services.AddEventStream();
+        services.AddEventStream(options => 
+        {
+            options.UseSqlServer = true;
+            options.SqlServerConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
+            options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub";
+        });
 
         services.AddControllers();
 
@@ -55,7 +60,7 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
     public void Configure(IApplicationBuilder app)
     {
         //Use Event Stream
-        app.UseEventStream(options => options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub");
+        app.UseEventStream();
 
         app.UseCors("CorsPolicy");
 

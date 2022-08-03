@@ -53,7 +53,7 @@ namespace AspNetCore.SignalR.EventStream
                                         //Fetch events from associated stream after last merged at
                                         var associatedStream = await _repository.GetStreamAsync(associatedStreamId, lastMergedAt?.DateTime);
 
-                                        if (associatedStream != null && associatedStream.Events != null)
+                                        if (associatedStream != null && associatedStream.Events != null && associatedStream.Events.Any())
                                         {
                                             foreach (var @event in associatedStream.Events)
                                             {
@@ -71,12 +71,12 @@ namespace AspNetCore.SignalR.EventStream
                                                 //Create new Event
                                                 await _repository.AddAsync(@newEvent);
                                             }
-                                        }
 
-                                        lastMergedAt = DateTimeOffset.UtcNow;
+                                            lastMergedAt = DateTimeOffset.UtcNow;
 
-                                        stream.LastAssociatedAt = lastMergedAt;
-                                        await _repository.UpdateAsync(stream);
+                                            stream.LastAssociatedAt = lastMergedAt;
+                                            await _repository.UpdateAsync(stream);
+                                        }                                        
                                     }
                                 }
                             }
