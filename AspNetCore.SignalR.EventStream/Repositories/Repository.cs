@@ -37,6 +37,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             catch (Exception ex)
             {
                 transaction.Rollback();
+                throw;
             }            
         }
 
@@ -55,15 +56,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task AddAsync(EventStreamAssociation association)
         {
-            try
-            {
-                _context.EventStreamsAssociation.Add(association);
-                await _context.SaveChangesAsync();
-            }
-            catch(Exception ex)
-            {
-
-            }            
+            _context.EventStreamsAssociation.Add(association);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Entities.EventStream eventStream)
