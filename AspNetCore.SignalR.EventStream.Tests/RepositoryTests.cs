@@ -10,11 +10,11 @@ using Xunit;
 
 namespace AspNetCore.SignalR.EventStream.Tests
 {
-    public class SqliteRepositoryTests
+    public class RepositoryTests
     {
         IServiceProvider ServiceProvider { get; }
 
-        public SqliteRepositoryTests()
+        public RepositoryTests()
         {
             var services = new ServiceCollection();
 
