@@ -7,6 +7,6 @@
         public virtual EventStream? Stream { get; set; }
         public long AssociatedStreamId { get; set; }
         public virtual EventStream? AssociatedStream { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
 }

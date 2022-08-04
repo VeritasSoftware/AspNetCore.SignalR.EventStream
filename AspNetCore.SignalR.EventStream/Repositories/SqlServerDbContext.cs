@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AspNetCore.SignalR.EventStream.Repositories
 {
-    public class SqlServerDbContext : DbContext, IDbContext
+    public class SqlServerDbContext : DbContext
     {
         public DbSet<Event> Events { get; set; }
         public DbSet<Entities.EventStream> EventsStream { get; set; }

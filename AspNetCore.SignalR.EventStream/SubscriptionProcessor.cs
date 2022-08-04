@@ -37,85 +37,91 @@ namespace AspNetCore.SignalR.EventStream
 
             while (Start)
             {
-                
-                if ((_hubConnection == null) || (_hubConnection.State != HubConnectionState.Connected))
+                try
                 {
-                    try
-                    {
-                        _hubConnection = new HubConnectionBuilder()
-                        .WithUrl(this.EventStreamHubUrl)
-                        .WithAutomaticReconnect()
-                        .AddNewtonsoftJsonProtocol()
-                        .Build();
-
-                        await _hubConnection.StartAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        //TODO: Log exception
-                    }                    
-                }
-
-                if (_hubConnection.State == HubConnectionState.Connected)
-                {
-                    var activeSubscriptions = await _repository.GetActiveSubscriptions();
-
-                    foreach (var subscription in activeSubscriptions)
+                    if ((_hubConnection == null) || (_hubConnection.State != HubConnectionState.Connected))
                     {
                         try
                         {
-                            var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscription.StreamId);
+                            _hubConnection = new HubConnectionBuilder()
+                            .WithUrl(this.EventStreamHubUrl)
+                            .WithAutomaticReconnect()
+                            .AddNewtonsoftJsonProtocol()
+                            .Build();
 
-                            if (subsciptionWithEvents != null)
-                            {
-                                if (subsciptionWithEvents.Stream.Events.Any())
-                                {
-                                    //TODO:Update subscriber Last Accessed
-
-                                    var eventSubscriberModel = new EventStreamSubscriberModel
-                                    {
-                                        ConnectionId = subsciptionWithEvents.ConnectionId,
-                                        CreatedAt = subsciptionWithEvents.CreatedAt,
-                                        ReceiveMethod = subsciptionWithEvents.ReceiveMethod,
-                                        StreamId = subsciptionWithEvents.StreamId,
-                                        SubscriberId = subsciptionWithEvents.SubscriberId,
-                                        LastAccessedEventAt = subsciptionWithEvents.LastAccessedEventAt,
-                                        Stream = new EventStreamModel
-                                        {                                            
-                                            Name = subsciptionWithEvents.Stream.Name,
-                                            Events = subsciptionWithEvents.Stream.Events.Select(x => new EventModelResult
-                                            {
-                                                Data = x.Data,
-                                                Id = x.Id,
-                                                EventId = x.EventId,
-                                                IsJson = x.IsJson,
-                                                JsonData = x.JsonData,
-                                                MetaData = x.MetaData,
-                                                StreamId = x.Stream.StreamId,
-                                                StreamName = x.Stream.Name,
-                                                OriginalEventId = x.OriginalEventId,
-                                                Type = x.Type
-                                            }).ToList(),
-                                            CreatedAt = subsciptionWithEvents.Stream.CreatedAt,
-                                            StreamId = subsciptionWithEvents.Stream.StreamId
-                                        }
-                                    }; 
-
-                                    await _hubConnection.InvokeAsync("EventStreamEventAppeared", eventSubscriberModel);
-
-                                    var lastEvent = subsciptionWithEvents.Stream.Events.Last();
-
-                                    await _repository.UpdateSubscriptionLastAccessed(subsciptionWithEvents.SubscriberId, lastEvent.CreatedAt);
-                                }
-                            }
+                            await _hubConnection.StartAsync();
                         }
                         catch (Exception ex)
                         {
                             //TODO: Log exception
-                            continue;
+                        }
+                    }
+
+                    if (_hubConnection.State == HubConnectionState.Connected)
+                    {
+                        var activeSubscriptions = await _repository.GetActiveSubscriptions();
+
+                        foreach (var subscription in activeSubscriptions)
+                        {
+                            try
+                            {
+                                var subscriber = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscription.StreamId);
+
+                                var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscription.StreamId, subscriber.LastAccessedEventAt);
+
+                                if (subsciptionWithEvents != null)
+                                {
+                                    if (subsciptionWithEvents.Stream.Events != null && subsciptionWithEvents.Stream.Events.Any())
+                                    {
+                                        //TODO:Update subscriber Last Accessed                                    
+
+                                        var eventSubscriberModel = new EventStreamSubscriberModel
+                                        {
+                                            ConnectionId = subsciptionWithEvents.ConnectionId,
+                                            CreatedAt = subsciptionWithEvents.CreatedAt,
+                                            ReceiveMethod = subsciptionWithEvents.ReceiveMethod,
+                                            StreamId = subsciptionWithEvents.StreamId,
+                                            SubscriberId = subsciptionWithEvents.SubscriberId,
+                                            LastAccessedEventAt = subsciptionWithEvents.LastAccessedEventAt,
+                                            Stream = new EventStreamModel
+                                            {
+                                                Name = subsciptionWithEvents.Stream.Name,
+                                                Events = subsciptionWithEvents.Stream.Events.Select(x => new EventModelResult
+                                                {
+                                                    Data = x.Data,
+                                                    Id = x.Id,
+                                                    EventId = x.EventId,
+                                                    IsJson = x.IsJson,
+                                                    JsonData = x.JsonData,
+                                                    MetaData = x.MetaData,
+                                                    StreamId = x.Stream.StreamId,
+                                                    StreamName = x.Stream.Name,
+                                                    OriginalEventId = x.OriginalEventId,
+                                                    Type = x.Type
+                                                }).ToList(),
+                                                CreatedAt = subsciptionWithEvents.Stream.CreatedAt,
+                                                StreamId = subsciptionWithEvents.Stream.StreamId
+                                            }
+                                        };
+
+                                        await _hubConnection.InvokeAsync("EventStreamEventAppeared", eventSubscriberModel);
+
+                                        await _repository.UpdateSubscriptionLastAccessed(subsciptionWithEvents.SubscriberId, DateTimeOffset.UtcNow);                                        
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //TODO: Log exception
+                                continue;
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+
+                }                
             }
         }
     }

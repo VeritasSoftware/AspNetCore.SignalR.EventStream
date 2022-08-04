@@ -12,6 +12,6 @@
         public byte[]? MetaData { get; set; }
         public bool IsJson { get; set; }
         public Guid? OriginalEventId { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     }    
 }

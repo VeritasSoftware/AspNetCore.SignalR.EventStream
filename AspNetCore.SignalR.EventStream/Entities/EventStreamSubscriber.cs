@@ -9,7 +9,7 @@
         public Guid SubscribeKey { get; set; }
         public string? ConnectionId { get; set; }
         public string? ReceiveMethod { get; set; }
-        public DateTime? LastAccessedEventAt { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset? LastAccessedEventAt { get; set; } = DateTimeOffset.MinValue;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
 }

@@ -33,6 +33,8 @@ namespace AspNetCore.SignalR.EventStream.Hubs
 
                 var newStream = await _repository.GetStreamAsync(streamId);
 
+                var tmpEvents = new List<Event>();
+
                 foreach(var @event in events)
                 {
                     var eventEntity = new Event
@@ -45,11 +47,15 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                         StreamId = newStream.Id
                     };
 
-                    await _repository.AddAsync(eventEntity);
-                }                
+                    tmpEvents.Add(eventEntity);
+                }
+
+                await _repository.AddAsync(tmpEvents.ToArray());
             }
             else
             {
+                var tmpEvents = new List<Event>();
+
                 foreach (var @event in events)
                 {
                     var eventEntity = new Event
@@ -62,8 +68,10 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                         StreamId = stream.Id
                     };
 
-                    await _repository.AddAsync(eventEntity);
+                    tmpEvents.Add(eventEntity);                    
                 }
+
+                await _repository.AddAsync(tmpEvents.ToArray());
             }
         }
 
