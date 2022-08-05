@@ -12,6 +12,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task UpdateSubscriptionLastAccessed(Guid subsciberId, DateTimeOffset lastAccessed);
 
         Task DeleteSubscriptionAsync(Guid subscriptionId, Guid streamId);
+        Task DeleteAllSubscriptionsAsync();
 
         Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions();
         Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, Guid streamId, DateTimeOffset? from = null);

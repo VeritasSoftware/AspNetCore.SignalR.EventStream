@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace AspNetCore.SignalR.EventStream
 {
-    public class SubscriptionProcessor
+    public class SubscriptionProcessor : IDisposable
     {
         private readonly IRepository _repository;
         private static Thread _processorThread;
@@ -122,6 +122,18 @@ namespace AspNetCore.SignalR.EventStream
                 {
 
                 }                
+            }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                _processorThread.Abort();
+            }
+            catch (Exception)
+            {
+
             }
         }
     }

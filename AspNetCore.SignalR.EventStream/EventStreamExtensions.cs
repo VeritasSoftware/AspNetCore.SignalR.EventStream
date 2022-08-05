@@ -55,7 +55,9 @@ namespace AspNetCore.SignalR.EventStream
 
                 //context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
-                context.Database.Migrate();                
+                context.Database.Migrate();
+
+                repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
                 _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl)
                 {
@@ -78,9 +80,11 @@ namespace AspNetCore.SignalR.EventStream
                 var repository = new SqliteRepository(context);
                 var repository1 = new SqliteRepository(context1);
 
-                context.Database.EnsureDeleted();
+                //context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
                 context.Database.Migrate();
+
+                repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
                 _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl)
                 {

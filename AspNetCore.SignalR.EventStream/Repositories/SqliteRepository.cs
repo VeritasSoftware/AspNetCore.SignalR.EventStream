@@ -102,6 +102,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task DeleteAllSubscriptionsAsync()
+        {
+            await _context.Database.ExecuteSqlRawAsync(@"delete from Subscribers;    
+                                                         delete from sqlite_sequence where name = 'Subscribers'; ");
+        }
+
         public async Task<bool> DoesStreamExistAsync (string name)
         {
             return await _context.EventsStream.AnyAsync(s => s.Name == name);
@@ -236,7 +242,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                     var subscriber = _context.Subscribers.AsNoTracking().Include(s => s.Stream).Include(s => s.Stream.Events)
                                                             .AsNoTracking().FirstOrDefault(s => (s.Stream.StreamId == streamId) && (s.SubscriberId == subscriberId));
 
-                    subscriber.Stream.Events = subscriber.Stream.Events.Where(e => e.CreatedAt.DateTime > dt.DateTime).OrderBy(e => e.CreatedAt).ToList();
+                    subscriber.Stream.Events = subscriber.Stream.Events.Where(e => e.CreatedAt >= dt).OrderBy(e => e.CreatedAt).ToList();
 
                     return subscriber;
                 }

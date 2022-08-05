@@ -102,6 +102,11 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task DeleteAllSubscriptionsAsync()
+        {
+            await _context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE dbo.Subscribers");
+        }
+
         public async Task<bool> DoesStreamExistAsync (string name)
         {
             return await _context.EventsStream.AnyAsync(s => s.Name == name);
