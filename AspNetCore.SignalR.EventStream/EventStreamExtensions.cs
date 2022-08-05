@@ -1,4 +1,5 @@
-﻿using AspNetCore.SignalR.EventStream.Repositories;
+﻿using AspNetCore.SignalR.EventStream.Processors;
+using AspNetCore.SignalR.EventStream.Repositories;
 using AspNetCore.SignalR.EventStream.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,9 +14,9 @@ namespace AspNetCore.SignalR.EventStream
 
     public static class EventStreamExtensions
     {
-        private static SubscriptionProcessor _subscriptionProcessor;
-        private static EventStreamProcessor _eventStreamProcessor;
-        private static EventStreamOptions _options;
+        private static SubscriptionProcessor _subscriptionProcessor = null;
+        private static EventStreamProcessor _eventStreamProcessor = null;
+        private static EventStreamOptions _options = null;
 
         public static IServiceCollection AddEventStream(this IServiceCollection services, Action<EventStreamOptions> getOptions = null)
         {            

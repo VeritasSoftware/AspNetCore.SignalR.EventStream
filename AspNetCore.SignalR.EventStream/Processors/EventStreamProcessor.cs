@@ -1,11 +1,11 @@
 ﻿using AspNetCore.SignalR.EventStream.Repositories;
 
-namespace AspNetCore.SignalR.EventStream
+namespace AspNetCore.SignalR.EventStream.Processors
 {
-    public class EventStreamProcessor
+    public class EventStreamProcessor : IAsyncDisposable
     {
         private readonly IRepository _repository;
-        private static Thread _processorThread;
+        private static Thread _processorThread = null;
 
         public bool Start { get; set; } = false;
 
@@ -97,6 +97,22 @@ namespace AspNetCore.SignalR.EventStream
 
                 }                
             }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            Start = false;
+
+            try
+            {                
+                _processorThread.Abort();
+            }
+            catch (Exception)
+            {
+                //TODO: Logging
+            }
+
+            await Task.CompletedTask;
         }
     }
 }

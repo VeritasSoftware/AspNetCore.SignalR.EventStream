@@ -34,9 +34,10 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>QAAAAAAAACBAIAAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>QAAAAAAAACBAIIAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>EventStreamProcessor.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="AspNetCore.SignalR.EventStream.SubscriptionProcessor">
     <Position X="13" Y="0.5" Width="4.75" />
@@ -44,7 +45,7 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>QAAAAAAAACBAIMAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>QAAAAAAAACBAIMAAEgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>SubscriptionProcessor.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

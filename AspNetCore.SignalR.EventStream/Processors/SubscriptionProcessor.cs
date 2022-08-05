@@ -2,12 +2,13 @@
 using AspNetCore.SignalR.EventStream.Repositories;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace AspNetCore.SignalR.EventStream
+namespace AspNetCore.SignalR.EventStream.Processors
 {
-    public class SubscriptionProcessor : IDisposable
+    public class SubscriptionProcessor : IAsyncDisposable
     {
         private readonly IRepository _repository;
-        private static Thread _processorThread;
+        private static Thread _processorThread = null;
+        HubConnection _hubConnection = null;
 
         public bool Start { get; set; } = false;
         public string? EventStreamHubUrl { get; set; }
@@ -32,9 +33,7 @@ namespace AspNetCore.SignalR.EventStream
         }
 
         private async Task ProcessAsync()
-        {
-            HubConnection _hubConnection = null;
-
+        {           
             while (Start)
             {
                 try
@@ -120,20 +119,32 @@ namespace AspNetCore.SignalR.EventStream
                 }
                 catch (Exception ex)
                 {
-
-                }                
+                    //TODO: Logging
+                }
             }
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
+            try
+            {
+                if (_hubConnection != null)
+                {
+                    await _hubConnection.StopAsync();
+                }
+            }
+            catch (Exception)
+            {
+                //TODO: Logging
+            }
+
             try
             {
                 _processorThread.Abort();
             }
             catch (Exception)
             {
-
+                //TODO: Logging
             }
         }
     }
