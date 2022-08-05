@@ -16,35 +16,35 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task AddAsync(params Event[] @event)
         {
-            lock(_lock)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                using (var transaction = _context.Database.BeginTransaction())
+                try
                 {
-                    try
+                    _context.Events.AddRange(@event);
+
+                    await _context.SaveChangesAsync();
+
+                    var stream = _context.EventsStream.FirstOrDefault(s => s.Id == @event.First().StreamId);
+                    if (stream != null)
                     {
-                        _context.Events.AddRange(@event);
+                        stream.LastEventInsertedAt = DateTime.UtcNow;
 
-                        _context.SaveChanges();
+                        _context.EventsStream.Update(stream);
 
-                        var stream = _context.EventsStream.FirstOrDefault(s => s.Id == @event.First().StreamId);
-                        if (stream != null)
-                        {
-                            stream.LastEventInsertedAt = DateTime.UtcNow;
+                        await _context.SaveChangesAsync();
+                    }
 
-                            _context.EventsStream.Update(stream);
-
-                            _context.SaveChanges();
-                        }
-
+                    lock (_lock)
+                    {
                         transaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
+                    }                    
                 }
-            }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }            
                                     
         }
 
