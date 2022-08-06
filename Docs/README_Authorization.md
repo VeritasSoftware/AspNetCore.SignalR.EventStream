@@ -19,6 +19,9 @@ In your Server project,
         {
             //Put your authorization here
 
+            //Eg. to prevent access
+            //context.Result = new UnauthorizedResult();
+
             return Task.CompletedTask;
         }
     }

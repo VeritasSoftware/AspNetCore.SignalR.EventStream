@@ -90,9 +90,13 @@ The Server hosts endpoints to perform various administrative tasks.
 
 You can implement your own security for these endpoints. Read [**Authorization**](Docs/README_Authorization.md).
 
-While the Server is running.
+Out of the box, the Server can use **MS Sqlite** database.
 
-Eg. You may want to associate multiple streams into a stream. 
+You can also hook it up to use **MS Sql Server** database.
+
+You can perform Admin tasks, while the Server is running,
+
+Eg. You may want to associate multiple streams into a stream. for eg.
 
 You can do so by calling the **associate** endpoint.
 
@@ -151,7 +155,7 @@ await conn.InvokeAsync("Subscribe", streamName, eventType, receiveMethod, subscr
 ```
 The **SubscriberKey** is a Guid.
 
-This key has to be provided when Publishing & Unsubscribing.
+This key has to be provided when Unsubscribing.
 
 #### Publish
 
@@ -177,6 +181,10 @@ To unsubscribe from a stream, call the **Unsubscribe** method on the Hub.
 await conn.InvokeAsync("Unsubscribe", streamName, subscriberId, subscriberKey);
 ```
 
+![Event Stream Client](/Docs/Client.jpg)
+
+### Event JSON
+
 The Received Event JSON is as shown in example below:
 
 ```javascript
@@ -193,7 +201,5 @@ The Received Event JSON is as shown in example below:
   "streamName": "MyStream"
 }
 ```
-
-![Event Stream Client](/Docs/Client.jpg)
 
 ## This project is a work in progress!
