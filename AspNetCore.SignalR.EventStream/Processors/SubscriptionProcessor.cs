@@ -126,11 +126,14 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
         public async ValueTask DisposeAsync()
         {
+            Start = false;
+
             try
             {
                 if (_hubConnection != null)
                 {
                     await _hubConnection.StopAsync();
+                    await _hubConnection.DisposeAsync();
                 }
             }
             catch (Exception)
