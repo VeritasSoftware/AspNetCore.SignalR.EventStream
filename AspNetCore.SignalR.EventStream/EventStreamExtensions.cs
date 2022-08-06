@@ -1,4 +1,5 @@
-﻿using AspNetCore.SignalR.EventStream.Processors;
+﻿using AspNetCore.SignalR.EventStream.Authorization;
+using AspNetCore.SignalR.EventStream.Processors;
 using AspNetCore.SignalR.EventStream.Repositories;
 using AspNetCore.SignalR.EventStream.Services;
 using Microsoft.EntityFrameworkCore;
@@ -38,13 +39,15 @@ namespace AspNetCore.SignalR.EventStream
             {
                 services.AddScoped<IRepository, SqliteRepository>();
                 services.AddEntityFrameworkSqlite().AddDbContext<SqliteDbContext>(ServiceLifetime.Transient);
-            }            
+            }
+
+            services.AddScoped<EventStreamAuthorizeAttribute>();
 
             return services;
         }
 
         public static IApplicationBuilder UseEventStream(this IApplicationBuilder app)
-        {
+        {            
             if (_options.UseSqlServer)
             {
                 var options = new DbContextOptionsBuilder().UseSqlServer(_options.SqlServerConnectionString).Options;

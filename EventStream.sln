@@ -10,11 +10,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0140AF7D-DA60-4AF2-8909-C3FFD754C46D}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		Docs\README_Authorization.md = Docs\README_Authorization.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.SignalR.EventStream.Server", "AspNetCore.SignalR.EventStream.Server\AspNetCore.SignalR.EventStream.Server.csproj", "{568731EE-0C23-4887-A6A4-BC9CD2848ACB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.SignalR.EventStream.Client", "AspNetCore.SignalR.EventStream.Client\AspNetCore.SignalR.EventStream.Client.csproj", "{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.SignalR.EventStream.Client", "AspNetCore.SignalR.EventStream.Client\AspNetCore.SignalR.EventStream.Client.csproj", "{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

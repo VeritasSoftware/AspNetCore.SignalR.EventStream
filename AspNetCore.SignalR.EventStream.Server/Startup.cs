@@ -1,4 +1,5 @@
-﻿using AspNetCore.SignalR.EventStream.Hubs;
+﻿using AspNetCore.SignalR.EventStream.Authorization;
+using AspNetCore.SignalR.EventStream.Hubs;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
@@ -15,7 +16,9 @@ namespace AspNetCore.SignalR.EventStream.Server
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {            
+        {
+            services.AddScoped<IEventStreamAuthorization, AuthorizationService>();
+
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
             {
                 builder

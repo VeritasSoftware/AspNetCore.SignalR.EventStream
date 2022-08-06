@@ -27,6 +27,8 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 ```c#
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddScoped<IEventStreamAuthorization, AuthorizationService>();
+
         services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
         {
             builder
@@ -85,6 +87,8 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 #### Administration of Server
 
 The Server hosts endpoints to perform various administrative tasks.
+
+You can implement your own security for these endpoints. Read [**Authorization**](Docs/README_Authorization.md).
 
 While the Server is running.
 
