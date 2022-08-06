@@ -138,12 +138,17 @@ var receiveMethod = "ReceiveMyStreamEvent";
 To subscribe to a stream, set up the **ReceiveMethod** event.
 
 ```c#
-conn.On(receiveMethod, new Type[] { typeof(object), typeof(object) }, (arg1, arg2) =>
+conn.On(receiveMethod, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
 {
-    dynamic parsedJson = JsonConvert.DeserializeObject(arg1[0].ToString());
-    var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
-    Console.WriteLine($"Received Event from Stream {parsedJson.streamName}:");
-    Console.WriteLine(evt);
+    var array = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
+
+    foreach(var arg in array)
+    {
+        dynamic parsedJson = JsonConvert.DeserializeObject(arg.ToString());
+        var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
+        Console.WriteLine($"Received Event from Stream {parsedJson.streamName}:");
+        Console.WriteLine(evt);
+    }    
     return Task.CompletedTask;
 }, new object());
 ```

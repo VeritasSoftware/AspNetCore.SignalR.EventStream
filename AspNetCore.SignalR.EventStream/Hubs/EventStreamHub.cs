@@ -136,17 +136,16 @@ namespace AspNetCore.SignalR.EventStream.Hubs
 
         public async Task EventStreamEventAppeared(EventStreamSubscriberModel subscriber)
         {
-            foreach(var @event in subscriber.Stream.Events)
+            try
             {
-                try
-                {
-                    await base.Clients.Client(subscriber.ConnectionId).SendAsync(subscriber.ReceiveMethod, @event, new object());
-                }
-                catch(Exception ex)
-                {
-                    //Log exception
-                }                
-            }           
+                var eventsArrayJson = System.Text.Json.JsonSerializer.Serialize(subscriber.Stream.Events);
+
+                await base.Clients.Client(subscriber.ConnectionId).SendAsync(subscriber.ReceiveMethod, eventsArrayJson, new object());
+            }
+            catch (Exception ex)
+            {
+                //Log exception
+            }
         }
     }
 }
