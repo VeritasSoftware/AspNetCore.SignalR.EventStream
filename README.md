@@ -96,7 +96,7 @@ You can also hook it up to use **MS Sql Server** database.
 
 You can perform Admin tasks, while the Server is running,
 
-Eg. You may want to associate multiple streams into a stream. for eg.
+Eg. You may want to associate multiple streams into a stream.
 
 You can do so by calling the **associate** endpoint.
 
