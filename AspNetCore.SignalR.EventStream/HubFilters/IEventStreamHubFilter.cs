@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace AspNetCore.SignalR.EventStream
+namespace AspNetCore.SignalR.EventStream.HubFilters
 {
     public interface IEventStreamHubFilter
     {

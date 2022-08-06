@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace AspNetCore.SignalR.EventStream
+namespace AspNetCore.SignalR.EventStream.HubFilters
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     internal class EventStreamHubFilterAttribute : Attribute, IHubFilter

@@ -1,4 +1,5 @@
 ﻿using AspNetCore.SignalR.EventStream.Entities;
+using AspNetCore.SignalR.EventStream.HubFilters;
 using AspNetCore.SignalR.EventStream.Models;
 using AspNetCore.SignalR.EventStream.Repositories;
 using Microsoft.AspNetCore.SignalR;

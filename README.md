@@ -27,6 +27,7 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 ```c#
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddScoped<IEventStreamHubFilter, HubFilterService>();
         services.AddScoped<IEventStreamAuthorization, AuthorizationService>();
 
         services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
@@ -84,15 +85,19 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
     }
 ```
 
+Out of the box, the Server can use **MS Sqlite** database.
+
+You can also hook it up to use **MS Sql Server** database.
+
+You can filter requests to the Event Stream SignalR Hub. Read [**Hub Filter**](Docs/README_HubFilter.md).
+
+You can also implement access to the Hub in this filter.
+
 #### Administration of Server
 
 The Server hosts endpoints to perform various administrative tasks.
 
 You can implement your own security for these endpoints. Read [**Authorization**](Docs/README_Authorization.md).
-
-Out of the box, the Server can use **MS Sqlite** database.
-
-You can also hook it up to use **MS Sql Server** database.
 
 You can perform Admin tasks, while the Server is running,
 
@@ -137,14 +142,18 @@ var receiveMethod = "ReceiveMyStreamEvent";
 
 To subscribe to a stream, set up the **ReceiveMethod** event.
 
+The Server can stream multiple events (in an JSON string array).
+
+You can access these events in the handler as shown below.
+
 ```c#
 conn.On(receiveMethod, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
 {
-    var array = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
+    var events = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
 
-    foreach(var arg in array)
+    foreach(var @event in events)
     {
-        dynamic parsedJson = JsonConvert.DeserializeObject(arg.ToString());
+        dynamic parsedJson = JsonConvert.DeserializeObject(@event.ToString());
         var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
         Console.WriteLine($"Received Event from Stream {parsedJson.streamName}:");
         Console.WriteLine(evt);

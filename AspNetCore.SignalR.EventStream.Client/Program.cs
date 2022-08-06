@@ -23,11 +23,11 @@ var receiveMethod = "ReceiveMyStreamEvent";
 
 conn.On(receiveMethod, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
 {
-    var array = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
+    var events = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
 
-    foreach(var arg in array)
+    foreach(var @event in events)
     {
-        dynamic parsedJson = JsonConvert.DeserializeObject(arg.ToString());
+        dynamic parsedJson = JsonConvert.DeserializeObject(@event.ToString());
         var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
         Console.WriteLine($"Received Event from Stream {parsedJson.streamName}:");
         Console.WriteLine(evt);
