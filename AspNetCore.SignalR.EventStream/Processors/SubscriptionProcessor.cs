@@ -82,7 +82,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                             StreamId = subsciptionWithEvents.StreamId,
                                             SubscriberId = subsciptionWithEvents.SubscriberId,
                                             LastAccessedEventAt = subsciptionWithEvents.LastAccessedEventAt,
-                                            Stream = new EventStreamModel
+                                            Stream = new EventStreamModelResult
                                             {
                                                 Name = subsciptionWithEvents.Stream.Name,
                                                 Events = subsciptionWithEvents.Stream.Events.Select(x => new EventModelResult

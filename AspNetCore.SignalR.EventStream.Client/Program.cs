@@ -96,7 +96,7 @@ await conn.InvokeAsync("Publish", associateStreamName, new[]
 Console.WriteLine($"Subscribing to Stream {streamName}.");
 await conn.InvokeAsync("Subscribe", streamName, eventType, receiveMethod, subscriberId, subscriberKey, null);
 
-//Console.ReadLine();
+////Console.ReadLine();
 
 using var client = new HttpClient();
 
@@ -106,9 +106,9 @@ var request = new
     Existing = true,
     AssociatedStreams = new[]
     {
-        new 
-        { 
-            Name = associateStreamName 
+        new
+        {
+            Name = associateStreamName
         }
     }
 };
@@ -117,13 +117,43 @@ var content = new StringContent(JsonConvert.SerializeObject(request),
   Encoding.UTF8,
   "application/json");
 
-var result = await client.PostAsync("https://localhost:5001/api/eventstream/associate", content);
+var result = await client.PostAsync("https://localhost:5001/api/eventstream/streams/associate", content);
 
 result.EnsureSuccessStatusCode();
 
 Thread.Sleep(1000);
+Console.WriteLine($"Publishing to Stream {associateStreamName}.");
+await conn.InvokeAsync("Publish", associateStreamName, new[]
+{
+    new {
+        Type = associateStreamEventType + "5",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"1\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = associateStreamEventType + "6",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"2\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = associateStreamEventType + "7",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"3\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    },
+    new {
+        Type = associateStreamEventType + "8",
+        Data = Encoding.UTF8.GetBytes("{\"a\":\"4\"}"),
+        MetaData = Encoding.UTF8.GetBytes("{}"),
+        IsJson = false
+    }
+});
 
 //Console.WriteLine($"Unsubscribing from Stream {streamName}.");
 //await conn.InvokeAsync("Unsubscribe", streamName, subscriberId, subscriberKey);
+
+Thread.Sleep(10000);
 
 Console.ReadLine();

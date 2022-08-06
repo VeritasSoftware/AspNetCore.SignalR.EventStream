@@ -24,5 +24,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task<bool> DoesStreamExistAsync(string name);
         Task<bool> DoesStreamExistAsync(Guid streamId);
         Task<bool> DoesEventStreamAssociationExistAsync(long streamId, long associatedStreamId);
+
+        Task<IEnumerable<Entities.EventStream>> SearchEventStreams(string? name, Guid? streamId = null);
     }
 }

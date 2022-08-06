@@ -26,5 +26,9 @@
 			<Version>5.0.17</Version>
 		</PackageReference>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Linq.Fluent.PredicateBuilder" Version="1.0.1" />
+	</ItemGroup>
 	
 </Project>

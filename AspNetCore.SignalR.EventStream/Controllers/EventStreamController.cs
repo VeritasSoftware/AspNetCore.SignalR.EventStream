@@ -17,12 +17,20 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             _streamsService = streamsService;
         }
 
-        [HttpPost("associate")]
-        public async Task<IActionResult> AssociateStreams([FromBody] AssociateStreamsModel mergeStreamsModel)
+        [HttpPost("streams/associate")]
+        public async Task<IActionResult> AssociateStreams([FromBody] AssociateStreamsModel associateStreamsModel)
         {
-            var mergedStream = await _streamsService.MergeStreams(mergeStreamsModel);
+            var mergedStream = await _streamsService.MergeStreams(associateStreamsModel);
 
             return Ok(mergedStream);
+        }
+
+        [HttpPost("streams/search")]
+        public async Task<IActionResult> SearchStreams([FromBody] SearchStreamsModel searchStreamsModel)
+        {
+            var streams = await _streamsService.SearchStreams(searchStreamsModel);
+
+            return Ok(streams);
         }
     }
 }

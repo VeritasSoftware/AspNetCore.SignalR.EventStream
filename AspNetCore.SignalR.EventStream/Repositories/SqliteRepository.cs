@@ -123,6 +123,14 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return await _context.EventStreamsAssociation.AnyAsync(s => s.StreamId == streamId && s.AssociatedStreamId == associatedStreamId);
         }
 
+        public async Task<IEnumerable<Entities.EventStream>> SearchEventStreams(string? name, Guid? streamId = null)
+        {
+            return await _context.EventsStream.Where(builder => builder.Initial(x => true)
+                                                                       .And(!string.IsNullOrEmpty(name), x => x.Name.ToLower().Contains(name.ToLower()))
+                                                                       .And(streamId.HasValue, x => x.StreamId == streamId.Value)
+                                                                       .ToExpressionPredicate()).ToListAsync();
+        }
+
         public async Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null)
         {
             try

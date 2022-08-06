@@ -12,6 +12,30 @@ namespace AspNetCore.SignalR.EventStream.Services
             _repository = repository;
         }
 
+        public async Task<IEnumerable<EventStreamModel>> SearchStreams(SearchStreamsModel model)
+        {
+            var eventStreams = await _repository.SearchEventStreams(model.Name, model.StreamId);
+
+            var eventStreamModels = new List<EventStreamModel>();
+
+            foreach(var eventStream in eventStreams)
+            {
+                var eventStreamModel = new EventStreamModel
+                {
+                    Id = eventStream.Id,
+                    StreamId = eventStream.StreamId,
+                    Name = eventStream.Name,
+                    LastAssociatedAt = eventStream.LastAssociatedAt,
+                    LastEventInsertedAt = eventStream.LastEventInsertedAt,
+                    CreatedAt = eventStream.CreatedAt
+                };
+
+                eventStreamModels.Add(eventStreamModel);
+            }
+            
+            return eventStreamModels;
+        }
+
         public async Task<Guid> MergeStreams(AssociateStreamsModel mergeStreamModel)
         {
             bool streamExists = false;
