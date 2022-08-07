@@ -15,25 +15,25 @@ In the **ConfigureServices** method:
     {
         options.AddPolicy("EventStreamHub", policy =>   
         {
-            //Set up you policy requirements here, for the Event Stream SignalR Hub
+            //Set up your policy requirements here, for the Event Stream SignalR Hub
             //If you want anonymous access, use below requirement
             policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
         });
         options.AddPolicy("EventStreamHubPublish", policy =>
         {
-            //Set up you policy requirements here, for the Event Stream SignalR Hub's Publish method
+            //Set up your policy requirements here, for the Event Stream SignalR Hub's Publish method
             //If you want anonymous access, use below requirement
             policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
         });
         options.AddPolicy("EventStreamHubSubscribe", policy =>
         {
-            //Set up you policy requirements here, for the Event Stream SignalR Hub's Subscribe method
+            //Set up your policy requirements here, for the Event Stream SignalR Hub's Subscribe method
             //If you want anonymous access, use below requirement
             policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
         });
         options.AddPolicy("EventStreamHubUnsubscribe", policy =>
         {
-            //Set up you policy requirements here, for the Event Stream SignalR Hub's Unsubscribe method
+            //Set up your policy requirements here, for the Event Stream SignalR Hub's Unsubscribe method
             //If you want anonymous access, use below requirement
             policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
         });
