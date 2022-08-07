@@ -22,6 +22,10 @@ A normal flow would look like the below sequence diagram UML.
 
 You can create your own Event Stream Server.
 
+Your Server can be any project with **Microsoft.NET.Sdk.Web** Sdk.
+
+Even a Console app, with this Sdk, will do.
+
 To hook up Event Stream, do the following in the Startup.cs of your Server application.
 
 ```c#
@@ -30,6 +34,7 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
         services.AddScoped<IEventStreamHubFilter, HubFilterService>();
         services.AddScoped<IEventStreamAuthorization, AuthorizationService>();
 
+        //Set up CORS as you want
         services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
         {
             builder
@@ -92,6 +97,8 @@ You can also hook it up to use **MS Sql Server** database.
 You can filter requests to the Event Stream SignalR Hub. Read [**Hub Filter**](Docs/README_HubFilter.md).
 
 You can also implement access to the Hub in this filter.
+
+You can set up **Authorization** to the SignalR Hub. Read [**Hub Authorization**](Docs/README_HubAuthorization.md).
 
 #### Administration of Server
 

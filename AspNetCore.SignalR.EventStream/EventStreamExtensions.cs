@@ -3,6 +3,7 @@ using AspNetCore.SignalR.EventStream.HubFilters;
 using AspNetCore.SignalR.EventStream.Processors;
 using AspNetCore.SignalR.EventStream.Repositories;
 using AspNetCore.SignalR.EventStream.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,6 +52,8 @@ namespace AspNetCore.SignalR.EventStream
             {
                 hubOptions.AddFilter<EventStreamHubFilterAttribute>();
             });
+
+            services.AddScoped<IAuthorizationHandler, AllowAnonymousAuthorizationRequirement>();
 
             return services;
         }

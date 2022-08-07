@@ -21,6 +21,37 @@ namespace AspNetCore.SignalR.EventStream.Server
             services.AddScoped<IEventStreamHubFilter, HubFilterService>();
             services.AddScoped<IEventStreamAuthorization, AuthorizationService>();
 
+            services.AddAuthentication();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("EventStreamHub", policy =>   
+                {
+                    //Set up you policy requirements here, for the Event Stream SignalR Hub
+                    //If you want anonymous access, use below requirement
+                    policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
+                });
+                options.AddPolicy("EventStreamHubPublish", policy =>
+                {
+                    //Set up you policy requirements here, for the Event Stream SignalR Hub's Publish method
+                    //If you want anonymous access, use below requirement
+                    policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
+                });
+                options.AddPolicy("EventStreamHubSubscribe", policy =>
+                {
+                    //Set up you policy requirements here, for the Event Stream SignalR Hub's Subscribe method
+                    //If you want anonymous access, use below requirement
+                    policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
+                });
+                options.AddPolicy("EventStreamHubUnsubscribe", policy =>
+                {
+                    //Set up you policy requirements here, for the Event Stream SignalR Hub's Unsubscribe method
+                    //If you want anonymous access, use below requirement
+                    policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
+                });
+            });
+
+            //Set up CORS as you want
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
             {
                 builder
@@ -67,6 +98,10 @@ namespace AspNetCore.SignalR.EventStream.Server
 
             app.UseHttpsRedirection();
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 //EventStreamHub endpoint

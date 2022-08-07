@@ -2,11 +2,13 @@
 using AspNetCore.SignalR.EventStream.HubFilters;
 using AspNetCore.SignalR.EventStream.Models;
 using AspNetCore.SignalR.EventStream.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace AspNetCore.SignalR.EventStream.Hubs
 {
     [EventStreamHubFilter]
+    [Authorize(Policy = "EventStreamHub")]
     public class EventStreamHub : Hub
     {
         private readonly IRepository _repository;
@@ -16,6 +18,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
             _repository = repository;
         }
 
+        [Authorize(Policy = "EventStreamHubPublish")]
         public async Task Publish(string streamName, params EventModel[] events)
         {            
             //If stream does not exist in db, create stream and write event to db
@@ -76,6 +79,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
             }
         }
 
+        [Authorize(Policy = "EventStreamHubSubscribe")]
         public async Task Subscribe(string streamName, string type, string receiveMethod, Guid subscriberId, Guid subscribeKey, DateTime? from = null)
         {
             var stream = await _repository.GetStreamAsync(streamName);
@@ -116,6 +120,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
             }
         }
 
+        [Authorize(Policy = "EventStreamHubUnsubscribe")]
         public async Task Unsubscribe(string streamName, Guid subscriberId, Guid subscribeKey)
         {
             var stream = await _repository.GetStreamAsync(streamName);
