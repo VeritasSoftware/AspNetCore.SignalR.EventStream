@@ -19,6 +19,27 @@ In the **ConfigureServices** method:
                                                               .AddHubUnsubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement()));
 ```
 
+**Note:-** You can use the Event Stream Authorization extension or you can create your own.
+
+If you want to create your own, you have to implement below policies:
+
+* EventStreamHubPolicy
+* EventStreamHubPublishPolicy
+* EventStreamHubSubscribePolicy
+* EventStreamHubUnsubscribePolicy
+
+Eg.
+
+```C#
+    services.AddAuthorization(options => 
+    {
+        options.AddPolicy("EventStreamHubPolicy", policy =>
+        {
+            //Add your requirements etc here.
+        });
+    });
+```
+
 And in the **Configure** method:
 
 ```C#

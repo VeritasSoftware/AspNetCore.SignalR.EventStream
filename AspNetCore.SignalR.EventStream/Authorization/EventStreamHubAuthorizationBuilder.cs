@@ -13,7 +13,7 @@ namespace AspNetCore.SignalR.EventStream.Authorization
 
         public EventStreamHubAuthorizationBuilder AddHubAuthorizationPolicy(params IAuthorizationRequirement[] requirements)
         {
-            _options.AddPolicy("EventStreamHub", policy =>
+            _options.AddPolicy("EventStreamHubPolicy", policy =>
             {
                 policy.AddRequirements(requirements);
             });
@@ -23,7 +23,7 @@ namespace AspNetCore.SignalR.EventStream.Authorization
 
         public EventStreamHubAuthorizationBuilder AddHubPublishAuthorizationPolicy(params IAuthorizationRequirement[] requirements)
         {
-            _options.AddPolicy("EventStreamHubPublish", policy =>
+            _options.AddPolicy("EventStreamHubPublishPolicy", policy =>
             {
                 policy.AddRequirements(requirements);
             });
@@ -33,7 +33,7 @@ namespace AspNetCore.SignalR.EventStream.Authorization
 
         public EventStreamHubAuthorizationBuilder AddHubSubscribeAuthorizationPolicy(params IAuthorizationRequirement[] requirements)
         {
-            _options.AddPolicy("EventStreamHubSubscribe", policy =>
+            _options.AddPolicy("EventStreamHubSubscribePolicy", policy =>
             {
                 policy.AddRequirements(requirements);
             });
@@ -43,7 +43,7 @@ namespace AspNetCore.SignalR.EventStream.Authorization
 
         public EventStreamHubAuthorizationBuilder AddHubUnsubscribeAuthorizationPolicy(params IAuthorizationRequirement[] requirements)
         {
-            _options.AddPolicy("EventStreamHubUnsubscribe", policy =>
+            _options.AddPolicy("EventStreamHubUnsubscribePolicy", policy =>
             {
                 policy.AddRequirements(requirements);
             });
