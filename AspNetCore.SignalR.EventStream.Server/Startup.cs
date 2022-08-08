@@ -18,9 +18,13 @@ namespace AspNetCore.SignalR.EventStream.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Event Stream SignalR Hub Filter
             services.AddScoped<IEventStreamHubFilter, HubFilterService>();
+
+            //Event Stream Admin Http endpoints security
             services.AddScoped<IEventStreamAuthorization, AuthorizationService>();
 
+            //SignalR Hub security
             services.AddAuthentication();
 
             services.AddAuthorization(options =>
@@ -60,13 +64,13 @@ namespace AspNetCore.SignalR.EventStream.Server
                     .AllowAnyOrigin();
             }));
 
-            //Hook up EventStreamHub using SignalR
+            //Hook up Event Stream Hub using SignalR
             services.AddSignalR().AddNewtonsoftJsonProtocol(o =>
             {
                 o.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
 
-            //Add EventStream
+            //Add Event Stream
             services.AddEventStream(options => 
             {
                 options.UseSqlServer = false;
@@ -99,12 +103,13 @@ namespace AspNetCore.SignalR.EventStream.Server
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            //Use security
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                //EventStreamHub endpoint
+                //Event Stream Hub endpoint
                 endpoints.MapHub<EventStreamHub>("/eventstreamhub");
                 endpoints.MapControllers();
             });

@@ -31,8 +31,42 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 ```c#
     public void ConfigureServices(IServiceCollection services)
     {
+        //Event Stream SignalR Hub Filter
         services.AddScoped<IEventStreamHubFilter, HubFilterService>();
+
+        //Event Stream Admin Http endpoints security
         services.AddScoped<IEventStreamAuthorization, AuthorizationService>();
+
+        //SignalR Hub security
+        services.AddAuthentication();
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("EventStreamHub", policy =>   
+            {
+                //Set up your policy requirements here, for the Event Stream SignalR Hub
+                //If you want anonymous access, use below requirement
+                policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
+            });
+            options.AddPolicy("EventStreamHubPublish", policy =>
+            {
+                //Set up your policy requirements here, for the Event Stream SignalR Hub's Publish method
+                //If you want anonymous access, use below requirement
+                policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
+            });
+            options.AddPolicy("EventStreamHubSubscribe", policy =>
+            {
+                //Set up your policy requirements here, for the Event Stream SignalR Hub's Subscribe method
+                //If you want anonymous access, use below requirement
+                policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
+            });
+            options.AddPolicy("EventStreamHubUnsubscribe", policy =>
+            {
+                //Set up your policy requirements here, for the Event Stream SignalR Hub's Unsubscribe method
+                //If you want anonymous access, use below requirement
+                policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
+            });
+        });
 
         //Set up CORS as you want
         services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
@@ -43,16 +77,16 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
                 .AllowAnyOrigin();
         }));
 
-        //Hook up EventStreamHub using SignalR
+        //Hook up Event Stream Hub using SignalR
         services.AddSignalR().AddNewtonsoftJsonProtocol(o =>
         {
             o.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         });
 
-        //Add EventStream
+        //Add Event Stream
         services.AddEventStream(options => 
         {
-            options.UseSqlServer = true;
+            options.UseSqlServer = false;
             options.SqlServerConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
             options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub";
         });
@@ -81,9 +115,14 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 
         app.UseHttpsRedirection();
         app.UseRouting();
+
+        //Use security
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         app.UseEndpoints(endpoints =>
         {
-            //EventStreamHub endpoint
+            //Event Stream Hub endpoint
             endpoints.MapHub<EventStreamHub>("/eventstreamhub");
             endpoints.MapControllers();
         });
@@ -98,7 +137,9 @@ You can filter requests to the Event Stream SignalR Hub. Read [**Hub Filter**](D
 
 You can also implement access to the Hub in this filter.
 
-You can set up **Authorization** to the SignalR Hub. Read [**Hub Authorization**](Docs/README_HubAuthorization.md).
+The SignalR Hub is secured by default. With **policies**.
+
+In your Server, you can set up **Authorization** to the SignalR Hub. Read [**Hub Authorization**](Docs/README_HubAuthorization.md).
 
 #### Administration of Server
 
