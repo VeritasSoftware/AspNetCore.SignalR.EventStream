@@ -16,5 +16,6 @@
         public long Id { get; set; }
         public Guid EventId { get; set; }
         public Guid? OriginalEventId { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }

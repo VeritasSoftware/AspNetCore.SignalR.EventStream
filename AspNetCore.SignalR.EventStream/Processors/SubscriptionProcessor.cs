@@ -98,7 +98,8 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                                     StreamId = x.Stream.StreamId,
                                                     StreamName = x.Stream.Name,
                                                     OriginalEventId = x.OriginalEventId,
-                                                    Type = x.Type
+                                                    Type = x.Type,
+                                                    CreatedAt = x.CreatedAt
                                                 }).ToList(),
                                                 CreatedAt = subsciptionWithEvents.Stream.CreatedAt,
                                                 StreamId = subsciptionWithEvents.Stream.StreamId

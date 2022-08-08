@@ -248,6 +248,7 @@ The Received Event JSON is as shown in example below:
   "id": 5,
   "eventId": "24b15082-42ed-48e9-8465-a9ff678092ff",
   "originalEventId": null,
+  "createdAt": "2022-08-09T09:56:15.4542+10:00",
   "type": "MyEvent",
   "data": "eyJhIjoiMSJ9",
   "jsonData": null,
