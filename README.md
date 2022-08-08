@@ -42,10 +42,10 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 
         //Set up your Authorization policy requirements here, for the Event Stream SignalR Hub
         //If you want anonymous access, use below AllowAnonymousAuthorizationRequirement
-        services.AddAuthorization(builder => builder.AddHubAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
-                                                    .AddHubPublishAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
-                                                    .AddHubSubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
-                                                    .AddHubUnsubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement()));
+        services.AddAuthorization(builder => builder.AddHubPolicyRequirements(new AllowAnonymousAuthorizationRequirement())
+                                                    .AddHubPublishPolicyRequirements(new AllowAnonymousAuthorizationRequirement())
+                                                    .AddHubSubscribePolicyRequirements(new AllowAnonymousAuthorizationRequirement())
+                                                    .AddHubUnsubscribePolicyRequirements(new AllowAnonymousAuthorizationRequirement()));
 
         //Set up CORS as you want
         services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
