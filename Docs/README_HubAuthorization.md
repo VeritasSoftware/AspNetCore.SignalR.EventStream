@@ -13,13 +13,13 @@ In the **ConfigureServices** method:
 
     //Set up your Authorization policy requirements here, for the Event Stream SignalR Hub
     //If you want anonymous access, use below AllowAnonymousAuthorizationRequirement
-    services.AddEventStreamHubAuthorization(builder => builder.AddHubAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
-                                                              .AddHubPublishAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
-                                                              .AddHubSubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
-                                                              .AddHubUnsubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement()));
+    services.AddAuthorization(builder => builder.AddHubAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
+                                                .AddHubPublishAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
+                                                .AddHubSubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
+                                                .AddHubUnsubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement()));
 ```
 
-**Note:-** You can use the Event Stream Authorization extension or you can create your own.
+**Note:-** You can use the Event Stream AddAuthorization extension or you can create your own.
 
 If you want to create your own, you have to implement below policies:
 
