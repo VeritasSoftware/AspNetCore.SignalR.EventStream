@@ -32,5 +32,13 @@ namespace AspNetCore.SignalR.EventStream.Controllers
 
             return Ok(streams);
         }
+
+        [HttpDelete("streams/{id}")]
+        public async Task<IActionResult> DeleteStream(long id)
+        {
+            await _streamsService.DeleteEventStreamAsync(id);
+
+            return Ok();
+        }
     }
 }

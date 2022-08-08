@@ -1,4 +1,5 @@
-﻿using AspNetCore.SignalR.EventStream.Entities;
+﻿using AspNetCore.SignalR.EventStream.DomainEntities;
+using AspNetCore.SignalR.EventStream.Entities;
 
 namespace AspNetCore.SignalR.EventStream.Repositories
 {
@@ -25,6 +26,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task<bool> DoesStreamExistAsync(Guid streamId);
         Task<bool> DoesEventStreamAssociationExistAsync(long streamId, long associatedStreamId);
 
-        Task<IEnumerable<Entities.EventStream>> SearchEventStreams(string? name, Guid? streamId = null);
+        Task<IEnumerable<Entities.EventStream>> SearchEventStreams(SearchEventStreamsEntity search);
+        Task DeleteEventStreamAsync(long id);
     }
 }

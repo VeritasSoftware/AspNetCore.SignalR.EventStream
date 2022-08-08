@@ -22,6 +22,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
             modelBuilder.Entity<Entities.EventStream>().HasKey(x => x.Id);
             modelBuilder.Entity<Entities.EventStream>().Property(x => x.Id).IsRequired().ValueGeneratedOnAdd();
+            modelBuilder.Entity<Entities.EventStream>().HasMany(x => x.Events).WithOne(x => x.Stream).HasForeignKey(x => x.StreamId).OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<EventStreamAssociation>().HasKey(x => x.Id);
             modelBuilder.Entity<EventStreamAssociation>().Property(x => x.Id).IsRequired().ValueGeneratedOnAdd();

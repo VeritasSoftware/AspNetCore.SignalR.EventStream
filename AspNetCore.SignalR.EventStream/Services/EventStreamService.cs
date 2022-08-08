@@ -1,4 +1,5 @@
-﻿using AspNetCore.SignalR.EventStream.Models;
+﻿using AspNetCore.SignalR.EventStream.DomainEntities;
+using AspNetCore.SignalR.EventStream.Models;
 using AspNetCore.SignalR.EventStream.Repositories;
 
 namespace AspNetCore.SignalR.EventStream.Services
@@ -12,9 +13,19 @@ namespace AspNetCore.SignalR.EventStream.Services
             _repository = repository;
         }
 
+        public async Task DeleteEventStreamAsync(long id)
+        {
+            await _repository.DeleteEventStreamAsync(id);
+        }
+
         public async Task<IEnumerable<EventStreamModel>> SearchStreams(SearchStreamsModel model)
         {
-            var eventStreams = await _repository.SearchEventStreams(model.Name, model.StreamId);
+            var eventStreams = await _repository.SearchEventStreams(new SearchEventStreamsEntity
+            {
+                Name = model.Name,
+                StreamId = model.StreamId,
+                CreatedBefore = model.CreatedBefore
+            });
 
             var eventStreamModels = new List<EventStreamModel>();
 

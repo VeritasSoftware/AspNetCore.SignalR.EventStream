@@ -4,5 +4,6 @@
     {
         public Guid? StreamId { get; set; }
         public string? Name { get; set; }
+        public DateTimeOffset? CreatedBefore { get; set; }
     }
 }

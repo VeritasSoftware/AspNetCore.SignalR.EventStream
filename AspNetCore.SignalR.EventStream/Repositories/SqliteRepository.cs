@@ -1,4 +1,5 @@
-﻿using AspNetCore.SignalR.EventStream.Entities;
+﻿using AspNetCore.SignalR.EventStream.DomainEntities;
+using AspNetCore.SignalR.EventStream.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.SignalR.EventStream.Repositories
@@ -123,12 +124,41 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return await _context.EventStreamsAssociation.AnyAsync(s => s.StreamId == streamId && s.AssociatedStreamId == associatedStreamId);
         }
 
-        public async Task<IEnumerable<Entities.EventStream>> SearchEventStreams(string? name, Guid? streamId = null)
+        public async Task<IEnumerable<Entities.EventStream>> SearchEventStreams(SearchEventStreamsEntity search)
         {
             return await _context.EventsStream.Where(builder => builder.Initial(x => true)
-                                                                       .And(!string.IsNullOrEmpty(name), x => x.Name.ToLower().Contains(name.ToLower()))
-                                                                       .And(streamId.HasValue, x => x.StreamId == streamId.Value)
+                                                                       .And(!string.IsNullOrEmpty(search.Name), x => x.Name.ToLower().Contains(search.Name.ToLower()))
+                                                                       .And(search.StreamId.HasValue, x => x.StreamId == search.StreamId.Value)
+                                                                       .And(search.CreatedBefore.HasValue, x => x.CreatedAt < search.CreatedBefore.Value)
                                                                        .ToExpressionPredicate()).ToListAsync();
+        }
+
+        public async Task DeleteEventStreamAsync(long id)
+        {
+            var stream = await _context.EventsStream.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);
+
+            if (stream != null)
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                try
+                {
+                    var associations = await _context.EventStreamsAssociation.Where(sa => sa.AssociatedStreamId == id).ToListAsync();
+
+                    _context.EventStreamsAssociation.RemoveRange(associations);
+                    await _context.SaveChangesAsync();
+
+                    _context.EventsStream.Remove(stream);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
         }
 
         public async Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null)
