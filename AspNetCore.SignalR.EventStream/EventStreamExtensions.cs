@@ -22,6 +22,13 @@ namespace AspNetCore.SignalR.EventStream
         private static EventStreamProcessor _eventStreamProcessor = null;
         private static EventStreamOptions _options = null;
 
+        public static IServiceCollection AddEventStreamHubAuthorization(this IServiceCollection services, Action<EventStreamHubAuthorizationBuilder> action)
+        {
+            services.AddAuthorization(options => action(new EventStreamHubAuthorizationBuilder(options)));
+
+            return services;
+        }
+
         public static IServiceCollection AddEventStream(this IServiceCollection services, Action<EventStreamOptions> getOptions = null)
         {            
             _options = new EventStreamOptions();

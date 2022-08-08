@@ -24,36 +24,15 @@ namespace AspNetCore.SignalR.EventStream.Server
             //Event Stream Admin Http endpoints security
             services.AddScoped<IEventStreamAuthorization, AuthorizationService>();
 
-            //SignalR Hub security
+            //Event Stream SignalR Hub security
             services.AddAuthentication();
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("EventStreamHub", policy =>   
-                {
-                    //Set up your policy requirements here, for the Event Stream SignalR Hub
-                    //If you want anonymous access, use below requirement
-                    policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
-                });
-                options.AddPolicy("EventStreamHubPublish", policy =>
-                {
-                    //Set up your policy requirements here, for the Event Stream SignalR Hub's Publish method
-                    //If you want anonymous access, use below requirement
-                    policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
-                });
-                options.AddPolicy("EventStreamHubSubscribe", policy =>
-                {
-                    //Set up your policy requirements here, for the Event Stream SignalR Hub's Subscribe method
-                    //If you want anonymous access, use below requirement
-                    policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
-                });
-                options.AddPolicy("EventStreamHubUnsubscribe", policy =>
-                {
-                    //Set up your policy requirements here, for the Event Stream SignalR Hub's Unsubscribe method
-                    //If you want anonymous access, use below requirement
-                    policy.AddRequirements(new AllowAnonymousAuthorizationRequirement());
-                });
-            });
+            //Set up your Authorization policy requirements here, for the Event Stream SignalR Hub
+            //If you want anonymous access, use below AllowAnonymousAuthorizationRequirement
+            services.AddEventStreamHubAuthorization(builder => builder.AddHubAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
+                                                                      .AddHubPublishAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
+                                                                      .AddHubSubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement())
+                                                                      .AddHubUnsubscribeAuthorizationPolicy(new AllowAnonymousAuthorizationRequirement()));
 
             //Set up CORS as you want
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
