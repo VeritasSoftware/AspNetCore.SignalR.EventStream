@@ -108,6 +108,21 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
     }
 ```
 
+In your Server project's **appsettings.json** add a **secret key**.
+
+And, if you are using MS Sql Server, specify the connection string.
+
+Eg.
+
+```C#
+{
+  "EventStreamSecretKey": "fce17eec-4913-48d6-b013-2583ab8583b3",
+  "ConnectionStrings": {
+    "EventStreamDatabase": "Server=localhost;Database=EventStream;Trusted_Connection=True;"
+  }
+}
+```
+
 Out of the box, the Server can use **MS Sqlite** database.
 
 You can also hook it up to use **MS Sql Server** database.

@@ -12,10 +12,12 @@ namespace AspNetCore.SignalR.EventStream.Hubs
     public class EventStreamHub : Hub
     {
         private readonly IRepository _repository;
+        private readonly IConfiguration _configuration;
 
-        public EventStreamHub(IRepository repository)
+        public EventStreamHub(IRepository repository, IConfiguration configuration)
         {
             _repository = repository;
+            _configuration = configuration;
         }
 
         [Authorize(Policy = "EventStreamHubPublishPolicy")]
@@ -140,17 +142,28 @@ namespace AspNetCore.SignalR.EventStream.Hubs
             }            
         }
 
-        public async Task EventStreamEventAppeared(EventStreamSubscriberModel subscriber)
+        public async Task EventStreamEventAppeared(EventStreamSubscriberModel subscriber, string secretKey)
         {
             try
             {
-                var eventsArrayJson = System.Text.Json.JsonSerializer.Serialize(subscriber.Stream.Events);
+                if (string.IsNullOrEmpty(secretKey))
+                    throw new ArgumentNullException(nameof(secretKey));
 
-                await base.Clients.Client(subscriber.ConnectionId).SendAsync(subscriber.ReceiveMethod, eventsArrayJson, new object());
+                var configSecretKey = _configuration["EventStreamSecretKey"];
+
+                if (string.IsNullOrEmpty(configSecretKey))
+                    throw new ArgumentNullException(nameof(configSecretKey));
+
+                if (string.Compare(secretKey, configSecretKey, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    var eventsArrayJson = System.Text.Json.JsonSerializer.Serialize(subscriber.Stream.Events);
+
+                    await base.Clients.Client(subscriber.ConnectionId).SendAsync(subscriber.ReceiveMethod, eventsArrayJson, new object());
+                }                
             }
             catch (Exception ex)
             {
-                //Log exception
+                //TODO:Log exception
             }
         }
     }

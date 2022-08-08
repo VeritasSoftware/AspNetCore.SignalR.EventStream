@@ -66,7 +66,10 @@ namespace AspNetCore.SignalR.EventStream
         }
 
         public static IApplicationBuilder UseEventStream(this IApplicationBuilder app)
-        {            
+        {
+            var config = app.ApplicationServices.GetService<IConfiguration>();
+            var secretKey = config["EventStreamSecretKey"];
+
             if (_options.UseSqlServer)
             {
                 var options = new DbContextOptionsBuilder().UseSqlServer(_options.SqlServerConnectionString).Options;
@@ -82,7 +85,7 @@ namespace AspNetCore.SignalR.EventStream
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
-                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl)
+                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey)
                 {
                     Start = true
                 };
@@ -109,7 +112,7 @@ namespace AspNetCore.SignalR.EventStream
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
-                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl)
+                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey)
                 {
                     Start = true
                 };

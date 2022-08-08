@@ -12,11 +12,13 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
         public bool Start { get; set; } = false;
         public string? EventStreamHubUrl { get; set; }
+        public string? SecretKey { get; set;}
 
-        public SubscriptionProcessor(IRepository repository, string eventStreamHubUrl)
+        public SubscriptionProcessor(IRepository repository, string eventStreamHubUrl, string secretKey)
         {
             _repository = repository;
             this.EventStreamHubUrl = eventStreamHubUrl;
+            SecretKey = secretKey;
         }
 
         public void Process()
@@ -103,7 +105,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                             }
                                         };
 
-                                        await _hubConnection.InvokeAsync("EventStreamEventAppeared", eventSubscriberModel);
+                                        await _hubConnection.InvokeAsync("EventStreamEventAppeared", eventSubscriberModel, SecretKey);
 
                                         await _repository.UpdateSubscriptionLastAccessed(subsciptionWithEvents.SubscriberId, DateTimeOffset.UtcNow);                                        
                                     }
