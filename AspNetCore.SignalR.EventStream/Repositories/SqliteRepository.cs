@@ -99,8 +99,23 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             var subscription = await _context.Subscribers.Include(s => s.Stream)
                                              .FirstOrDefaultAsync(s => (s.Stream.StreamId == streamId) && (s.SubscriberId == subscriptionId));
 
-            _context.Remove(subscription);
-            await _context.SaveChangesAsync();
+            if (subscription != null)
+            {
+                _context.Remove(subscription);
+                await _context.SaveChangesAsync();
+            }            
+        }
+
+        public async Task DeleteSubscriptionAsync(string connectionId)
+        {
+            var subscription = await _context.Subscribers
+                                             .FirstOrDefaultAsync(s => s.ConnectionId == connectionId);
+
+            if (subscription != null)
+            {
+                _context.Remove(subscription);
+                await _context.SaveChangesAsync();
+            }            
         }
 
         public async Task DeleteAllSubscriptionsAsync()
@@ -275,7 +290,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                 var subscriber = _context.Subscribers.AsNoTracking().Include(s => s.Stream).Include(s => s.Stream.Events)
                                                         .AsNoTracking().FirstOrDefault(s => (s.Stream.StreamId == streamId) && (s.SubscriberId == subscriberId));
 
-                subscriber.Stream.Events = subscriber.Stream.Events.Where(e => e.CreatedAt >= dt).OrderBy(e => e.CreatedAt).ToList();
+                if (subscriber != null)
+                    subscriber.Stream.Events = subscriber.Stream.Events.Where(e => e.CreatedAt >= dt).OrderBy(e => e.CreatedAt).ToList();
 
                 return subscriber;
             }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using AspNetCore.SignalR.EventStream.Repositories;
+using Microsoft.AspNetCore.SignalR;
 
 namespace AspNetCore.SignalR.EventStream.HubFilters
 {
@@ -51,6 +52,10 @@ namespace AspNetCore.SignalR.EventStream.HubFilters
             var logger = context.ServiceProvider.GetServiceOrNull<ILogger<EventStreamLog>>();
 
             logger?.LogInformation($"Disconnected connection id: '{context.Context.ConnectionId}'");
+
+            //If user has not Unsubscribed, delete subscription on disconnect.
+            var repository = context.ServiceProvider.GetServiceOrNull<IRepository>();
+            await repository.DeleteSubscriptionAsync(context.Context.ConnectionId);
 
             var gatewayHubFilter = context.ServiceProvider.GetServiceOrNull<IEventStreamHubFilter>();
 
