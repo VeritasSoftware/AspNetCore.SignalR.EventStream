@@ -144,7 +144,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return await _context.EventsStream.Where(builder => builder.Initial(x => true)
                                                                        .And(!string.IsNullOrEmpty(search.Name), x => x.Name.ToLower().Contains(search.Name.ToLower()))
                                                                        .And(search.StreamId.HasValue, x => x.StreamId == search.StreamId.Value)
-                                                                       .And(search.CreatedBefore.HasValue, x => x.CreatedAt < search.CreatedBefore.Value)
+                                                                       .And(search.CreatedStart.HasValue, x => x.CreatedAt >= search.CreatedStart.Value)
+                                                                       .And(search.CreatedEnd.HasValue, x => x.CreatedAt <= search.CreatedEnd.Value)
                                                                        .ToExpressionPredicate()).ToListAsync();
         }
 

@@ -4,8 +4,8 @@ namespace AspNetCore.SignalR.EventStream.Services
 {
     public interface IEventStreamService
     {
-        Task<Guid> MergeStreams(AssociateStreamsModel mergeStreamModel);
-        Task<IEnumerable<EventStreamModel>> SearchStreams(SearchStreamsModel model);
+        Task<Guid> AssociateStreamsAsync(AssociateStreamsModel mergeStreamModel);
+        IAsyncEnumerable<EventStreamModel> SearchStreamsAsync(SearchStreamsModel model);
         Task DeleteEventStreamAsync(long id);
     }
 }

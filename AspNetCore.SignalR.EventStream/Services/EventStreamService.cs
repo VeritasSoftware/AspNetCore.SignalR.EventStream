@@ -18,16 +18,15 @@ namespace AspNetCore.SignalR.EventStream.Services
             await _repository.DeleteEventStreamAsync(id);
         }
 
-        public async Task<IEnumerable<EventStreamModel>> SearchStreams(SearchStreamsModel model)
+        public async IAsyncEnumerable<EventStreamModel> SearchStreamsAsync(SearchStreamsModel model)
         {
             var eventStreams = await _repository.SearchEventStreams(new SearchEventStreamsEntity
             {
                 Name = model.Name,
                 StreamId = model.StreamId,
-                CreatedBefore = model.CreatedBefore
+                CreatedStart = model.CreatedStart,
+                CreatedEnd = model.CreatedEnd
             });
-
-            var eventStreamModels = new List<EventStreamModel>();
 
             foreach(var eventStream in eventStreams)
             {
@@ -41,13 +40,11 @@ namespace AspNetCore.SignalR.EventStream.Services
                     CreatedAt = eventStream.CreatedAt
                 };
 
-                eventStreamModels.Add(eventStreamModel);
+                yield return eventStreamModel;
             }
-            
-            return eventStreamModels;
         }
 
-        public async Task<Guid> MergeStreams(AssociateStreamsModel mergeStreamModel)
+        public async Task<Guid> AssociateStreamsAsync(AssociateStreamsModel mergeStreamModel)
         {
             bool streamExists = false;
 
