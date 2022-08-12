@@ -41,7 +41,15 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             return Ok();
         }
 
-        [HttpGet("subscriber/{id}")]
+        [HttpGet("events/{id}")]
+        public async Task<IActionResult> GetEvent(Guid id)
+        {
+            var @event = await _streamsService.GetEventAsync(id);
+
+            return Ok(@event);
+        }
+
+        [HttpGet("subscribers/{id}")]
         public async Task<IActionResult> GetSubscriber(Guid id)
         {
             var subscriber = await _streamsService.GetSubscriberAsync(id);
@@ -49,7 +57,7 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             return Ok(subscriber);
         }
 
-        [HttpPut("subscriber")]
+        [HttpPut("subscribers")]
         public async Task<IActionResult> UpdateSubscriber(Guid subscriberId, [FromBody] UpdateSubscriberModel model)
         {
             await _streamsService.UpdateSubscriberAsync(subscriberId, model);

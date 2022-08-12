@@ -182,7 +182,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task<Event> GetEventAsync(Guid eventId)
         {
-            return await _context.Events.FirstOrDefaultAsync(e => e.EventId == eventId);
+            return await _context.Events.Include(e => e.Stream).AsNoTracking().FirstOrDefaultAsync(e => e.EventId == eventId);
         }
 
         public async Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null)

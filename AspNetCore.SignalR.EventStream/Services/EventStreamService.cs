@@ -13,9 +13,33 @@ namespace AspNetCore.SignalR.EventStream.Services
             _repository = repository;
         }
 
+        public async Task<EventModel> GetEventAsync(Guid id)
+        {
+            var @event = await _repository.GetEventAsync(id);
+
+            if (@event == null)
+                throw new InvalidOperationException($"Event: {id} not found.");
+
+            return new EventModel
+            {
+                Data = @event.Data,
+                IsJson = @event.IsJson,
+                JsonData = @event.JsonData,
+                MetaData = @event.MetaData,
+                StreamId = @event.Stream.StreamId,
+                StreamName = @event.Stream.Name,
+                Type = @event.Type
+            };
+        }
+
         public async Task<EventStreamSubscriberModel> GetSubscriberAsync(Guid subscriberId)
         {
             var subscriber = await _repository.GetSubscriberAsync(subscriberId);
+
+            if (subscriber == null)
+            {
+                throw new InvalidOperationException($"Subscriber: {subscriberId} not found.");
+            }
 
             var model = new EventStreamSubscriberModel
             {
@@ -40,9 +64,9 @@ namespace AspNetCore.SignalR.EventStream.Services
 
         public async Task UpdateSubscriberAsync(Guid subscriberId, UpdateSubscriberModel model)
         {
-            if (model.EventId.HasValue)
+            if (model.LastAccessedEventAtFromEventId.HasValue)
             {
-                var @event = await _repository.GetEventAsync(model.EventId.Value);
+                var @event = await _repository.GetEventAsync(model.LastAccessedEventAtFromEventId.Value);
 
                 await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, @event.CreatedAt);
 
