@@ -86,7 +86,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateSubscriptionLastAccessed(Guid subsciberId, DateTimeOffset lastAccessed)
+        public async Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, DateTimeOffset lastAccessed)
         {
             var subscriber = await _context.Subscribers.FirstOrDefaultAsync(s => s.SubscriberId == subsciberId);
             subscriber.LastAccessedEventAt = lastAccessed;
@@ -139,7 +139,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return await _context.EventStreamsAssociation.AnyAsync(s => s.StreamId == streamId && s.AssociatedStreamId == associatedStreamId);
         }
 
-        public async Task<IEnumerable<Entities.EventStream>> SearchEventStreams(SearchEventStreamsEntity search)
+        public async Task<IEnumerable<Entities.EventStream>> SearchEventStreamsAsync(SearchEventStreamsEntity search)
         {
             return await _context.EventsStream.Where(builder => builder.Initial(x => true)
                                                                        .And(!string.IsNullOrEmpty(search.Name), x => x.Name.ToLower().Contains(search.Name.ToLower()))
@@ -282,14 +282,14 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                          .ToListAsync();
         }
 
-        public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, Guid streamId, DateTimeOffset? from = null)
+        public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, DateTimeOffset? from = null)
         {
             if (from.HasValue)
             {
                 var dt = from.Value;
 
                 var subscriber = _context.Subscribers.AsNoTracking().Include(s => s.Stream).Include(s => s.Stream.Events)
-                                                        .AsNoTracking().FirstOrDefault(s => (s.Stream.StreamId == streamId) && (s.SubscriberId == subscriberId));
+                                                        .AsNoTracking().FirstOrDefault(s => s.SubscriberId == subscriberId);
 
                 if (subscriber != null)
                     subscriber.Stream.Events = subscriber.Stream.Events.Where(e => e.CreatedAt >= dt).OrderBy(e => e.CreatedAt).ToList();
@@ -298,7 +298,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             }
             else
             {
-                var subscriber = _context.Subscribers.AsNoTracking().FirstOrDefault(s => (s.Stream.StreamId == streamId) && (s.SubscriberId == subscriberId));
+                var subscriber = _context.Subscribers.Include(s => s.Stream).AsNoTracking()
+                                                     .FirstOrDefault(s => s.SubscriberId == subscriberId);
 
                 return subscriber;
             }

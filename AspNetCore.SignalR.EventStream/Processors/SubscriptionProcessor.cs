@@ -66,9 +66,9 @@ namespace AspNetCore.SignalR.EventStream.Processors
                         {
                             try
                             {
-                                var subscriber = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscription.StreamId);
+                                var subscriber = await _repository.GetSubscriberAsync(subscription.SubscriptionId);
 
-                                var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscription.StreamId, subscriber.LastAccessedEventAt);
+                                var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscriber.LastAccessedEventAt);
 
                                 if (subsciptionWithEvents != null)
                                 {
@@ -76,7 +76,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                     {
                                         //TODO:Update subscriber Last Accessed                                    
 
-                                        var eventSubscriberModel = new EventStreamSubscriberModel
+                                        var eventSubscriberModel = new EventStreamSubscriberModelResult
                                         {
                                             ConnectionId = subsciptionWithEvents.ConnectionId,
                                             CreatedAt = subsciptionWithEvents.CreatedAt,
@@ -108,7 +108,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                         await _hubConnection.InvokeAsync("EventStreamEventAppeared", eventSubscriberModel, SecretKey);
 
-                                        await _repository.UpdateSubscriptionLastAccessed(subsciptionWithEvents.SubscriberId, DateTimeOffset.UtcNow);                                        
+                                        await _repository.UpdateSubscriptionLastAccessedAsync(subsciptionWithEvents.SubscriberId, DateTimeOffset.UtcNow);                                        
                                     }
                                 }
                             }

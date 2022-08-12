@@ -13,6 +13,36 @@ namespace AspNetCore.SignalR.EventStream.Services
             _repository = repository;
         }
 
+        public async Task<EventStreamSubscriberModel> GetSubscriberAsync(Guid subscriberId)
+        {
+            var subscriber = await _repository.GetSubscriberAsync(subscriberId);
+
+            var model = new EventStreamSubscriberModel
+            {
+                Id = subscriber.Id,
+                SubscriberId = subscriber.SubscriberId,
+                ConnectionId = subscriber.ConnectionId,
+                CreatedAt = subscriber.CreatedAt,
+                LastAccessedEventAt = subscriber.LastAccessedEventAt,
+                ReceiveMethod = subscriber.ReceiveMethod,
+                StreamId = subscriber.StreamId,
+                Stream = new EventStreamModel
+                {
+                    Id = subscriber.Stream.Id,
+                    StreamId = subscriber.Stream.StreamId,
+                    CreatedAt = subscriber.Stream.CreatedAt,
+                    Name = subscriber.Stream.Name
+                }
+            };
+
+            return model;
+        }
+
+        public async Task UpdateSubscriberAsync(Guid subscriberId, UpdateSubscriberModel model)
+        {
+            await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, model.LastAccessedEventAt);
+        }
+
         public async Task DeleteEventStreamAsync(long id)
         {
             await _repository.DeleteEventStreamAsync(id);
@@ -20,7 +50,7 @@ namespace AspNetCore.SignalR.EventStream.Services
 
         public async IAsyncEnumerable<EventStreamModel> SearchStreamsAsync(SearchStreamsModel model)
         {
-            var eventStreams = await _repository.SearchEventStreams(new SearchEventStreamsEntity
+            var eventStreams = await _repository.SearchEventStreamsAsync(new SearchEventStreamsEntity
             {
                 Name = model.Name,
                 StreamId = model.StreamId,

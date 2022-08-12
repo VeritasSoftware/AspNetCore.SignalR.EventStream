@@ -10,14 +10,14 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task AddAsync(EventStreamSubscriber subscriber);
         Task AddAsync(EventStreamAssociation association);
         Task UpdateAsync(Entities.EventStream eventStream);
-        Task UpdateSubscriptionLastAccessed(Guid subsciberId, DateTimeOffset lastAccessed);
+        Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, DateTimeOffset lastAccessed);
 
         Task DeleteSubscriptionAsync(Guid subscriptionId, Guid streamId);
         Task DeleteSubscriptionAsync(string connectionId);
         Task DeleteAllSubscriptionsAsync();
 
         Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions();
-        Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, Guid streamId, DateTimeOffset? from = null);
+        Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, DateTimeOffset? from = null);
         Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null);
         Task<Entities.EventStream> GetStreamAsync(long streamId, DateTimeOffset? from = null);
         Task<Entities.EventStream> GetStreamAsync(string streamName, DateTime? from = null);
@@ -27,7 +27,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task<bool> DoesStreamExistAsync(Guid streamId);
         Task<bool> DoesEventStreamAssociationExistAsync(long streamId, long associatedStreamId);
 
-        Task<IEnumerable<Entities.EventStream>> SearchEventStreams(SearchEventStreamsEntity search);
+        Task<IEnumerable<Entities.EventStream>> SearchEventStreamsAsync(SearchEventStreamsEntity search);
         Task DeleteEventStreamAsync(long id);
     }
 }

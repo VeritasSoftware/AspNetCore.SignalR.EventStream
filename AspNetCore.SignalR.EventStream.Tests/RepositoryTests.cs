@@ -134,7 +134,7 @@ namespace AspNetCore.SignalR.EventStream.Tests
             });
 
             //Act
-            var subscriber = await repository.GetSubscriberAsync(subsciberId, streamId);
+            var subscriber = await repository.GetSubscriberAsync(subsciberId);
 
             var events = subscriber.Stream.Events;
 

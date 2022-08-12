@@ -127,7 +127,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
         {
             var stream = await _repository.GetStreamAsync(streamName);
 
-            var subscriber = await _repository.GetSubscriberAsync(subscriberId, stream.StreamId);
+            var subscriber = await _repository.GetSubscriberAsync(subscriberId);
 
             if ((subscriber == null) || (subscriber.SubscribeKey != subscribeKey))
             {
@@ -142,7 +142,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
             }            
         }
 
-        public async Task EventStreamEventAppeared(EventStreamSubscriberModel subscriber, string secretKey)
+        public async Task EventStreamEventAppeared(EventStreamSubscriberModelResult subscriber, string secretKey)
         {
             try
             {
