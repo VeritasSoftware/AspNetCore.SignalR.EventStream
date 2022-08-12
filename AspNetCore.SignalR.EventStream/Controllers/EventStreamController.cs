@@ -78,14 +78,14 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             return Ok(subscriber);  
         }
 
-        [HttpPut("subscribers/{subscriberId:Guid}")]
-        public async Task<IActionResult> UpdateSubscriber(Guid subscriberId, [FromBody] UpdateSubscriberModel model)
+        [HttpPut("subscribers/{id}")]
+        public async Task<IActionResult> UpdateSubscriber(Guid id, [FromBody] UpdateSubscriberModel model)
         {
-            _logger?.LogInformation($"Updating subscriber {subscriberId}");
+            _logger?.LogInformation($"Updating subscriber {id}");
 
-            await _streamsService.UpdateSubscriberAsync(subscriberId, model);
+            await _streamsService.UpdateSubscriberAsync(id, model);
 
-            _logger?.LogInformation($"Finished updating subscriber {subscriberId}");
+            _logger?.LogInformation($"Finished updating subscriber {id}");
 
             return Ok();
         }

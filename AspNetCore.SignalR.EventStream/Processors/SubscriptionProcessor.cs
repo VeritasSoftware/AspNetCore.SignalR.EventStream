@@ -9,16 +9,18 @@ namespace AspNetCore.SignalR.EventStream.Processors
         private readonly IRepository _repository;
         private static Thread _processorThread = null;
         HubConnection _hubConnection = null;
+        private readonly ILogger<EventStreamLog>? _logger;
 
         public bool Start { get; set; } = false;
         public string? EventStreamHubUrl { get; set; }
         public string? SecretKey { get; set;}
 
-        public SubscriptionProcessor(IRepository repository, string eventStreamHubUrl, string secretKey)
+        public SubscriptionProcessor(IRepository repository, string eventStreamHubUrl, string secretKey, ILogger<EventStreamLog>? logger = null)
         {
             _repository = repository;
             this.EventStreamHubUrl = eventStreamHubUrl;
             SecretKey = secretKey;
+            _logger = logger;
         }
 
         public void Process()
@@ -28,9 +30,12 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 Thread.CurrentThread.IsBackground = true;
 
                 /* run your code here */
+                _logger?.LogInformation("Starting SubscriptionProcessor process.");
+
                 await this.ProcessAsync();
             });
 
+            _logger?.LogInformation("Starting SubscriptionProcessor thread.");
             _processorThread.Start();
         }
 
@@ -44,6 +49,8 @@ namespace AspNetCore.SignalR.EventStream.Processors
                     {
                         try
                         {
+                            _logger?.LogInformation($"Starting event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
+
                             _hubConnection = new HubConnectionBuilder()
                             .WithUrl(this.EventStreamHubUrl)
                             .WithAutomaticReconnect()
@@ -51,10 +58,13 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             .Build();
 
                             await _hubConnection.StartAsync();
+
+                            _logger?.LogInformation($"Finished starting event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
                         }
                         catch (Exception ex)
                         {
-                            //TODO: Log exception
+                            _logger?.LogError(ex, $"Error starting event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
+                            continue;
                         }
                     }
 
@@ -74,7 +84,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                 {
                                     if (subsciptionWithEvents.Stream.Events != null && subsciptionWithEvents.Stream.Events.Any())
                                     {
-                                        //TODO:Update subscriber Last Accessed                                    
+                                        _logger?.LogInformation($"Streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.");
 
                                         var eventSubscriberModel = new EventStreamSubscriberModelResult
                                         {
@@ -108,13 +118,15 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                         await _hubConnection.InvokeAsync("EventStreamEventAppeared", eventSubscriberModel, SecretKey);
 
+                                        _logger?.LogInformation($"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.");
+
                                         await _repository.UpdateSubscriptionLastAccessedAsync(subsciptionWithEvents.SubscriberId, DateTimeOffset.UtcNow);                                        
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
-                                //TODO: Log exception
+                                _logger?.LogError(ex, "Error in SubscriptionProcessor thread.");
                                 continue;
                             }
                         }
@@ -122,7 +134,8 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 }
                 catch (Exception ex)
                 {
-                    //TODO: Logging
+                    _logger?.LogError(ex, "Error in SubscriptionProcessor thread.");
+                    continue;
                 }
             }
         }
@@ -133,24 +146,29 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
             try
             {
+                _logger?.LogInformation($"Stopping event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
+
                 if (_hubConnection != null)
                 {
                     await _hubConnection.StopAsync();
                     await _hubConnection.DisposeAsync();
                 }
+                _logger?.LogInformation($"Finished stopping event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //TODO: Logging
+                _logger?.LogError(ex, $"Error stopping event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
             }
 
             try
             {
+                _logger?.LogInformation("Stopping thread.");
                 _processorThread.Abort();
+                _logger?.LogInformation("Finished stopping thread.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //TODO: Logging
+                _logger?.LogError(ex, "Error stopping thread.");
             }
         }
     }

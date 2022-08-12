@@ -5,13 +5,16 @@ namespace AspNetCore.SignalR.EventStream.Processors
     public class EventStreamProcessor : IAsyncDisposable
     {
         private readonly IRepository _repository;
-        private static Thread _processorThread = null;
+        private readonly ILogger<EventStreamLog>? _logger;
+
+        private static Thread _processorThread = null;        
 
         public bool Start { get; set; } = false;
 
-        public EventStreamProcessor(IRepository repository)
+        public EventStreamProcessor(IRepository repository, ILogger<EventStreamLog>? logger = null)
         {
             _repository = repository;
+            _logger = logger;
         }
 
         public void Process()
@@ -21,9 +24,11 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 Thread.CurrentThread.IsBackground = true;
 
                 /* run your code here */
+                _logger?.LogInformation("Starting EventStreamProcessor process.");
                 await this.ProcessAsync();
             });
 
+            _logger?.LogInformation("Starting EventStreamProcessor thread.");
             _processorThread.Start();
         }
 
@@ -44,18 +49,20 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             if (stream != null)
                             {
                                 //Get last merged datetime from stream
-                                var lastMergedAt = stream.LastAssociatedAt;
+                                var lastAssociatedAt = stream.LastAssociatedAt;
 
                                 if (activeMerge.AssociatedStreamIds != null && activeMerge.AssociatedStreamIds.Any())
                                 {
                                     foreach (var associatedStreamId in activeMerge.AssociatedStreamIds)
                                     {
                                         //Fetch events from associated stream after last merged at
-                                        var associatedStream = await _repository.GetStreamAsync(associatedStreamId, lastMergedAt);
+                                        var associatedStream = await _repository.GetStreamAsync(associatedStreamId, lastAssociatedAt);
 
                                         if (associatedStream != null && associatedStream.Events != null && associatedStream.Events.Any())
                                         {
                                             var events = new List<Entities.Event>();
+
+                                            _logger?.LogInformation($"Adding new events ({associatedStream.Events.Count()}) from associated stream {associatedStream.Name} to stream {stream.Name}.");
 
                                             foreach (var @event in associatedStream.Events)
                                             {
@@ -73,12 +80,14 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                                  events.Add(@newEvent);                                                
                                             }
 
-                                            //Create new Event
+                                            //Create new Events
                                             await _repository.AddAsync(events.ToArray());
 
-                                            lastMergedAt = DateTime.UtcNow;
+                                            _logger?.LogInformation($"Finished adding new events ({associatedStream.Events.Count()}) from associated stream {associatedStream.Name} to stream {stream.Name}.");
 
-                                            stream.LastAssociatedAt = lastMergedAt;
+                                            lastAssociatedAt = DateTime.UtcNow;
+
+                                            stream.LastAssociatedAt = lastAssociatedAt;
                                             await _repository.UpdateAsync(stream);
                                         }                                        
                                     }
@@ -87,14 +96,15 @@ namespace AspNetCore.SignalR.EventStream.Processors
                         }
                         catch (Exception ex)
                         {
-                            //TODO: Log exception
+                            _logger?.LogError(ex, "Error in EventStreamProcessor thread.");
                             continue;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-
+                    _logger?.LogError(ex, "Error in EventStreamProcessor thread.");
+                    continue;
                 }                
             }
         }
@@ -104,12 +114,14 @@ namespace AspNetCore.SignalR.EventStream.Processors
             Start = false;
 
             try
-            {                
-                _processorThread.Abort();
-            }
-            catch (Exception)
             {
-                //TODO: Logging
+                _logger?.LogInformation("Stopping thread.");
+                _processorThread.Abort();
+                _logger?.LogInformation("Finished stopping thread.");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error stopping thread.");
             }
 
             await Task.CompletedTask;
