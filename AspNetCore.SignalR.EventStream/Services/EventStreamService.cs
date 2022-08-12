@@ -40,7 +40,16 @@ namespace AspNetCore.SignalR.EventStream.Services
 
         public async Task UpdateSubscriberAsync(Guid subscriberId, UpdateSubscriberModel model)
         {
-            await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, model.LastAccessedEventAt);
+            if (model.EventId.HasValue)
+            {
+                var @event = await _repository.GetEventAsync(model.EventId.Value);
+
+                await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, @event.CreatedAt);
+
+                return;
+            }
+
+            await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, model.LastAccessedEventAt.Value);
         }
 
         public async Task DeleteEventStreamAsync(long id)

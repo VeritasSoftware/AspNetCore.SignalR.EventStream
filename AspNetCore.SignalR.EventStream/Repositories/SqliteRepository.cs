@@ -89,9 +89,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         public async Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, DateTimeOffset lastAccessed)
         {
             var subscriber = await _context.Subscribers.FirstOrDefaultAsync(s => s.SubscriberId == subsciberId);
-            subscriber.LastAccessedEventAt = lastAccessed;
-            _context.Subscribers.Update(subscriber);
-            await _context.SaveChangesAsync();
+            if(subscriber != null)
+            {
+                subscriber.LastAccessedEventAt = lastAccessed;
+                _context.Subscribers.Update(subscriber);
+                await _context.SaveChangesAsync();
+            }            
         }
 
         public async Task DeleteSubscriptionAsync(Guid subscriptionId, Guid streamId)
@@ -175,6 +178,11 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                     throw;
                 }
             }
+        }
+
+        public async Task<Event> GetEventAsync(Guid eventId)
+        {
+            return await _context.Events.FirstOrDefaultAsync(e => e.EventId == eventId);
         }
 
         public async Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null)

@@ -18,6 +18,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions();
         Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, DateTimeOffset? from = null);
+        Task<Event> GetEventAsync(Guid eventId);
         Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null);
         Task<Entities.EventStream> GetStreamAsync(long streamId, DateTimeOffset? from = null);
         Task<Entities.EventStream> GetStreamAsync(string streamName, DateTime? from = null);
