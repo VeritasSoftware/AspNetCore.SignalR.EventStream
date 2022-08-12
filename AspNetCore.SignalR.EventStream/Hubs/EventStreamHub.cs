@@ -13,16 +13,19 @@ namespace AspNetCore.SignalR.EventStream.Hubs
     {
         private readonly IRepository _repository;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<EventStreamLog>? _logger;
 
-        public EventStreamHub(IRepository repository, IConfiguration configuration)
+        public EventStreamHub(IRepository repository, IConfiguration configuration, ILogger<EventStreamLog>? logger = null)
         {
             _repository = repository;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [Authorize(Policy = "EventStreamHubPublishPolicy")]
         public async Task Publish(string streamName, params EventModel[] events)
-        {            
+        {
+            _logger?.LogInformation($"Publishing to stream {streamName}, {events.Length} events. ConnectionId: {this.Context.ConnectionId}.");
             //If stream does not exist in db, create stream and write event to db
             //Else write event to db
             var stream = await _repository.GetStreamAsync(streamName);
@@ -79,11 +82,15 @@ namespace AspNetCore.SignalR.EventStream.Hubs
 
                 await _repository.AddAsync(tmpEvents.ToArray());
             }
+
+            _logger?.LogInformation($"Finished publishing to stream {streamName}, {events.Length} events. ConnectionId: {this.Context.ConnectionId}.");
         }
 
         [Authorize(Policy = "EventStreamHubSubscribePolicy")]
         public async Task Subscribe(string streamName, string type, string receiveMethod, Guid subscriberId, Guid subscribeKey, DateTime? from = null)
         {
+            _logger?.LogInformation($"Subscribing to stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
+
             var stream = await _repository.GetStreamAsync(streamName);
 
             if (stream != null)
@@ -120,11 +127,15 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                     StreamId = newStream.Id
                 });
             }
+
+            _logger?.LogInformation($"Finished subscribing to stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
         }
 
         [Authorize(Policy = "EventStreamHubUnsubscribePolicy")]
         public async Task Unsubscribe(string streamName, Guid subscriberId, Guid subscribeKey)
         {
+            _logger?.LogInformation($"Unsubscribing from stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
+
             var stream = await _repository.GetStreamAsync(streamName);
 
             var subscriber = await _repository.GetSubscriberAsync(subscriberId);
@@ -139,7 +150,9 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                 //Remove entry from stream subscriber table in db
 
                 await _repository.DeleteSubscriptionAsync(subscriberId, stream.StreamId);
-            }            
+            }
+
+            _logger?.LogInformation($"Finished unsubscribing from stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
         }
 
         public async Task EventStreamEventAppeared(EventStreamSubscriberModelResult subscriber, string secretKey)
@@ -158,12 +171,16 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                 {
                     var eventsArrayJson = System.Text.Json.JsonSerializer.Serialize(subscriber.Stream.Events);
 
+                    _logger?.LogInformation($"Sending {subscriber.Stream.Events.Count} events to subscriber {subscriber.SubscriberId}. ConnectionId: {this.Context.ConnectionId}.");
+
                     await base.Clients.Client(subscriber.ConnectionId).SendAsync(subscriber.ReceiveMethod, eventsArrayJson, new object());
+
+                    _logger?.LogInformation($"Finished sending {subscriber.Stream.Events.Count} events to subscriber {subscriber.SubscriberId}. ConnectionId: {this.Context.ConnectionId}.");
                 }                
             }
             catch (Exception ex)
             {
-                //TODO:Log exception
+                _logger?.LogError(ex, $"Error sending {subscriber.Stream.Events.Count} events to subscriber {subscriber.SubscriberId}. ConnectionId: {this.Context.ConnectionId}.");
             }
         }
     }

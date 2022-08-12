@@ -3,6 +3,7 @@ using AspNetCore.SignalR.EventStream.HubFilters;
 using AspNetCore.SignalR.EventStream.Hubs;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace AspNetCore.SignalR.EventStream.Server
 {
@@ -11,6 +12,10 @@ namespace AspNetCore.SignalR.EventStream.Server
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            Log.Logger = new LoggerConfiguration()
+                                .ReadFrom.Configuration(configuration)
+                                .CreateLogger();
         }
 
         public IConfiguration Configuration { get; }
