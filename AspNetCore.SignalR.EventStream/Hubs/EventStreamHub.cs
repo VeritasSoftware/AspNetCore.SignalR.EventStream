@@ -167,7 +167,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                 if (string.IsNullOrEmpty(configSecretKey))
                     throw new ArgumentNullException(nameof(configSecretKey));
 
-                if (string.Compare(secretKey, configSecretKey, StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Compare(secretKey, configSecretKey, StringComparison.Ordinal) == 0)
                 {
                     var eventsArrayJson = System.Text.Json.JsonSerializer.Serialize(subscriber.Stream.Events);
 

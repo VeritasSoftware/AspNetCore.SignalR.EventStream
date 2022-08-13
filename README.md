@@ -4,6 +4,15 @@
 
 The framework allows you to build your own Event Stream Server.
 
+### Features
+
+* SignalR web sockets interface with client.
+* Multiple databases supported.
+* Http endpoints to administer the Server.
+* Rewind/fast forward events in a stream.
+* Implement your own security (as you like) in the Authorization hooks.
+* Implement your own logging (as you like).
+
 And, from you Client application
 
 you can
@@ -148,6 +157,8 @@ Eg. You may want to associate multiple streams into a stream.
 You can do so by calling the **associate** endpoint.
 
 ![Event Stream Server Admin Endpoints](/Docs/ServerAdminEndpoints.jpg)
+
+You can Rewind/fast forward events in a stream. Read [**Rewind/fast forward**](Docs/README_Rewind_FastForward.md).
 
 #### Sample Server
 
