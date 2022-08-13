@@ -28,27 +28,12 @@
       <FileName>Entities\EventStreamSubscriber.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="AspNetCore.SignalR.EventStream.EventStreamProcessor">
-    <Position X="9.25" Y="0.5" Width="3.25" />
-    <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
-    </Compartments>
+  <Interface Name="AspNetCore.SignalR.EventStream.Repositories.IRepository">
+    <Position X="8.5" Y="0.5" Width="6.5" />
     <TypeIdentifier>
-      <HashCode>QAAAAAAAACBAIIAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>EventStreamProcessor.cs</FileName>
+      <HashCode>AAAACAAAAAQAEAACIQAAAAEAAAgAEAgAIEAAAAAQAAA=</HashCode>
+      <FileName>Repositories\IRepository.cs</FileName>
     </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="AspNetCore.SignalR.EventStream.SubscriptionProcessor">
-    <Position X="13" Y="0.5" Width="4.75" />
-    <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
-    </Compartments>
-    <TypeIdentifier>
-      <HashCode>QAAAAAAAACBAIMAAEgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>SubscriptionProcessor.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
+  </Interface>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

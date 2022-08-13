@@ -136,6 +136,8 @@ Out of the box, the Server can use **MS Sqlite** database.
 
 You can also hook it up to use **MS Sql Server** database.
 
+But, you can implement **IRepository** interface to hook the Server up to your own database. Read [**My own repository**](Docs/README_MyOwnRepository.md).
+
 You can filter requests to the Event Stream SignalR Hub. Read [**Hub Filter**](Docs/README_HubFilter.md).
 
 You can also implement access to the Hub in this filter.

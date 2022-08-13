@@ -14,6 +14,9 @@ namespace AspNetCore.SignalR.EventStream
         public bool UseSqlServer { get; set; }
         public string? SqlServerConnectionString { get; set; }
         public string EventStreamHubUrl { get; set; }
+        public bool UseMyRepository { get; set; } = false;
+        public bool RegisterMyRepository { get; set; } = true;
+        public Type? Repository { get; set; }
     }
 
     public static class EventStreamExtensions
@@ -39,8 +42,12 @@ namespace AspNetCore.SignalR.EventStream
             }
             
             services.AddScoped<IEventStreamService, EventStreamService>();
-
-            if (_options.UseSqlServer)
+            
+            if (_options.UseMyRepository && _options.RegisterMyRepository && _options.Repository != null)
+            {
+                services.AddScoped(typeof(IRepository), _options.Repository);
+            }
+            else if (_options.UseSqlServer)
             {
                 services.AddScoped<IRepository, SqlServerRepository>();
                 services.AddEntityFrameworkSqlServer().AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.SqlServerConnectionString));
