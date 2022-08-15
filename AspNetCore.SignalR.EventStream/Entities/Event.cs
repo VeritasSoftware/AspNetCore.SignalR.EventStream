@@ -1,8 +1,7 @@
 ﻿namespace AspNetCore.SignalR.EventStream.Entities
 {
-    public class Event
+    public class Event : BaseEntity
     {
-        public long Id { get; set; }
         public Guid EventId { get; set; } = Guid.NewGuid();
         public string? Type { get; set; }
         public long StreamId { get; set; }
@@ -13,5 +12,15 @@
         public bool IsJson { get; set; }
         public Guid? OriginalEventId { get; set; }
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-    }    
+    }
+    
+    public class CosmosEvent : Event
+    {        
+        public string PartitionKey { get; set; }
+
+        public CosmosEvent()
+        {
+            this.PartitionKey = this.StreamId.ToString();
+        }
+    }
 }

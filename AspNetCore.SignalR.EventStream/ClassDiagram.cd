@@ -3,28 +3,21 @@
   <Class Name="AspNetCore.SignalR.EventStream.Entities.Event">
     <Position X="0.75" Y="0.5" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAACAAAgAAAAAAAAACAAABAAAAAYAFBAAQAAAAAQAAA=</HashCode>
+      <HashCode>AAAAAAAgAAAAAAAAACAAABAAAAAYAFBAAQAAAAAQAAA=</HashCode>
       <FileName>Entities\Event.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="AspNetCore.SignalR.EventStream.Entities.EventStream">
-    <Position X="4.25" Y="0.5" Width="3.5" />
-    <TypeIdentifier>
-      <HashCode>AgACAAAAAAAAAAAAACAAAAQAAgEAAABAAAAAAAAAAAA=</HashCode>
-      <FileName>Entities\EventStream.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="AspNetCore.SignalR.EventStream.Entities.EventStreamAssociation">
     <Position X="0.75" Y="4" Width="3" />
     <TypeIdentifier>
-      <HashCode>AAACEAAAAAIAAAAAACAAAAAAAAAIAABAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAEAAAAAIAAAAAACAAAAAAAAAIAABAAAAAAAAAAAA=</HashCode>
       <FileName>Entities\EventStreamAssociation.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="AspNetCore.SignalR.EventStream.Entities.EventStreamSubscriber">
     <Position X="4.25" Y="4" Width="3.5" />
     <TypeIdentifier>
-      <HashCode>AAAiAAAAQAAAAAAgACAAAAAAAAAIAABAAAAAAAAAIAA=</HashCode>
+      <HashCode>AAAgAAAAQAAAAAAgACAAAAAAAAAIAABAAAAAAAAAIAA=</HashCode>
       <FileName>Entities\EventStreamSubscriber.cs</FileName>
     </TypeIdentifier>
   </Class>

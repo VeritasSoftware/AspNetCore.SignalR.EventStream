@@ -68,7 +68,10 @@ namespace AspNetCore.SignalR.EventStream.Tests
                 IsJson = false
             });
 
-            var stream = await repository.GetStreamAsync(streamName, DateTime.UtcNow.AddMilliseconds(-500));
+            var myStream1 = await repository.GetStreamAsync(streamName);
+
+            var stream = await repository.GetStreamAsync(myStream1.Id, 1);
+
             var events = stream.Events;
 
             Assert.Equal(streamId, stream.StreamId);
@@ -130,11 +133,11 @@ namespace AspNetCore.SignalR.EventStream.Tests
                 StreamId = myStream.Id,
                 SubscriberId = subsciberId,
                 ConnectionId = "AjsjslwAsssaAAAsVVV==",
-                LastAccessedEventAt = DateTime.UtcNow.AddMilliseconds(-500)
+                LastAccessedEventId = 1
             });
 
             //Act
-            var subscriber = await repository.GetSubscriberAsync(subsciberId);
+            var subscriber = await repository.GetSubscriberAsync(subsciberId, 1);
 
             var events = subscriber.Stream.Events;
 

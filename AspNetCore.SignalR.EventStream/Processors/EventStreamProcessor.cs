@@ -49,7 +49,9 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             if (stream != null)
                             {
                                 //Get last merged datetime from stream
-                                var lastAssociatedAt = stream.LastAssociatedAt;
+                                var lastAssociatedAt = stream.LastAssociatedEventId;
+
+                                _logger?.LogInformation($"LastAssociatedEventId: {lastAssociatedAt}.");
 
                                 if (activeMerge.AssociatedStreamIds != null && activeMerge.AssociatedStreamIds.Any())
                                 {
@@ -79,15 +81,17 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                                  events.Add(@newEvent);                                                
                                             }
-
+                                            
                                             //Create new Events
                                             await _repository.AddAsync(events.ToArray());
 
-                                            _logger?.LogInformation($"Finished adding new events ({associatedStream.Events.Count()}) from associated stream {associatedStream.Name} to stream {stream.Name}.");
+                                            _logger?.LogInformation($"Finished adding new events ({associatedStream.Events.Count()}) from associated stream {associatedStream.Name} to stream {stream.Name}.");                                            
 
-                                            lastAssociatedAt = DateTime.UtcNow;
+                                            var lastEventId = events.Last().EventId;
 
-                                            stream.LastAssociatedAt = lastAssociatedAt;
+                                            var lastEvent = await _repository.GetEventAsync(lastEventId);
+
+                                            stream.LastAssociatedEventId = lastEvent?.Id;
                                             await _repository.UpdateAsync(stream);
                                         }                                        
                                     }

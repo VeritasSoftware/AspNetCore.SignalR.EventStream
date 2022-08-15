@@ -78,7 +78,14 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             {
                                 var subscriber = await _repository.GetSubscriberAsync(subscription.SubscriptionId);
 
-                                var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscriber.LastAccessedEventAt);
+                                if (subscriber == null)
+                                {
+                                    continue;
+                                }
+
+                                _logger?.LogInformation($"LastAccessedEventId: {subscriber.LastAccessedEventId}.");
+
+                                var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscriber.LastAccessedEventId);
 
                                 if (subsciptionWithEvents != null)
                                 {
@@ -93,7 +100,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                             ReceiveMethod = subsciptionWithEvents.ReceiveMethod,
                                             StreamId = subsciptionWithEvents.StreamId,
                                             SubscriberId = subsciptionWithEvents.SubscriberId,
-                                            LastAccessedEventAt = subsciptionWithEvents.LastAccessedEventAt,
+                                            LastAccessedEventId = subsciptionWithEvents.LastAccessedEventId,
                                             Stream = new EventStreamModelResult
                                             {
                                                 Name = subsciptionWithEvents.Stream.Name,
@@ -105,8 +112,8 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                                     IsJson = x.IsJson,
                                                     JsonData = x.JsonData,
                                                     MetaData = x.MetaData,
-                                                    StreamId = x.Stream.StreamId,
-                                                    StreamName = x.Stream.Name,
+                                                    StreamId = subsciptionWithEvents.Stream.StreamId,
+                                                    StreamName = subsciptionWithEvents.Stream.Name,
                                                     OriginalEventId = x.OriginalEventId,
                                                     Type = x.Type,
                                                     CreatedAt = x.CreatedAt
@@ -120,7 +127,9 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                         _logger?.LogInformation($"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.");
 
-                                        await _repository.UpdateSubscriptionLastAccessedAsync(subsciptionWithEvents.SubscriberId, DateTimeOffset.UtcNow);                                        
+                                        var id = subsciptionWithEvents.Stream.Events.Last().Id;
+
+                                        await _repository.UpdateSubscriptionLastAccessedAsync(subsciptionWithEvents.SubscriberId, id);                                        
                                     }
                                 }
                             }

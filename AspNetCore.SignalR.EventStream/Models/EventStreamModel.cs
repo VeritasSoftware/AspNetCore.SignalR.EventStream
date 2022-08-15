@@ -7,6 +7,6 @@
         public string? Name { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastEventInsertedAt { get; set; }
-        public DateTimeOffset? LastAssociatedAt { get; set; }
+        public long? LastAssociatedEventId { get; set; }
     }
 }

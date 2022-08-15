@@ -1,8 +1,7 @@
 ﻿namespace AspNetCore.SignalR.EventStream.Entities
 {
-    public class EventStreamAssociation
+    public class EventStreamAssociation : BaseEntity
     {
-        public long Id { get; set; }
         public long StreamId { get; set; }
         public virtual EventStream? Stream { get; set; }
         public long AssociatedStreamId { get; set; }

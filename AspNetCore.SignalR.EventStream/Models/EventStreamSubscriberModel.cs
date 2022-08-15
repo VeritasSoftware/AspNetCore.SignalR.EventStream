@@ -8,7 +8,7 @@
         public Guid SubscriberId { get; set; }
         public string? ConnectionId { get; set; }
         public string? ReceiveMethod { get; set; }
-        public DateTimeOffset? LastAccessedEventAt { get; set; }
+        public long? LastAccessedEventId { get; set; }
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
 
@@ -20,7 +20,7 @@
         public Guid SubscriberId { get; set; }
         public string? ConnectionId { get; set; }
         public string? ReceiveMethod { get; set; }
-        public DateTimeOffset? LastAccessedEventAt { get; set; }
+        public long? LastAccessedEventId { get; set; }
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
 }

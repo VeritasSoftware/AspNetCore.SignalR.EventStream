@@ -2,7 +2,6 @@
 {
     public class UpdateSubscriberModel
     {
-        public DateTimeOffset? LastAccessedEventAt { get; set; }
-        public Guid? LastAccessedEventAtFromEventId { get; set; }
+        public long? LastAccessedEventId { get; set; }
     }
 }

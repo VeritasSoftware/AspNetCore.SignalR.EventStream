@@ -8,6 +8,9 @@ The framework allows you to build your own Event Stream Server.
 
 * SignalR web sockets interface with client.
 * Multiple databases supported.
+    * MS Sqlite (out of the box)
+    * MS Sql Server
+    * Azure CosmosDb
 * Http endpoints to administer the Server.
 * Rewind/fast forward events in a stream.
 * Implement your own security (as you like) in the Authorization hooks.
@@ -74,8 +77,8 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
         //Add Event Stream
         services.AddEventStream(options => 
         {
-            options.UseSqlServer = false;
-            options.SqlServerConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
+            options.DatabaseType = DatabaseTypeOptions.SqlServer;
+            options.ConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
             options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub";
         });
 
@@ -134,7 +137,7 @@ Eg.
 
 Out of the box, the Server can use **MS Sqlite** database.
 
-You can also hook it up to use **MS Sql Server** database.
+You can also hook it up to use **MS Sql Server** and **Azure CosmosDb** databases.
 
 But, you can implement **IRepository** interface to hook the Server up to your own database. Read [**My own repository**](Docs/README_MyOwnRepository.md).
 
@@ -177,6 +180,7 @@ Then, build the connection to the **Event Stream Hub**.
 ```c#
 var conn = new HubConnectionBuilder()
                 .WithUrl("https://localhost:5001/eventstreamhub")
+                .WithAutomaticReconnect()
                 .AddNewtonsoftJsonProtocol()
                 .Build();
 

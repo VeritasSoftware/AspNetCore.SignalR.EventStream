@@ -57,8 +57,8 @@ namespace AspNetCore.SignalR.EventStream.Server
             //Add Event Stream
             services.AddEventStream(options => 
             {
-                options.UseSqlServer = false;
-                options.SqlServerConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
+                options.DatabaseType = DatabaseTypeOptions.Sqlite;
+                options.ConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
                 options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub";
             });
 

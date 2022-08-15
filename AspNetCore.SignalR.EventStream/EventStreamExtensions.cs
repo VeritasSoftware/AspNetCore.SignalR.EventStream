@@ -9,10 +9,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.SignalR.EventStream
 {
+    public enum DatabaseTypeOptions
+    {
+        Sqlite,
+        SqlServer,
+        CosmosDb
+    }
+
     public class EventStreamOptions
     {
-        public bool UseSqlServer { get; set; }
-        public string? SqlServerConnectionString { get; set; }
+        public DatabaseTypeOptions DatabaseType { get; set; }
+        public string? ConnectionString { get; set; }
         public string EventStreamHubUrl { get; set; }
         public bool UseMyRepository { get; set; } = false;
         public bool RegisterMyRepository { get; set; } = true;
@@ -47,10 +54,15 @@ namespace AspNetCore.SignalR.EventStream
             {
                 services.AddScoped(typeof(IRepository), _options.Repository);
             }
-            else if (_options.UseSqlServer)
+            else if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
+            {
+                services.AddScoped<IRepository, CosmosDbRepository>();
+                services.AddEntityFrameworkCosmos().AddDbContext<CosmosDbContext>(o => o.UseCosmos(_options.ConnectionString, "EventStream"));
+            }
+            else if (_options.DatabaseType == DatabaseTypeOptions.SqlServer)
             {
                 services.AddScoped<IRepository, SqlServerRepository>();
-                services.AddEntityFrameworkSqlServer().AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.SqlServerConnectionString));
+                services.AddEntityFrameworkSqlServer().AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.ConnectionString));
             }
             else
             {
@@ -77,9 +89,40 @@ namespace AspNetCore.SignalR.EventStream
             var config = app.ApplicationServices.GetService<IConfiguration>();
             var secretKey = config["EventStreamSecretKey"];
 
-            if (_options.UseSqlServer)
+            if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
             {
-                var options = new DbContextOptionsBuilder().UseSqlServer(_options.SqlServerConnectionString).Options;
+                var options = new DbContextOptionsBuilder().UseCosmos(_options.ConnectionString, "EventStream").Options;
+
+                var context = new CosmosDbContext(options);
+                var context1 = new CosmosDbContext(options);
+                var repository = new CosmosDbRepository(context);
+                var repository1 = new CosmosDbRepository(context1);
+
+                //context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
+
+                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+
+                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
+                {
+                    Start = true
+                };
+
+                _subscriptionProcessor.Process();
+
+                _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
+                {
+                    Start = true
+                };
+
+                _eventStreamProcessor.Process();
+            }
+            else if (_options.DatabaseType == DatabaseTypeOptions.SqlServer)
+            {
+                var options = new DbContextOptionsBuilder().UseSqlServer(_options.ConnectionString).Options;
 
                 var context = new SqlServerDbContext(options);
                 var context1 = new SqlServerDbContext(options);

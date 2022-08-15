@@ -9,6 +9,9 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos">
+      <Version>6.0.7</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.7" />
 	<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.7" />
 	<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="6.0.7" />
@@ -19,6 +22,9 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">		
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos">
+			<Version>5.0.17</Version>
+		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.17" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.17" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="5.0.17" />

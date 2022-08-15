@@ -47,7 +47,7 @@ namespace AspNetCore.SignalR.EventStream.Services
                 SubscriberId = subscriber.SubscriberId,
                 ConnectionId = subscriber.ConnectionId,
                 CreatedAt = subscriber.CreatedAt,
-                LastAccessedEventAt = subscriber.LastAccessedEventAt,
+                LastAccessedEventId = subscriber.LastAccessedEventId,
                 ReceiveMethod = subscriber.ReceiveMethod,
                 StreamId = subscriber.StreamId,
                 Stream = new EventStreamModel
@@ -64,16 +64,12 @@ namespace AspNetCore.SignalR.EventStream.Services
 
         public async Task UpdateSubscriberAsync(Guid subscriberId, UpdateSubscriberModel model)
         {
-            if (model.LastAccessedEventAtFromEventId.HasValue)
+            if (model.LastAccessedEventId.HasValue)
             {
-                var @event = await _repository.GetEventAsync(model.LastAccessedEventAtFromEventId.Value);
+                var @event = await _repository.GetEventAsync(model.LastAccessedEventId.Value);
 
-                await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, @event.CreatedAt);
-
-                return;
+                await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, @event.Id);
             }
-
-            await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, model.LastAccessedEventAt.Value);
         }
 
         public async Task DeleteEventStreamAsync(long id)
@@ -98,7 +94,7 @@ namespace AspNetCore.SignalR.EventStream.Services
                     Id = eventStream.Id,
                     StreamId = eventStream.StreamId,
                     Name = eventStream.Name,
-                    LastAssociatedAt = eventStream.LastAssociatedAt,
+                    LastAssociatedEventId = eventStream.LastAssociatedEventId,
                     LastEventInsertedAt = eventStream.LastEventInsertedAt,
                     CreatedAt = eventStream.CreatedAt
                 };
