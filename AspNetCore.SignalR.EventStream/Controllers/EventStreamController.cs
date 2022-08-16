@@ -54,12 +54,12 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             return Ok();
         }
 
-        [HttpGet("events/{id}")]
-        public async Task<IActionResult> GetEvent(Guid id)
+        [HttpGet("events/{streamId}/{id}")]
+        public async Task<IActionResult> GetEvent(long streamId, Guid id)
         {
             _logger?.LogInformation($"Fetching event {id}");
 
-            var @event = await _streamsService.GetEventAsync(id);
+            var @event = await _streamsService.GetEventAsync(streamId, id);
 
             _logger?.LogInformation($"Finished fetching event {id}");
 

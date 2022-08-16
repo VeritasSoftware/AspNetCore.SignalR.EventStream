@@ -169,14 +169,14 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             }
         }
 
-        public async Task<Event> GetEventAsync(long eventId)
+        public async Task<Event> GetEventAsync(long streamId, long eventId)
         {
-            return await _context.Events.Include(e => e.Stream).AsNoTracking().FirstOrDefaultAsync(e => e.Id == eventId);
+            return await _context.Events.Include(e => e.Stream).AsNoTracking().FirstOrDefaultAsync(e => e.StreamId == streamId && e.Id == eventId);
         }
 
-        public async Task<Event> GetEventAsync(Guid eventId)
+        public async Task<Event> GetEventAsync(long streamId, Guid eventId)
         {
-            return await _context.Events.Include(e => e.Stream).AsNoTracking().FirstOrDefaultAsync(e => e.EventId == eventId);
+            return await _context.Events.Include(e => e.Stream).AsNoTracking().FirstOrDefaultAsync(e => e.StreamId == streamId && e.EventId == eventId);
         }
 
         public async Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null)

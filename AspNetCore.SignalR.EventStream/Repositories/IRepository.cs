@@ -18,8 +18,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions();
         Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? from = null);
-        Task<Event> GetEventAsync(long eventId);
-        Task<Event> GetEventAsync(Guid eventId);
+        Task<Event> GetEventAsync(long streamId, long eventId);
+        Task<Event> GetEventAsync(long streamId, Guid eventId);
         Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null);
         Task<Entities.EventStream> GetStreamAsync(long streamId, long? from = null);
         Task<Entities.EventStream> GetStreamAsync(string streamName, DateTime? from = null);

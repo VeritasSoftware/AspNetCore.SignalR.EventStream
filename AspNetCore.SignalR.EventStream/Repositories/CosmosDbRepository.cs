@@ -204,9 +204,10 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             }
         }
 
-        public async Task<Event> GetEventAsync(long eventId)
+        public async Task<Event> GetEventAsync(long streamId, long eventId)
         {
-            var @event = await _context.Events.AsNoTracking().FirstOrDefaultAsync(e => e.Id == eventId);
+            var @event = await _context.Events.WithPartitionKey(streamId.ToString()).AsNoTracking()
+                                              .FirstOrDefaultAsync(e => e.Id == eventId);
 
             if (@event != null)
             {
@@ -216,9 +217,10 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return @event;
         }
 
-        public async Task<Event> GetEventAsync(Guid eventId)
+        public async Task<Event> GetEventAsync(long streamId, Guid eventId)
         {
-            var @event = await _context.Events.AsNoTracking().FirstOrDefaultAsync(e => e.EventId == eventId);
+            var @event = await _context.Events.WithPartitionKey(streamId.ToString()).AsNoTracking()
+                                              .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (@event != null)
             {

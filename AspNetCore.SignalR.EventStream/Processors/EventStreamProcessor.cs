@@ -89,7 +89,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                             var lastEventId = events.Last().EventId;
 
-                                            var lastEvent = await _repository.GetEventAsync(lastEventId);
+                                            var lastEvent = await _repository.GetEventAsync(stream.Id, lastEventId);
 
                                             stream.LastAssociatedEventId = lastEvent?.Id;
                                             await _repository.UpdateAsync(stream);
