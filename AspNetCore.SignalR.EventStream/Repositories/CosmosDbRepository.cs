@@ -168,12 +168,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task<IEnumerable<Entities.EventStream>> SearchEventStreamsAsync(SearchEventStreamsEntity search)
         {
-            return await _context.EventsStream.Where(builder => builder.Initial(x => true)
-                                                                       .And(!string.IsNullOrEmpty(search.Name), x => x.Name.ToLower().Contains(search.Name.ToLower()))
-                                                                       .And(search.StreamId.HasValue, x => x.StreamId == search.StreamId.Value)
-                                                                       .And(search.CreatedStart.HasValue, x => x.CreatedAt >= search.CreatedStart.Value)
-                                                                       .And(search.CreatedEnd.HasValue, x => x.CreatedAt <= search.CreatedEnd.Value)
-                                                                       .ToExpressionPredicate()).ToListAsync();
+            throw new NotImplementedException();
         }
 
         public async Task DeleteEventStreamAsync(long id)
@@ -182,23 +177,22 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
             if (stream != null)
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
-
                 try
                 {
                     var associations = await _context.EventStreamsAssociation.Where(sa => sa.AssociatedStreamId == id).ToListAsync();
 
-                    _context.EventStreamsAssociation.RemoveRange(associations);
+                    foreach (var association in associations)
+                    {
+                        _context.EventStreamsAssociation.Remove(association);
+                    }
+
                     await _context.SaveChangesAsync();
 
                     _context.EventsStream.Remove(stream);
                     await _context.SaveChangesAsync();
-
-                    await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {
-                    await transaction.RollbackAsync();
                     throw;
                 }
             }
