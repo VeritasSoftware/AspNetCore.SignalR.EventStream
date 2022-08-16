@@ -74,7 +74,8 @@ namespace AspNetCore.SignalR.EventStream.Services
                     Id = subscriber.Stream.Id,
                     StreamId = subscriber.Stream.StreamId,
                     CreatedAt = subscriber.Stream.CreatedAt,
-                    Name = subscriber.Stream.Name
+                    Name = subscriber.Stream.Name,
+                    LastAssociatedEventId = subscriber.Stream.LastAssociatedEventId
                 }
             };
 
