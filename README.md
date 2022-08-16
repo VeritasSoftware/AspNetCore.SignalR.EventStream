@@ -79,6 +79,7 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
         {
             options.DatabaseType = DatabaseTypeOptions.SqlServer;
             options.ConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
+            options.DeleteDatabaseIfExists = false;
             options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub";
         });
 

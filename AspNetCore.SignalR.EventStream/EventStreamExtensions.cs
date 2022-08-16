@@ -20,6 +20,7 @@ namespace AspNetCore.SignalR.EventStream
     {
         public DatabaseTypeOptions DatabaseType { get; set; }
         public string? ConnectionString { get; set; }
+        public bool DeleteDatabaseIfExists { get; set; } = false;
         public string EventStreamHubUrl { get; set; }
         public bool UseMyRepository { get; set; } = false;
         public bool RegisterMyRepository { get; set; } = true;
@@ -98,7 +99,8 @@ namespace AspNetCore.SignalR.EventStream
                 var repository = new CosmosDbRepository(context);
                 var repository1 = new CosmosDbRepository(context1);
 
-                //context.Database.EnsureDeleted();
+                if (_options.DeleteDatabaseIfExists)
+                    context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
@@ -129,7 +131,8 @@ namespace AspNetCore.SignalR.EventStream
                 var repository = new SqlServerRepository(context);
                 var repository1 = new SqlServerRepository(context1);
 
-                //context.Database.EnsureDeleted();
+                if (_options.DeleteDatabaseIfExists)
+                    context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
                 context.Database.Migrate();
 
@@ -159,7 +162,8 @@ namespace AspNetCore.SignalR.EventStream
                 var repository = new SqliteRepository(context);
                 var repository1 = new SqliteRepository(context1);
 
-                //context.Database.EnsureDeleted();
+                if (_options.DeleteDatabaseIfExists)
+                    context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
                 context.Database.Migrate();
 

@@ -59,6 +59,7 @@ namespace AspNetCore.SignalR.EventStream.Server
             {
                 options.DatabaseType = DatabaseTypeOptions.Sqlite;
                 options.ConnectionString = Configuration.GetConnectionString("EventStreamDatabase");
+                options.DeleteDatabaseIfExists = true;
                 options.EventStreamHubUrl = "https://localhost:5001/eventstreamhub";
             });
 
