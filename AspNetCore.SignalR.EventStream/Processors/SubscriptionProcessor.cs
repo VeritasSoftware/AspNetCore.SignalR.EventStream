@@ -83,7 +83,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                     continue;
                                 }
 
-                                _logger?.LogInformation($"LastAccessedEventId: {subscriber.LastAccessedEventId}.");
+                                //_logger?.LogInformation($"LastAccessedEventId: {subscriber.LastAccessedEventId}.");
 
                                 var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscriber.LastAccessedEventId);
 
