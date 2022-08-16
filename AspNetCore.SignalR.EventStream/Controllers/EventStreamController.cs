@@ -20,38 +20,16 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             _logger = logger;
         }
 
-        [HttpPost("streams/associate")]
-        public async Task<IActionResult> AssociateStreams([FromBody] AssociateStreamsModel associateStreamsModel)
+        [HttpGet("streams/{id}")]
+        public async Task<IActionResult> GetStream(Guid id)
         {
-            _logger?.LogInformation($"Associating streams to stream {associateStreamsModel.Name ?? associateStreamsModel.StreamId.ToString()}");
-            var mergedStream = await _streamsService.AssociateStreamsAsync(associateStreamsModel);
-            _logger?.LogInformation($"Finished associating streams to stream {associateStreamsModel.Name ?? associateStreamsModel.StreamId.ToString()}");
+            _logger?.LogInformation($"Fetching stream {id}");
 
-            return Ok(mergedStream);
-        }
+            var stream = await _streamsService.GetStreamAsync(id);
 
-        [HttpPost("streams/search")]
-        public IActionResult SearchStreams([FromBody] SearchStreamsModel searchStreamsModel)
-        {
-            _logger?.LogInformation($"Searching streams : {JsonSerializer.Serialize(searchStreamsModel)}");
+            _logger?.LogInformation($"Finished fetching stream {id}");
 
-            var streams = _streamsService.SearchStreamsAsync(searchStreamsModel);
-
-            _logger?.LogInformation($"Finished searching streams : {JsonSerializer.Serialize(searchStreamsModel)}");
-
-            return Ok(streams);
-        }
-
-        [HttpDelete("streams/{id}")]
-        public async Task<IActionResult> DeleteStream(long id)
-        {
-            _logger?.LogInformation($"Deleting stream {id}");
-
-            await _streamsService.DeleteEventStreamAsync(id);
-
-            _logger?.LogInformation($"Finished deleting stream {id}");
-
-            return Ok();
+            return Ok(stream);
         }
 
         [HttpGet("events/{streamId}/{id}")]
@@ -75,7 +53,29 @@ namespace AspNetCore.SignalR.EventStream.Controllers
 
             _logger?.LogInformation($"Finished fetching subscriber {id}");
 
-            return Ok(subscriber);  
+            return Ok(subscriber);
+        }
+
+        [HttpPost("streams/associate")]
+        public async Task<IActionResult> AssociateStreams([FromBody] AssociateStreamsModel associateStreamsModel)
+        {
+            _logger?.LogInformation($"Associating streams to stream {associateStreamsModel.Name ?? associateStreamsModel.StreamId.ToString()}");
+            var mergedStream = await _streamsService.AssociateStreamsAsync(associateStreamsModel);
+            _logger?.LogInformation($"Finished associating streams to stream {associateStreamsModel.Name ?? associateStreamsModel.StreamId.ToString()}");
+
+            return Ok(mergedStream);
+        }
+
+        [HttpPost("streams/search")]
+        public IActionResult SearchStreams([FromBody] SearchStreamsModel searchStreamsModel)
+        {
+            _logger?.LogInformation($"Searching streams : {JsonSerializer.Serialize(searchStreamsModel)}");
+
+            var streams = _streamsService.SearchStreamsAsync(searchStreamsModel);
+
+            _logger?.LogInformation($"Finished searching streams : {JsonSerializer.Serialize(searchStreamsModel)}");
+
+            return Ok(streams);
         }
 
         [HttpPut("subscribers/{id}")]
@@ -86,6 +86,18 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             await _streamsService.UpdateSubscriberAsync(id, model);
 
             _logger?.LogInformation($"Finished updating subscriber {id}");
+
+            return Ok();
+        }
+
+        [HttpDelete("streams/{id}")]
+        public async Task<IActionResult> DeleteStream(long id)
+        {
+            _logger?.LogInformation($"Deleting stream {id}");
+
+            await _streamsService.DeleteEventStreamAsync(id);
+
+            _logger?.LogInformation($"Finished deleting stream {id}");
 
             return Ok();
         }

@@ -163,9 +163,9 @@ You can implement your own security for these endpoints. Read [**Authorization**
 
 You can perform Admin tasks, while the Server is running,
 
-Eg. You may want to associate multiple streams into a stream.
+Eg. You may want to get a stream by it's id.
 
-You can do so by calling the **associate** endpoint.
+You can do so by calling the **streams/{id}** endpoint.
 
 ![Event Stream Server Admin Endpoints](/Docs/ServerAdminEndpoints.jpg)
 

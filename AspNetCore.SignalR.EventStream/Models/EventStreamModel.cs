@@ -6,7 +6,6 @@
         public Guid StreamId { get; set; }
         public string? Name { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
-        public DateTimeOffset? LastEventInsertedAt { get; set; }
         public long? LastAssociatedEventId { get; set; }
     }
 }

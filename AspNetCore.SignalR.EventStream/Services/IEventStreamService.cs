@@ -10,5 +10,6 @@ namespace AspNetCore.SignalR.EventStream.Services
         Task UpdateSubscriberAsync(Guid subscriberId, UpdateSubscriberModel subscriberLastAccessedAtModel);
         Task<EventStreamSubscriberModel> GetSubscriberAsync(Guid subscriberId);
         Task<EventModel> GetEventAsync(long streamId, Guid id);
+        Task<EventStreamModel> GetStreamAsync(Guid id);
     }
 }
