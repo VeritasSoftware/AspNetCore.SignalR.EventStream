@@ -9,7 +9,7 @@ Console.WriteLine(Environment.NewLine);
 
 var conn = new HubConnectionBuilder()
                 .WithUrl("https://localhost:5001/eventstreamhub")
-                .WithAutomaticReconnect(new TimeSpan[] { TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10) })
+                .WithAutomaticReconnect(new TimeSpan[] { TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30) })
                 .AddNewtonsoftJsonProtocol()
                 .Build();
 

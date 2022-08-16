@@ -41,21 +41,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                             Type = @event.Type,
                         };                        
 
-                        _context.Events.Add(cosmosEvent);
-                        _context.SaveChanges();
+                        _context.Events.Add(cosmosEvent);                        
 
                         maxId++;
-                    }                    
-
-                    var stream = _context.EventsStream.FirstOrDefault(s => s.Id == events.First().StreamId);
-                    if (stream != null)
-                    {
-                        stream.LastEventInsertedAt = DateTime.UtcNow;
-
-                        _context.EventsStream.Update(stream);
-
-                        _context.SaveChanges();
                     }
+
+                    _context.SaveChanges();
                 }
                 catch (Exception ex)
                 {
@@ -105,7 +96,6 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                 return;
             }
 
-            stream.LastEventInsertedAt = eventStream.LastEventInsertedAt;
             stream.Name = eventStream.Name;
             stream.LastAssociatedEventId = eventStream.LastAssociatedEventId;
 

@@ -25,16 +25,6 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
                     await _context.SaveChangesAsync();
 
-                    var stream = _context.EventsStream.FirstOrDefault(s => s.Id == @event.First().StreamId);
-                    if (stream != null)
-                    {
-                        stream.LastEventInsertedAt = DateTime.UtcNow;
-
-                        _context.EventsStream.Update(stream);
-
-                        await _context.SaveChangesAsync();
-                    }
-
                     lock (_lock)
                     {
                         transaction.Commit();
@@ -76,7 +66,6 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                 return;
             }
 
-            stream.LastEventInsertedAt = eventStream.LastEventInsertedAt;
             stream.Name = eventStream.Name;
             stream.LastAssociatedEventId = eventStream.LastAssociatedEventId;
 
