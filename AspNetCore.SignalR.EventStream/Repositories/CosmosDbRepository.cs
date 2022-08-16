@@ -1,5 +1,6 @@
 ﻿using AspNetCore.SignalR.EventStream.DomainEntities;
 using AspNetCore.SignalR.EventStream.Entities;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.SignalR.EventStream.Repositories
@@ -150,8 +151,14 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task DeleteAllSubscriptionsAsync()
         {
-            //await _context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE dbo.Subscribers");
-            await Task.CompletedTask;
+            var client = _context.Database.GetCosmosClient();
+
+            var dbName = _context.Database.GetDbConnection().Database;
+
+            Container container = client.GetContainer(dbName, "Subscribers");
+            ResponseMessage response = await container.ReplaceContainerStreamAsync(new ContainerProperties());
+
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<bool> DoesStreamExistAsync(string name)
