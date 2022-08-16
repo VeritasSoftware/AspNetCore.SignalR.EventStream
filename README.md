@@ -122,7 +122,7 @@ To hook up Event Stream, do the following in the Startup.cs of your Server appli
 
 In your Server project's **appsettings.json** add a **secret key**.
 
-And, if you are using MS Sql Server, specify the connection string.
+And, if you are using MS Sql Server/CosmosDb, specify the connection string.
 
 Eg.
 
@@ -130,8 +130,11 @@ Eg.
 {
   "EventStreamSecretKey": "fce17eec-4913-48d6-b013-2583ab8583b3",
   "ConnectionStrings": {
-    "EventStreamDatabase": "Server=localhost;Database=EventStream;Trusted_Connection=True;"
-  }
+    //MS Sql Server
+    "EventStreamDatabase": "Server=DESKTOP-KTF6JRB;Database=EventStream;Trusted_Connection=True;"
+    //Azure CosmosDb
+    //"EventStreamDatabase": "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+  },
 }
 ```
 
