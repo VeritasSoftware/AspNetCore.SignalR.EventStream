@@ -58,17 +58,17 @@ namespace AspNetCore.SignalR.EventStream
             else if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
             {
                 services.AddScoped<IRepository, CosmosDbRepository>();
-                services.AddEntityFrameworkCosmos().AddDbContext<CosmosDbContext>(o => o.UseCosmos(_options.ConnectionString, "EventStream"));
+                services.AddDbContext<CosmosDbContext>(o => o.UseCosmos(_options.ConnectionString, "EventStream"));
             }
             else if (_options.DatabaseType == DatabaseTypeOptions.SqlServer)
             {
                 services.AddScoped<IRepository, SqlServerRepository>();
-                services.AddEntityFrameworkSqlServer().AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.ConnectionString));
+                services.AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.ConnectionString));
             }
             else
             {
                 services.AddScoped<IRepository, SqliteRepository>();
-                services.AddEntityFrameworkSqlite().AddDbContext<SqliteDbContext>(ServiceLifetime.Transient);
+                services.AddDbContext<SqliteDbContext>(ServiceLifetime.Transient);
             }
 
             services.AddScoped<EventStreamAuthorizeAttribute>();
