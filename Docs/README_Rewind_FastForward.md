@@ -16,4 +16,4 @@ The body of the request must be like below:
 }
 ```
 
-**lastAccessedEventId** is the Event Id (integer) of the Event, you want to rewind/fast forward to.
+**lastAccessedEventId** is the Event Id (integer) of the Event, you want to replay from.

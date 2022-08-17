@@ -107,7 +107,7 @@ namespace AspNetCore.SignalR.EventStream.Services
             {
                 var subscriber = await _repository.GetSubscriberAsync(subscriberId);
 
-                var @event = await _repository.GetEventAsync(subscriber.StreamId, model.LastAccessedEventId.Value);
+                var @event = await _repository.GetEventAsync(subscriber.StreamId, model.LastAccessedEventId.Value <= 1 ? 0 : (model.LastAccessedEventId.Value - 1));
 
                 await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, @event.Id);
             }
