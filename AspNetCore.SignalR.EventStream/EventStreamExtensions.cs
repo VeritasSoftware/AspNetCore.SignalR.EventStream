@@ -90,7 +90,31 @@ namespace AspNetCore.SignalR.EventStream
             var config = app.ApplicationServices.GetService<IConfiguration>();
             var secretKey = config["EventStreamSecretKey"];
 
-            if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
+            if (_options.UseMyRepository && _options.Repository != null)
+            {
+                var repository = app.ApplicationServices.GetService<IRepository>();
+                var repository1 = app.ApplicationServices.GetService<IRepository>();
+
+                repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
+
+                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+
+                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
+                {
+                    Start = true
+                };
+
+                _subscriptionProcessor.Process();
+
+                _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
+                {
+                    Start = true
+                };
+
+                _eventStreamProcessor.Process();
+            }
+            else if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
             {
                 var options = new DbContextOptionsBuilder().UseCosmos(_options.ConnectionString, "EventStream").Options;
 
