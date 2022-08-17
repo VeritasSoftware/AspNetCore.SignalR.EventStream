@@ -32,6 +32,25 @@ namespace AspNetCore.SignalR.EventStream.Services
             return model;
         }
 
+        public async Task<EventStreamModel> GetStreamAsync(string name)
+        {
+            var stream = await _repository.GetStreamAsync(name);
+
+            if (stream == null)
+                throw new InvalidOperationException($"Stream: {name} not found.");
+
+            var model = new EventStreamModel
+            {
+                CreatedAt = stream.CreatedAt,
+                Id = stream.Id,
+                LastAssociatedEventId = stream.LastAssociatedEventId,
+                Name = stream.Name,
+                StreamId = stream.StreamId
+            };
+
+            return model;
+        }
+
         public async Task<EventModel> GetEventAsync(long streamId, Guid id)
         {
             var @event = await _repository.GetEventAsync(streamId, id);
