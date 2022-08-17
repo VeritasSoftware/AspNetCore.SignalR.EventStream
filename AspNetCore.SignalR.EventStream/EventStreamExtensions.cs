@@ -92,8 +92,8 @@ namespace AspNetCore.SignalR.EventStream
 
             if (_options.UseMyRepository && _options.Repository != null)
             {
-                var repository = app.ApplicationServices.GetService<IRepository>();
-                var repository1 = app.ApplicationServices.GetService<IRepository>();
+                var repository = app.ApplicationServices.GetServiceOrNull<IRepository>();
+                var repository1 = app.ApplicationServices.GetServiceOrNull<IRepository>();
 
                 if (_options.DeleteDatabaseIfExists)
                     repository.EnsureDatabaseDeleted();
