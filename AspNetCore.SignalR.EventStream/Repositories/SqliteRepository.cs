@@ -15,6 +15,17 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             _context = context;
         }
 
+        public void EnsureDatabaseDeleted()
+        {
+            _context.Database.EnsureDeleted();
+        }
+
+        public void EnsureDatabaseCreated()
+        {
+            _context.Database.EnsureCreated();
+            _context.Database.Migrate();
+        }
+
         public async Task AddAsync(params Event[] @event)
         {
             using (var transaction = _context.Database.BeginTransaction())

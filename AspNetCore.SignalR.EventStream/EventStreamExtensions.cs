@@ -95,6 +95,10 @@ namespace AspNetCore.SignalR.EventStream
                 var repository = app.ApplicationServices.GetService<IRepository>();
                 var repository1 = app.ApplicationServices.GetService<IRepository>();
 
+                if (_options.DeleteDatabaseIfExists)
+                    repository.EnsureDatabaseDeleted();
+                repository.EnsureDatabaseCreated();
+
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
                 var logger = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
@@ -124,8 +128,8 @@ namespace AspNetCore.SignalR.EventStream
                 var repository1 = new CosmosDbRepository(context1);
 
                 if (_options.DeleteDatabaseIfExists)
-                    context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                    repository.EnsureDatabaseDeleted();
+                repository.EnsureDatabaseCreated();
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
@@ -156,9 +160,8 @@ namespace AspNetCore.SignalR.EventStream
                 var repository1 = new SqlServerRepository(context1);
 
                 if (_options.DeleteDatabaseIfExists)
-                    context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-                context.Database.Migrate();
+                    repository.EnsureDatabaseDeleted();
+                repository.EnsureDatabaseCreated();                
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
@@ -187,9 +190,8 @@ namespace AspNetCore.SignalR.EventStream
                 var repository1 = new SqliteRepository(context1);
 
                 if (_options.DeleteDatabaseIfExists)
-                    context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-                context.Database.Migrate();
+                    repository.EnsureDatabaseDeleted();
+                repository.EnsureDatabaseCreated();
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 

@@ -16,6 +16,9 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task DeleteSubscriptionAsync(string connectionId);
         Task DeleteAllSubscriptionsAsync();
 
+        void EnsureDatabaseDeleted();
+        void EnsureDatabaseCreated();
+
         Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions();
         Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? from = null);
         Task<Event> GetEventAsync(long streamId, long eventId);

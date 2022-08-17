@@ -16,6 +16,16 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             _context = context;
         }
 
+        public void EnsureDatabaseDeleted()
+        {
+            _context.Database.EnsureDeleted();
+        }
+
+        public void EnsureDatabaseCreated()
+        {
+            _context.Database.EnsureCreated();
+        }
+
         public async Task AddAsync(params Event[] events)
         {
             lock (_lock)
