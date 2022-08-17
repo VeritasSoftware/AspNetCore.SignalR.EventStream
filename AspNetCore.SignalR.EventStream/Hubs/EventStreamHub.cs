@@ -25,134 +25,158 @@ namespace AspNetCore.SignalR.EventStream.Hubs
         [Authorize(Policy = "EventStreamHubPublishPolicy")]
         public async Task Publish(string streamName, params EventModel[] events)
         {
-            _logger?.LogInformation($"Publishing to stream {streamName}, {events.Length} events. ConnectionId: {this.Context.ConnectionId}.");
-            //If stream does not exist in db, create stream and write event to db
-            //Else write event to db
-            var stream = await _repository.GetStreamAsync(streamName);
-
-            if (stream == null)
+            try
             {
-                var streamId = Guid.NewGuid();
+                _logger?.LogInformation($"Publishing to stream {streamName}, {events.Length} events. ConnectionId: {this.Context.ConnectionId}.");
+                //If stream does not exist in db, create stream and write event to db
+                //Else write event to db
+                var stream = await _repository.GetStreamAsync(streamName);
 
-                await _repository.AddAsync(new Entities.EventStream
+                if (stream == null)
                 {
-                    Name = streamName,                    
-                    StreamId = streamId
-                });
+                    var streamId = Guid.NewGuid();
 
-                var newStream = await _repository.GetStreamAsync(streamId);
-
-                var tmpEvents = new List<Event>();
-
-                foreach(var @event in events)
-                {
-                    var eventEntity = new Event
+                    await _repository.AddAsync(new Entities.EventStream
                     {
-                        Data = @event.Data,
-                        MetaData = @event.MetaData,
-                        JsonData = @event.JsonData,
-                        IsJson = @event.IsJson,
-                        Type = @event.Type,             
-                        StreamId = newStream.Id
-                    };
+                        Name = streamName,
+                        StreamId = streamId
+                    });
 
-                    tmpEvents.Add(eventEntity);
+                    var newStream = await _repository.GetStreamAsync(streamId);
+
+                    var tmpEvents = new List<Event>();
+
+                    foreach (var @event in events)
+                    {
+                        var eventEntity = new Event
+                        {
+                            Data = @event.Data,
+                            MetaData = @event.MetaData,
+                            JsonData = @event.JsonData,
+                            IsJson = @event.IsJson,
+                            Type = @event.Type,
+                            StreamId = newStream.Id
+                        };
+
+                        tmpEvents.Add(eventEntity);
+                    }
+
+                    await _repository.AddAsync(tmpEvents.ToArray());
+                }
+                else
+                {
+                    var tmpEvents = new List<Event>();
+
+                    foreach (var @event in events)
+                    {
+                        var eventEntity = new Event
+                        {
+                            Data = @event.Data,
+                            MetaData = @event.MetaData,
+                            JsonData = @event.JsonData,
+                            IsJson = @event.IsJson,
+                            Type = @event.Type,
+                            StreamId = stream.Id
+                        };
+
+                        tmpEvents.Add(eventEntity);
+                    }
+
+                    await _repository.AddAsync(tmpEvents.ToArray());
                 }
 
-                await _repository.AddAsync(tmpEvents.ToArray());
+                _logger?.LogInformation($"Finished publishing to stream {streamName}, {events.Length} events. ConnectionId: {this.Context.ConnectionId}.");
             }
-            else
+            catch (Exception ex)
             {
-                var tmpEvents = new List<Event>();
-
-                foreach (var @event in events)
-                {
-                    var eventEntity = new Event
-                    {
-                        Data = @event.Data,
-                        MetaData = @event.MetaData,
-                        JsonData = @event.JsonData,
-                        IsJson = @event.IsJson,
-                        Type = @event.Type,
-                        StreamId = stream.Id
-                    };
-
-                    tmpEvents.Add(eventEntity);                    
-                }
-
-                await _repository.AddAsync(tmpEvents.ToArray());
+                _logger?.LogError(ex, $"{nameof(EventStreamHub)} error. Stream Name: {streamName}, ConnectionId: {Context.ConnectionId}.");
+                throw;
             }
-
-            _logger?.LogInformation($"Finished publishing to stream {streamName}, {events.Length} events. ConnectionId: {this.Context.ConnectionId}.");
         }
 
         [Authorize(Policy = "EventStreamHubSubscribePolicy")]
         public async Task Subscribe(string streamName, string type, string receiveMethod, Guid subscriberId, Guid subscribeKey, DateTime? from = null)
         {
-            _logger?.LogInformation($"Subscribing to stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
-
-            var stream = await _repository.GetStreamAsync(streamName);
-
-            if (stream != null)
+            try
             {
-                //Create entry in stream subscriber table in db
+                _logger?.LogInformation($"Subscribing to stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
 
-                await _repository.AddAsync(new EventStreamSubscriber
+                var stream = await _repository.GetStreamAsync(streamName);
+
+                if (stream != null)
                 {
-                    ConnectionId = this.Context.ConnectionId,
-                    ReceiveMethod = receiveMethod,                    
-                    SubscriberId = subscriberId,
-                    SubscribeKey = subscribeKey,
-                    StreamId = stream.Id
-                });
+                    //Create entry in stream subscriber table in db
+
+                    await _repository.AddAsync(new EventStreamSubscriber
+                    {
+                        ConnectionId = this.Context.ConnectionId,
+                        ReceiveMethod = receiveMethod,
+                        SubscriberId = subscriberId,
+                        SubscribeKey = subscribeKey,
+                        StreamId = stream.Id
+                    });
+                }
+                else
+                {
+                    var streamId = Guid.NewGuid();
+
+                    await _repository.AddAsync(new Entities.EventStream
+                    {
+                        Name = streamName,
+                        StreamId = streamId
+                    });
+
+                    var newStream = await _repository.GetStreamAsync(streamId);
+
+                    await _repository.AddAsync(new EventStreamSubscriber
+                    {
+                        ConnectionId = this.Context.ConnectionId,
+                        ReceiveMethod = receiveMethod,
+                        SubscriberId = subscriberId,
+                        SubscribeKey = subscribeKey,
+                        StreamId = newStream.Id
+                    });
+                }
+
+                _logger?.LogInformation($"Finished subscribing to stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
             }
-            else
+            catch (Exception ex)
             {
-                var streamId = Guid.NewGuid();
-
-                await _repository.AddAsync(new Entities.EventStream
-                {
-                    Name = streamName,
-                    StreamId = streamId
-                });
-
-                var newStream = await _repository.GetStreamAsync(streamId);
-
-                await _repository.AddAsync(new EventStreamSubscriber
-                {
-                    ConnectionId = this.Context.ConnectionId,
-                    ReceiveMethod = receiveMethod,
-                    SubscriberId = subscriberId,
-                    SubscribeKey = subscribeKey,
-                    StreamId = newStream.Id
-                });
-            }
-
-            _logger?.LogInformation($"Finished subscribing to stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
+                _logger?.LogError(ex, $"{nameof(EventStreamHub)} error. SubscriberId: {subscriberId}, ConnectionId: {Context.ConnectionId}.");
+                throw;
+            }            
         }
 
         [Authorize(Policy = "EventStreamHubUnsubscribePolicy")]
         public async Task Unsubscribe(string streamName, Guid subscriberId, Guid subscribeKey)
         {
-            _logger?.LogInformation($"Unsubscribing from stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
-
-            var stream = await _repository.GetStreamAsync(streamName);
-
-            var subscriber = await _repository.GetSubscriberAsync(subscriberId);
-
-            if ((subscriber == null) || (subscriber.SubscribeKey != subscribeKey))
+            try
             {
-                throw new ApplicationException("Subscriber not found. Please subscribe first, to then unsubscribe.");
-            }
+                _logger?.LogInformation($"Unsubscribing from stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
 
-            if (stream != null)
+                var stream = await _repository.GetStreamAsync(streamName);
+
+                var subscriber = await _repository.GetSubscriberAsync(subscriberId);
+
+                if ((subscriber == null) || (subscriber.SubscribeKey != subscribeKey))
+                {
+                    throw new ApplicationException("Subscriber not found. Please subscribe first, to then unsubscribe.");
+                }
+
+                if (stream != null)
+                {
+                    //Remove entry from stream subscriber table in db
+
+                    await _repository.DeleteSubscriptionAsync(subscriberId, stream.StreamId);
+                }
+
+                _logger?.LogInformation($"Finished unsubscribing from stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
+            }
+            catch (Exception ex)
             {
-                //Remove entry from stream subscriber table in db
-
-                await _repository.DeleteSubscriptionAsync(subscriberId, stream.StreamId);
+                _logger?.LogError(ex, $"{nameof(EventStreamHub)} error. SubscriberId: {subscriberId}, ConnectionId: {Context.ConnectionId}.");
+                throw;
             }
-
-            _logger?.LogInformation($"Finished unsubscribing from stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
         }
 
         public async Task EventStreamEventAppeared(EventStreamSubscriberModelResult subscriber, string secretKey)
