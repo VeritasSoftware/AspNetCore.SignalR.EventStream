@@ -13,9 +13,9 @@ namespace AspNetCore.SignalR.EventStream.Hubs
     {
         private readonly IRepository _repository;
         private readonly IConfiguration _configuration;
-        private readonly ILogger<EventStreamLog>? _logger;
+        private readonly ILogger<EventStreamHub>? _logger;
 
-        public EventStreamHub(IRepository repository, IConfiguration configuration, ILogger<EventStreamLog>? logger = null)
+        public EventStreamHub(IRepository repository, IConfiguration configuration, ILogger<EventStreamHub>? logger = null)
         {
             _repository = repository;
             _configuration = configuration;

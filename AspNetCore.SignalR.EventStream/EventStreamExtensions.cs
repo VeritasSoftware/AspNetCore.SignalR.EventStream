@@ -101,8 +101,8 @@ namespace AspNetCore.SignalR.EventStream
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
-                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
-                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
+                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
 
                 _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
                 {
@@ -133,8 +133,8 @@ namespace AspNetCore.SignalR.EventStream
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
-                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
-                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
+                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
 
                 _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
                 {
@@ -165,8 +165,8 @@ namespace AspNetCore.SignalR.EventStream
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
-                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
-                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
+                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
 
                 _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
                 {
@@ -195,8 +195,8 @@ namespace AspNetCore.SignalR.EventStream
 
                 repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
 
-                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
-                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
+                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
 
                 _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
                 {

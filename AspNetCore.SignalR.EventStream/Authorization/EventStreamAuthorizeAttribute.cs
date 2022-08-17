@@ -17,7 +17,7 @@ namespace AspNetCore.SignalR.EventStream.Authorization
         {
             if (this._authorization != null)
             {
-                var logger = context.HttpContext.RequestServices.GetServiceOrNull<ILogger<EventStreamLog>>();
+                var logger = context.HttpContext.RequestServices.GetServiceOrNull<ILogger<EventStreamAuthorizeAttribute>>();
 
                 logger?.LogInformation($"Calling Event Stream Authorization.");
 

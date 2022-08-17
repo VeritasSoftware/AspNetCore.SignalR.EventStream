@@ -12,9 +12,9 @@ namespace AspNetCore.SignalR.EventStream.Controllers
     public class EventStreamController : ControllerBase
     {
         private readonly IEventStreamService _streamsService;
-        private readonly ILogger<EventStreamLog>? _logger;
+        private readonly ILogger<EventStreamController>? _logger;
 
-        public EventStreamController(IEventStreamService streamsService, ILogger<EventStreamLog>? logger = null)
+        public EventStreamController(IEventStreamService streamsService, ILogger<EventStreamController>? logger = null)
         {
             _streamsService = streamsService;
             _logger = logger;

@@ -9,13 +9,13 @@ namespace AspNetCore.SignalR.EventStream.Processors
         private readonly IRepository _repository;
         private static Thread _processorThread = null;
         HubConnection _hubConnection = null;
-        private readonly ILogger<EventStreamLog>? _logger;
+        private readonly ILogger<SubscriptionProcessor>? _logger;
 
         public bool Start { get; set; } = false;
         public string? EventStreamHubUrl { get; set; }
         public string? SecretKey { get; set;}
 
-        public SubscriptionProcessor(IRepository repository, string eventStreamHubUrl, string secretKey, ILogger<EventStreamLog>? logger = null)
+        public SubscriptionProcessor(IRepository repository, string eventStreamHubUrl, string secretKey, ILogger<SubscriptionProcessor>? logger = null)
         {
             _repository = repository;
             this.EventStreamHubUrl = eventStreamHubUrl;

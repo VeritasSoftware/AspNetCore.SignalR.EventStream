@@ -13,7 +13,7 @@ namespace AspNetCore.SignalR.EventStream.HubFilters
         public async ValueTask<object> InvokeMethodAsync(
                     HubInvocationContext invocationContext, Func<HubInvocationContext, ValueTask<object>> next)
         {
-            var logger = invocationContext.ServiceProvider.GetServiceOrNull<ILogger<EventStreamLog>>();
+            var logger = invocationContext.ServiceProvider.GetServiceOrNull<ILogger<EventStreamHubFilterAttribute>>();
 
             logger?.LogInformation($"Calling hub method '{invocationContext.HubMethodName}'");
 
@@ -34,7 +34,7 @@ namespace AspNetCore.SignalR.EventStream.HubFilters
         }
         public async Task OnConnectedAsync(HubLifetimeContext context, Func<HubLifetimeContext, Task> next)
         {
-            var logger = context.ServiceProvider.GetServiceOrNull<ILogger<EventStreamLog>>();
+            var logger = context.ServiceProvider.GetServiceOrNull<ILogger<EventStreamHubFilterAttribute>>();
 
             logger?.LogInformation($"Connected connection id: '{context.Context.ConnectionId}'");
 
@@ -49,7 +49,7 @@ namespace AspNetCore.SignalR.EventStream.HubFilters
         public async Task OnDisconnectedAsync(
             HubLifetimeContext context, Exception exception, Func<HubLifetimeContext, Exception, Task> next)
         {
-            var logger = context.ServiceProvider.GetServiceOrNull<ILogger<EventStreamLog>>();
+            var logger = context.ServiceProvider.GetServiceOrNull<ILogger<EventStreamHubFilterAttribute>>();
 
             logger?.LogInformation($"Disconnected connection id: '{context.Context.ConnectionId}'");
 

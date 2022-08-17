@@ -5,13 +5,13 @@ namespace AspNetCore.SignalR.EventStream.Processors
     public class EventStreamProcessor : IAsyncDisposable
     {
         private readonly IRepository _repository;
-        private readonly ILogger<EventStreamLog>? _logger;
+        private readonly ILogger<EventStreamProcessor>? _logger;
 
         private static Thread _processorThread = null;        
 
         public bool Start { get; set; } = false;
 
-        public EventStreamProcessor(IRepository repository, ILogger<EventStreamLog>? logger = null)
+        public EventStreamProcessor(IRepository repository, ILogger<EventStreamProcessor>? logger = null)
         {
             _repository = repository;
             _logger = logger;
