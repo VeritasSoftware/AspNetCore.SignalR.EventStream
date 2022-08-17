@@ -12,7 +12,7 @@ The framework allows you to build your own Event Stream Server.
     * MS Sql Server
     * Azure CosmosDb
 * Http endpoints to administer the Server.
-* Rewind/fast forward events in a stream.
+* Ability to replay events in a stream.
 * Implement your own security (as you like) in the Authorization hooks.
 * Implement your own logging (as you like).
 
@@ -169,7 +169,7 @@ You can do so by calling the **streams/{id}** endpoint.
 
 ![Event Stream Server Admin Endpoints](/Docs/ServerAdminEndpoints.jpg)
 
-You can Rewind/fast forward events in a stream. Read [**Rewind/fast forward**](Docs/README_Rewind_FastForward.md).
+You can replay events in a stream. Read [**Replay events**](Docs/README_Rewind_FastForward.md).
 
 #### Sample Server
 

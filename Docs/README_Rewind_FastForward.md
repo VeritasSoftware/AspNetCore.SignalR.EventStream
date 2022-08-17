@@ -1,12 +1,12 @@
-### Event Stream Rewind/Fast Forward
+### Event Stream Replay Events
 
-You can rewind/fast forward events in a stream for a subscriber.
+You can replay events in a stream for a subscriber.
 
 By making a **http PUT** call to endpoint **api/EventStream/subscribers/{id}**.
 
 You must provide the **Subscriber Id**.
 
-![Event Stream rewind/fast forward](/Docs/Rewind_FastForward.jpg)
+![Event Stream replay Events](/Docs/Rewind_FastForward.jpg)
 
 The body of the request must be like below:
 
