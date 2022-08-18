@@ -95,13 +95,13 @@ namespace AspNetCore.SignalR.EventStream.Hubs
         }
 
         [Authorize(Policy = "EventStreamHubSubscribePolicy")]
-        public async Task Subscribe(string streamName, string type, string receiveMethod, Guid subscriberId, Guid subscribeKey, DateTime? from = null)
+        public async Task Subscribe(SubscribeModel model)
         {
             try
             {
-                _logger?.LogInformation($"Subscribing to stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
+                _logger?.LogInformation($"Subscribing to stream {model.StreamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {model.SubscriberId}.");
 
-                var stream = await _repository.GetStreamAsync(streamName);
+                var stream = await _repository.GetStreamAsync(model.StreamName);
 
                 if (stream != null)
                 {
@@ -110,11 +110,12 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                     await _repository.AddAsync(new EventStreamSubscriber
                     {
                         ConnectionId = this.Context.ConnectionId,
-                        ReceiveMethod = receiveMethod,
-                        SubscriberId = subscriberId,
-                        SubscribeKey = subscribeKey,
-                        StreamId = stream.Id
-                    });
+                        ReceiveMethod = model.ReceiveMethod,
+                        SubscriberId = model.SubscriberId,
+                        SubscriberKey = model.SubscriberKey,
+                        StreamId = stream.Id,
+                        LastAccessedEventId = model.LastAccessedEventId < 0 ? 0 : model.LastAccessedEventId
+                    }); ;
                 }
                 else
                 {
@@ -122,7 +123,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
 
                     await _repository.AddAsync(new Entities.EventStream
                     {
-                        Name = streamName,
+                        Name = model.StreamName,
                         StreamId = streamId
                     });
 
@@ -131,18 +132,19 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                     await _repository.AddAsync(new EventStreamSubscriber
                     {
                         ConnectionId = this.Context.ConnectionId,
-                        ReceiveMethod = receiveMethod,
-                        SubscriberId = subscriberId,
-                        SubscribeKey = subscribeKey,
-                        StreamId = newStream.Id
+                        ReceiveMethod = model.ReceiveMethod,
+                        SubscriberId = model.SubscriberId,
+                        SubscriberKey = model.SubscriberKey,
+                        StreamId = newStream.Id,
+                        LastAccessedEventId = model.LastAccessedEventId < 0 ? 0 : model.LastAccessedEventId
                     });
                 }
 
-                _logger?.LogInformation($"Finished subscribing to stream {streamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {subscriberId}.");
+                _logger?.LogInformation($"Finished subscribing to stream {model.StreamName}. ConnectionId: {this.Context.ConnectionId}. SubscriberId: {model.SubscriberId}.");
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"{nameof(EventStreamHub)} error. SubscriberId: {subscriberId}, ConnectionId: {Context.ConnectionId}.");
+                _logger?.LogError(ex, $"{nameof(EventStreamHub)} error. SubscriberId: {model.SubscriberId}, ConnectionId: {Context.ConnectionId}.");
                 throw;
             }            
         }
@@ -158,7 +160,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
 
                 var subscriber = await _repository.GetSubscriberAsync(subscriberId);
 
-                if ((subscriber == null) || (subscriber.SubscribeKey != subscribeKey))
+                if ((subscriber == null) || (subscriber.SubscriberKey != subscribeKey))
                 {
                     throw new ApplicationException("Subscriber not found. Please subscribe first, to then unsubscribe.");
                 }

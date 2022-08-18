@@ -232,7 +232,14 @@ conn.On(receiveMethod, new Type[] { typeof(string), typeof(object) }, (arg1, arg
 Then, call the **Subscribe** method on the Hub.
 
 ```c#
-await conn.InvokeAsync("Subscribe", streamName, eventType, receiveMethod, subscriberId, subscriberKey, null);
+await conn.InvokeAsync("Subscribe", new {
+                                        StreamName = streamName,
+                                        Type = eventType,
+                                        ReceiveMethod = receiveMethod,
+                                        SubscriberId = subscriberId,
+                                        SubscriberKey = subscriberKey,
+                                        LastAccessedEventId = 0
+                                    });
 ```
 The **SubscriberKey** is a Guid.
 

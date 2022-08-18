@@ -100,7 +100,14 @@ await conn.InvokeAsync("Publish", associateStreamName, new[]
 });
 
 Console.WriteLine($"Subscribing to Stream {streamName}.");
-await conn.InvokeAsync("Subscribe", streamName, eventType, receiveMethod, subscriberId, subscriberKey, null);
+await conn.InvokeAsync("Subscribe", new {
+                                        StreamName = streamName,
+                                        Type = eventType,
+                                        ReceiveMethod = receiveMethod,
+                                        SubscriberId = subscriberId,
+                                        SubscriberKey = subscriberKey,
+                                        LastAccessedEventId = 0
+                                    });
 
 ////Console.ReadLine();
 
