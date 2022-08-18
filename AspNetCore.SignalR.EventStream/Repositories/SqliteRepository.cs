@@ -204,7 +204,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
             if (fromEventId.HasValue)
             {                
-                eventStream = await _context.EventsStream.AsNoTracking().Include(es => es.Events.Where(e => e.Id > fromEventId.Value).OrderBy(e => e.CreatedAt)).AsNoTracking()
+                eventStream = await _context.EventsStream.AsNoTracking()
+                                                         .Include(es => es.Events.Where(e => e.Id > fromEventId.Value).OrderBy(e => e.Id)).AsNoTracking()
                                                          .FirstOrDefaultAsync(es => es.Id == streamId);
             }
             else
@@ -254,15 +255,16 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             {
                 var id = fromEventId.Value;
 
-                var subscriber = _context.Subscribers.AsNoTracking().Include(s => s.Stream).Include(s => s.Stream.Events.Where(e => e.Id > id).OrderBy(e => e.Id))
-                                                        .AsNoTracking().FirstOrDefault(s => s.SubscriberId == subscriberId);
+                var subscriber = await _context.Subscribers.AsNoTracking().Include(s => s.Stream)
+                                                           .Include(s => s.Stream.Events.Where(e => e.Id > id).OrderBy(e => e.Id))
+                                                           .AsNoTracking().FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
 
                 return subscriber;
             }
             else
             {
-                var subscriber = _context.Subscribers.Include(s => s.Stream).AsNoTracking()
-                                                     .FirstOrDefault(s => s.SubscriberId == subscriberId);
+                var subscriber = await _context.Subscribers.Include(s => s.Stream).AsNoTracking()
+                                                           .FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
 
                 return subscriber;
             }
