@@ -28,7 +28,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task AddAsync(params Event[] @event)
         {            
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {

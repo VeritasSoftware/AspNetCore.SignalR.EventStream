@@ -63,6 +63,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                     throw;
                 }                
             }
+
+            await Task.CompletedTask;
         }
 
         public async Task AddAsync(Entities.EventStream eventStream)
