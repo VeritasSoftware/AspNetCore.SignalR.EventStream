@@ -18,7 +18,7 @@ namespace AspNetCore.SignalR.EventStream
 
     public class EventStreamOptions
     {
-        public DatabaseTypeOptions DatabaseType { get; set; }
+        public DatabaseTypeOptions DatabaseType { get; set; } = DatabaseTypeOptions.Sqlite;
         public string? ConnectionString { get; set; }
         public bool DeleteDatabaseIfExists { get; set; } = false;
         public string EventStreamHubUrl { get; set; }
