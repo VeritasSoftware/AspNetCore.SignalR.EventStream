@@ -203,7 +203,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             if (fromEventId.HasValue)
             {
                 eventStream = await _context.EventsStream.AsNoTracking()
-                                                         .Include(es => es.Events.Where(e => e.Id > fromEventId.Value).OrderBy(e => e.CreatedAt))
+                                                         .Include(es => es.Events.Where(e => e.Id > fromEventId.Value).OrderBy(e => e.Id))
                                                          .AsNoTracking().FirstOrDefaultAsync(es => es.Id == streamId);
             }
             else
