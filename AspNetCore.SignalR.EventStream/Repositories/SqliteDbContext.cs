@@ -11,22 +11,9 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         public DbSet<EventStreamAssociation> EventStreamsAssociation { get; set; }
         public DbSet<EventStreamSubscriber> Subscribers { get; set; }
 
-        public string DbPath { get; }
-
-        public SqliteDbContext()
+        public SqliteDbContext(DbContextOptions options) : base(options)
         {
-            var folder = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(folder);
-            path = Path.Join(path, "EventStream");
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            DbPath = Path.Join(path, "eventstream.db");
         }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-                => options.UseSqlite($"Data Source={DbPath}");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

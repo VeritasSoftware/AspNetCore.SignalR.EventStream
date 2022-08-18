@@ -21,7 +21,7 @@ You can configure which database you want to use, like below:
 
 Specify the **DatabaseTypeOptions**.
 
-And, for SQL Server/CosmosDb, provide **ConnectionString**.
+And, provide **ConnectionString**.
 
 Setting **DeleteDatabaseIfExists** to **true**, deletes the database, on Server start up. Default is **false**.
 
@@ -29,6 +29,8 @@ The **appsettings.json** of the Server, has to have a section like below:
 
 ```javascript
   "ConnectionStrings": {
+    //Sqlite
+    //"EventStreamDatabase": "Data Source=.\\eventstreamdb.db"
     //MS Sql Server
     "EventStreamDatabase": "Server=DESKTOP-KTF6JRB;Database=EventStream;Trusted_Connection=True;"
     //Azure CosmosDb

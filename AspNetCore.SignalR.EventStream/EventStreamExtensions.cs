@@ -53,22 +53,22 @@ namespace AspNetCore.SignalR.EventStream
             
             if (_options.UseMyRepository && _options.RegisterMyRepository && _options.Repository != null)
             {
-                services.AddScoped(typeof(IRepository), _options.Repository);
+                services.AddTransient(typeof(IRepository), _options.Repository);
             }
             else if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
             {
-                services.AddScoped<IRepository, CosmosDbRepository>();
-                services.AddDbContext<CosmosDbContext>(o => o.UseCosmos(_options.ConnectionString, "EventStream"));
+                services.AddTransient<IRepository, CosmosDbRepository>();
+                services.AddDbContext<CosmosDbContext>(o => o.UseCosmos(_options.ConnectionString, "EventStream"), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
             else if (_options.DatabaseType == DatabaseTypeOptions.SqlServer)
             {
-                services.AddScoped<IRepository, SqlServerRepository>();
-                services.AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.ConnectionString));
+                services.AddTransient<IRepository, SqlServerRepository>();
+                services.AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
             else
             {
-                services.AddScoped<IRepository, SqliteRepository>();
-                services.AddDbContext<SqliteDbContext>(ServiceLifetime.Transient);
+                services.AddTransient<IRepository, SqliteRepository>();
+                services.AddDbContext<SqliteDbContext>(o => o.UseSqlite(_options.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
 
             services.AddScoped<EventStreamAuthorizeAttribute>();
@@ -90,128 +90,31 @@ namespace AspNetCore.SignalR.EventStream
             var config = app.ApplicationServices.GetService<IConfiguration>();
             var secretKey = config["EventStreamSecretKey"];
 
-            if (_options.UseMyRepository && _options.Repository != null)
+            var repository = app.ApplicationServices.GetServiceOrNull<IRepository>();
+            var repository1 = app.ApplicationServices.GetServiceOrNull<IRepository>();
+
+            if (_options.DeleteDatabaseIfExists)
+                repository.EnsureDatabaseDeleted();
+            repository.EnsureDatabaseCreated();
+
+            repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
+
+            var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
+            var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
+
+            _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
             {
-                var repository = app.ApplicationServices.GetServiceOrNull<IRepository>();
-                var repository1 = app.ApplicationServices.GetServiceOrNull<IRepository>();
+                Start = true
+            };
 
-                if (_options.DeleteDatabaseIfExists)
-                    repository.EnsureDatabaseDeleted();
-                repository.EnsureDatabaseCreated();
+            _subscriptionProcessor.Process();
 
-                repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
-
-                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
-                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
-
-                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
-                {
-                    Start = true
-                };
-
-                _subscriptionProcessor.Process();
-
-                _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
-                {
-                    Start = true
-                };
-
-                _eventStreamProcessor.Process();
-            }
-            else if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
+            _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
             {
-                var options = new DbContextOptionsBuilder().UseCosmos(_options.ConnectionString, "EventStream").Options;
+                Start = true
+            };
 
-                var context = new CosmosDbContext(options);
-                var context1 = new CosmosDbContext(options);
-                var repository = new CosmosDbRepository(context);
-                var repository1 = new CosmosDbRepository(context1);
-
-                if (_options.DeleteDatabaseIfExists)
-                    repository.EnsureDatabaseDeleted();
-                repository.EnsureDatabaseCreated();
-
-                repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
-
-                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
-                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
-
-                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
-                {
-                    Start = true
-                };
-
-                _subscriptionProcessor.Process();
-
-                _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
-                {
-                    Start = true
-                };
-
-                _eventStreamProcessor.Process();
-            }
-            else if (_options.DatabaseType == DatabaseTypeOptions.SqlServer)
-            {
-                var options = new DbContextOptionsBuilder().UseSqlServer(_options.ConnectionString).Options;
-
-                var context = new SqlServerDbContext(options);
-                var context1 = new SqlServerDbContext(options);
-                var repository = new SqlServerRepository(context);
-                var repository1 = new SqlServerRepository(context1);
-
-                if (_options.DeleteDatabaseIfExists)
-                    repository.EnsureDatabaseDeleted();
-                repository.EnsureDatabaseCreated();                
-
-                repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
-
-                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
-                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
-
-                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
-                {
-                    Start = true
-                };
-
-                _subscriptionProcessor.Process();
-
-                _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
-                {
-                    Start = true
-                };
-
-                _eventStreamProcessor.Process();                  
-            }
-            else
-            {
-                var context = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
-                var context1 = app.ApplicationServices.GetRequiredService<SqliteDbContext>();
-                var repository = new SqliteRepository(context);
-                var repository1 = new SqliteRepository(context1);
-
-                if (_options.DeleteDatabaseIfExists)
-                    repository.EnsureDatabaseDeleted();
-                repository.EnsureDatabaseCreated();
-
-                repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
-
-                var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
-                var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
-
-                _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
-                {
-                    Start = true
-                };
-
-                _subscriptionProcessor.Process();
-
-                _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
-                {
-                    Start = true
-                };
-
-                _eventStreamProcessor.Process();
-            }                                               
+            _eventStreamProcessor.Process();
 
             return app;
         }

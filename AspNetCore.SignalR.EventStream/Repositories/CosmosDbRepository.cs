@@ -289,23 +289,20 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         public async Task<Entities.EventStream> GetStreamAsync(long streamId, long? from = null)
         {
             Entities.EventStream eventStream = null;
-            bool proceed = false;
 
-            lock(_lock)
+            if (from.HasValue)
             {
-                proceed = true;
-            }
-
-            if (proceed)
-            {
-                if (from.HasValue)
+                lock (_lock)
                 {
-                    eventStream = await _context.EventsStream.AsNoTracking()
-                                                       .FirstOrDefaultAsync(es => es.Id == streamId);
+                    eventStream = _context.EventsStream.AsNoTracking()
+                                                       .FirstOrDefault(es => es.Id == streamId);
 
-                    var events = await _context.Events.WithPartitionKey(streamId.ToString()).AsNoTracking()
-                                                      .Where(e => e.Id > from.Value)
-                                                      .ToListAsync();
+                    if (eventStream == null)
+                        throw new InvalidOperationException($"Stream {streamId} not found.");
+
+                    var events = _context.Events.WithPartitionKey(streamId.ToString()).AsNoTracking()
+                                                .Where(e => e.Id > from.Value)
+                                                .ToList();
 
                     eventStream.Events = events.OrderBy(e => e.CreatedAt)
                                                .Select(e => new Event
@@ -323,13 +320,13 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                })
                                                .ToList();
                 }
-                else
-                {
-                    eventStream = await _context.EventsStream.AsNoTracking()
-                                                       .FirstOrDefaultAsync(es => es.Id == streamId);
-                }
             }
-            
+            else
+            {
+                eventStream = await _context.EventsStream.AsNoTracking()
+                                                   .FirstOrDefaultAsync(es => es.Id == streamId);
+            }
+
             return eventStream;
         }
 
