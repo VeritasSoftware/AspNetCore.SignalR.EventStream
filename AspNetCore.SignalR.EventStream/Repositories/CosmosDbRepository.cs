@@ -116,12 +116,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, long lastAccessedEvent)
+        public async Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, long lastAccessedEventId)
         {
             var subscriber = await _context.Subscribers.FirstOrDefaultAsync(s => s.SubscriberId == subsciberId);
             if (subscriber != null)
             {
-                subscriber.LastAccessedEventId = lastAccessedEvent;
+                subscriber.LastAccessedEventId = lastAccessedEventId;
                 _context.Subscribers.Update(subscriber);
                 await _context.SaveChangesAsync();
             }
@@ -236,63 +236,19 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return @event;
         }
 
-        public async Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null)
+        public async Task<Entities.EventStream> GetStreamAsync(Guid streamId)
         {
             var eventStream = await _context.EventsStream.AsNoTracking()
                                                           .FirstOrDefaultAsync(es => es.StreamId == streamId);
 
-            if (from.HasValue)
-            {
-                var events = await _context.Events.WithPartitionKey(eventStream.Id.ToString()).AsNoTracking()
-                                                  .Where(e => e.CreatedAt > from.Value)
-                                                  .ToListAsync();
-
-                eventStream.Events = events.OrderBy(e => e.CreatedAt)
-                                           .Select(e => new Event
-                                           {
-                                               Id = e.Id,
-                                               CreatedAt = e.CreatedAt,
-                                               Data = e.Data,
-                                               EventId = e.EventId,
-                                               IsJson = e.IsJson,
-                                               JsonData = e.JsonData,
-                                               MetaData = e.MetaData,
-                                               OriginalEventId = e.OriginalEventId,
-                                               StreamId = e.StreamId,
-                                               Type = e.Type
-                                           })
-                                           .ToList();
-            }
-            else if (eventStream != null)
-            {
-                var events = await _context.Events.WithPartitionKey(eventStream.Id.ToString()).AsNoTracking()
-                                                  .ToListAsync();
-
-                eventStream.Events = events.OrderBy(e => e.CreatedAt)
-                                           .Select(e => new Event
-                                           {
-                                               Id = e.Id,
-                                               CreatedAt = e.CreatedAt,
-                                               Data = e.Data,
-                                               EventId = e.EventId,
-                                               IsJson = e.IsJson,
-                                               JsonData = e.JsonData,
-                                               MetaData = e.MetaData,
-                                               OriginalEventId = e.OriginalEventId,
-                                               StreamId = e.StreamId,
-                                               Type = e.Type
-                                           })
-                                           .ToList();
-            }
-
             return eventStream;
         }
 
-        public async Task<Entities.EventStream> GetStreamAsync(long streamId, long? from = null)
+        public async Task<Entities.EventStream> GetStreamAsync(long streamId, long? fromEventId = null)
         {
             Entities.EventStream eventStream = null;
 
-            if (from.HasValue)
+            if (fromEventId.HasValue)
             {
                 lock (_lock)
                 {
@@ -303,7 +259,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                         throw new InvalidOperationException($"Stream {streamId} not found.");
 
                     var events = _context.Events.WithPartitionKey(streamId.ToString()).AsNoTracking()
-                                                .Where(e => e.Id > from.Value)
+                                                .Where(e => e.Id > fromEventId.Value)
                                                 .ToList();
 
                     eventStream.Events = events.OrderBy(e => e.CreatedAt)
@@ -332,56 +288,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return eventStream;
         }
 
-        public async Task<Entities.EventStream> GetStreamAsync(string streamName, DateTime? from = null)
+        public async Task<Entities.EventStream> GetStreamAsync(string streamName)
         {
             streamName = streamName.Trim().ToLower();
 
             var eventStream = await _context.EventsStream.AsNoTracking()
                                                          .FirstOrDefaultAsync(es => es.Name.ToLower() == streamName);
-
-            if (from.HasValue)
-            {
-                var events = await _context.Events.WithPartitionKey(eventStream.Id.ToString()).AsNoTracking()
-                                                  .Where(e => e.CreatedAt > from.Value)
-                                                  .ToListAsync();
-
-                eventStream.Events = events.OrderBy(e => e.CreatedAt)
-                                           .Select(e => new Event
-                                           {
-                                               Id = e.Id,
-                                               CreatedAt = e.CreatedAt,
-                                               Data = e.Data,
-                                               EventId = e.EventId,
-                                               IsJson = e.IsJson,
-                                               JsonData = e.JsonData,
-                                               MetaData = e.MetaData,
-                                               OriginalEventId = e.OriginalEventId,
-                                               StreamId = e.StreamId,
-                                               Type = e.Type
-                                           })
-                                           .ToList();
-            }
-            else if (eventStream != null)
-            {
-                var events = await _context.Events.WithPartitionKey(eventStream.Id.ToString()).AsNoTracking()
-                                                  .ToListAsync();
-
-                eventStream.Events = events.OrderBy(e => e.CreatedAt)
-                                           .Select(e => new Event
-                                           {
-                                               Id = e.Id,
-                                               CreatedAt = e.CreatedAt,
-                                               Data = e.Data,
-                                               EventId = e.EventId,
-                                               IsJson = e.IsJson,
-                                               JsonData = e.JsonData,
-                                               MetaData = e.MetaData,
-                                               OriginalEventId = e.OriginalEventId,
-                                               StreamId = e.StreamId,
-                                               Type = e.Type
-                                           })
-                                           .ToList();
-            }
 
             return eventStream;
         }
@@ -412,11 +324,11 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                 });
         }
 
-        public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? from = null)
+        public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null)
         {
-            if (from.HasValue)
+            if (fromEventId.HasValue)
             {
-                var id = from.Value;
+                var id = fromEventId.Value;
 
                 var subscriber = await _context.Subscribers.AsNoTracking().FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
 

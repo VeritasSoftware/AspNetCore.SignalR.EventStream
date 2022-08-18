@@ -5,12 +5,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 {
     public interface IRepository
     {
-        Task AddAsync(params Event[] @event);
+        Task AddAsync(params Event[] events);
         Task AddAsync(Entities.EventStream eventStream);
         Task AddAsync(EventStreamSubscriber subscriber);
         Task AddAsync(EventStreamAssociation association);
         Task UpdateAsync(Entities.EventStream eventStream);
-        Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, long lastAccessedEvent);
+        Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, long lastAccessedEventId);
 
         Task DeleteSubscriptionAsync(Guid subscriptionId, Guid streamId);
         Task DeleteSubscriptionAsync(string connectionId);
@@ -20,12 +20,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         void EnsureDatabaseCreated();
 
         Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions();
-        Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? from = null);
+        Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null);
         Task<Event> GetEventAsync(long streamId, long eventId);
         Task<Event> GetEventAsync(long streamId, Guid eventId);
-        Task<Entities.EventStream> GetStreamAsync(Guid streamId, DateTime? from = null);
-        Task<Entities.EventStream> GetStreamAsync(long streamId, long? from = null);
-        Task<Entities.EventStream> GetStreamAsync(string streamName, DateTime? from = null);
+        Task<Entities.EventStream> GetStreamAsync(Guid streamId);
+        Task<Entities.EventStream> GetStreamAsync(long streamId, long? fromEventId = null);
+        Task<Entities.EventStream> GetStreamAsync(string streamName);
         Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreams();
 
         Task<bool> DoesStreamExistAsync(string name);
