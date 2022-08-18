@@ -292,11 +292,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             {
                 var id = from.Value;
 
-                var subscriber = _context.Subscribers.AsNoTracking().Include(s => s.Stream).Include(s => s.Stream.Events)
+                var subscriber = _context.Subscribers.AsNoTracking().Include(s => s.Stream).Include(s => s.Stream.Events.Where(e => e.Id > id).OrderBy(e => e.Id))
                                                         .AsNoTracking().FirstOrDefault(s => s.SubscriberId == subscriberId);
-
-                if (subscriber != null)
-                    subscriber.Stream.Events = subscriber.Stream.Events.Where(e => e.Id > id).OrderBy(e => e.Id).ToList();
 
                 return subscriber;
             }
@@ -306,8 +303,6 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
                 return subscriber;
             }
-
-            //Thread.Sleep(1);
         }
     }
 }
