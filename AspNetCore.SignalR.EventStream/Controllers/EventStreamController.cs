@@ -40,7 +40,7 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             }            
         }
 
-        [HttpGet("streams/name/{name}")]
+        [HttpGet("streams/stream/{name}")]
         public async Task<IActionResult> GetStream(string name)
         {
             try

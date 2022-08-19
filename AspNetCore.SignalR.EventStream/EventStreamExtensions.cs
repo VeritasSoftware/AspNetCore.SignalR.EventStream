@@ -87,7 +87,7 @@ namespace AspNetCore.SignalR.EventStream
 
         public static IApplicationBuilder UseEventStream(this IApplicationBuilder app)
         {
-            var config = app.ApplicationServices.GetService<IConfiguration>();
+            var config = app.ApplicationServices.GetServiceOrNull<IConfiguration>();
             var secretKey = config["EventStreamSecretKey"];
 
             var repository = app.ApplicationServices.GetServiceOrNull<IRepository>();
