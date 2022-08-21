@@ -2,6 +2,7 @@
 {
     public class UpdateSubscriberModel
     {
-        public long? LastAccessedEventId { get; set; }
+        public long? LastAccessedFromEventId { get; set; } = 0;
+        public long? LastAccessedToEventId { get; set; } = 0;
     }
 }

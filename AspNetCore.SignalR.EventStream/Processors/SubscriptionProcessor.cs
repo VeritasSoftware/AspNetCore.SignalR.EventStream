@@ -85,7 +85,9 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                 //_logger?.LogInformation($"LastAccessedEventId: {subscriber.LastAccessedEventId}.");
 
-                                var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId, subscriber.LastAccessedEventId);
+                                var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId,
+                                                                                subscriber.LastAccessedCurrentEventId > subscriber.LastAccessedFromEventId ?
+                                                                                    subscriber.LastAccessedCurrentEventId : subscriber.LastAccessedFromEventId, subscriber.LastAccessedToEventId);
 
                                 if (subsciptionWithEvents != null)
                                 {
@@ -100,7 +102,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                             ReceiveMethod = subsciptionWithEvents.ReceiveMethod,
                                             StreamId = subsciptionWithEvents.StreamId,
                                             SubscriberId = subsciptionWithEvents.SubscriberId,
-                                            LastAccessedEventId = subsciptionWithEvents.LastAccessedEventId,
+                                            LastAccessedEventId = subsciptionWithEvents.LastAccessedFromEventId,
                                             Stream = new EventStreamModelResult
                                             {
                                                 Name = subsciptionWithEvents.Stream.Name,
@@ -125,11 +127,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                         await _hubConnection.InvokeAsync("EventStreamEventAppeared", eventSubscriberModel, SecretKey);
 
-                                        _logger?.LogInformation($"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.");
-
-                                        var id = subsciptionWithEvents.Stream.Events.Last().Id;
-
-                                        await _repository.UpdateSubscriptionLastAccessedAsync(subsciptionWithEvents.SubscriberId, id);                                        
+                                        _logger?.LogInformation($"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.");                                     
                                     }
                                 }
                             }

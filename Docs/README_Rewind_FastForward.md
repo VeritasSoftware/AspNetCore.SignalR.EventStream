@@ -12,8 +12,11 @@ The body of the request must be like below:
 
 ```javascript
 {
-  "lastAccessedEventId": 11
+  "lastAccessedFromEventId": 17,
+  "lastAccessedToEventId": 19
 }
 ```
 
-**lastAccessedEventId** is the Event Id (integer) of the Event, you want to replay from.
+**lastAccessedFromEventId** is the Event Id (integer) of the Event, you want to replay from. The value 0 means start of stream.
+
+**lastAccessedToEventId** is the Event Id (integer) of the Event, you want to replay to. If not provided means till end of stream.

@@ -51,12 +51,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                             Type = @event.Type,
                         };                        
 
-                        _context.Events.Add(cosmosEvent);                        
+                        _context.Events.Add(cosmosEvent);
+
+                        _context.SaveChanges();
 
                         maxId++;
-                    }
-
-                    _context.SaveChanges();
+                    }                    
                 }
                 catch (Exception ex)
                 {
@@ -104,9 +104,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             var stream = await _context.EventsStream.SingleOrDefaultAsync(s => s.Id == eventStream.Id);
 
             if (stream == null)
-            {
-                return;
-            }
+                throw new InvalidOperationException($"Stream {eventStream.Id} not found.");
 
             stream.Name = eventStream.Name;
             stream.LastAssociatedEventId = eventStream.LastAssociatedEventId;
@@ -116,12 +114,27 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, long lastAccessedEventId)
+        public async Task UpdateAsync(EventStreamSubscriber subscriber)
+        {
+            var subscriberEntity = await _context.Subscribers.FirstOrDefaultAsync(s => s.SubscriberId == subscriber.SubscriberId);
+            if (subscriberEntity == null)
+                throw new InvalidOperationException($"Subscriber {subscriber.SubscriberId} not found.");
+
+            subscriberEntity.LastAccessedCurrentEventId = subscriber.LastAccessedFromEventId;
+            subscriberEntity.LastAccessedFromEventId = subscriber.LastAccessedFromEventId;
+            subscriberEntity.LastAccessedToEventId = subscriber.LastAccessedToEventId;
+
+            _context.Subscribers.Update(subscriberEntity);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateSubscriptionLastAccessedAsync(Guid subsciberId, long? lastAccessedCurrentEventId)
         {
             var subscriber = await _context.Subscribers.FirstOrDefaultAsync(s => s.SubscriberId == subsciberId);
             if (subscriber != null)
             {
-                subscriber.LastAccessedEventId = lastAccessedEventId;
+                subscriber.LastAccessedCurrentEventId = lastAccessedCurrentEventId;
                 _context.Subscribers.Update(subscriber);
                 await _context.SaveChangesAsync();
             }
@@ -248,12 +261,12 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         {
             Entities.EventStream eventStream = null;
 
-            if (fromEventId.HasValue)
+            lock(_lock)
             {
-                lock (_lock)
+                if (fromEventId.HasValue)
                 {
                     eventStream = _context.EventsStream.AsNoTracking()
-                                                       .FirstOrDefault(es => es.Id == streamId);
+                                                           .FirstOrDefault(es => es.Id == streamId);
 
                     if (eventStream == null)
                         throw new InvalidOperationException($"Stream {streamId} not found.");
@@ -262,7 +275,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                 .Where(e => e.Id > fromEventId.Value)
                                                 .ToList();
 
-                    eventStream.Events = events.OrderBy(e => e.CreatedAt)
+                    eventStream.Events = events.OrderBy(e => e.Id)
                                                .Select(e => new Event
                                                {
                                                    Id = e.Id,
@@ -278,13 +291,13 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                })
                                                .ToList();
                 }
+                else
+                {
+                    eventStream = _context.EventsStream.AsNoTracking()
+                                                       .FirstOrDefault(es => es.Id == streamId);
+                }
             }
-            else
-            {
-                eventStream = await _context.EventsStream.AsNoTracking()
-                                                   .FirstOrDefaultAsync(es => es.Id == streamId);
-            }
-
+            
             return eventStream;
         }
 
@@ -324,26 +337,47 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                 });
         }
 
-        public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null)
+        public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null, long? toEventId = null)
         {
             if (fromEventId.HasValue)
             {
-                var id = fromEventId.Value;
+                fromEventId = fromEventId ?? 0;
+                var fromId = fromEventId.Value;
 
-                var subscriber = await _context.Subscribers.AsNoTracking().FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
+                var subscriber = await _context.Subscribers.FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
+
+                if (subscriber == null)
+                    throw new InvalidOperationException($"Subscriber {subscriberId} not found.");
 
                 if (subscriber != null)
                 {
                     lock (_lock)
                     {
-                        subscriber.Stream = _context.EventsStream.AsNoTracking().FirstOrDefault(s => s.Id == subscriber.StreamId);
+                        subscriber.Stream = _context.EventsStream.FirstOrDefault(s => s.Id == subscriber.StreamId);
                         var streamId = subscriber.StreamId;
 
                         var events = _context.Events.WithPartitionKey(streamId.ToString()).AsNoTracking()
-                                                    .Where(e => e.Id > id)
+                                                    .Where(e => e.Id > fromId)
                                                     .ToList();
 
-                        events = events.OrderBy(e => e.Id).ToList();
+                        if (events.Any())
+                        {
+                            subscriber.LastAccessedCurrentEventId = events.Last().Id;
+                            subscriber.LastAccessedFromEventId = fromEventId;
+                            subscriber.LastAccessedToEventId = toEventId;
+
+                            //UpdateSubscriptionLastAccessedAsync(subscriberId, lastAccessedCurrentEventId).RunSynchronously();
+
+                            _context.Subscribers.Update(subscriber);
+                            _context.SaveChanges();
+
+                            if (toEventId.HasValue && toEventId.Value > 0)
+                            {
+                                events = events.Where(e => e.Id > fromId && e.Id <= toEventId.Value).ToList();
+                            }
+
+                            events = events.OrderBy(e => e.Id).ToList();                            
+                        }
 
                         subscriber.Stream.Events = events.Select(e => new Event
                         {

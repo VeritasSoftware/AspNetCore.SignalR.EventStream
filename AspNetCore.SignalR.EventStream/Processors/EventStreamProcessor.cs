@@ -51,6 +51,11 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                 //Get last merged datetime from stream
                                 var lastAssociatedAt = stream.LastAssociatedEventId;
 
+                                if (lastAssociatedAt.HasValue && lastAssociatedAt.Value <= 0)
+                                {
+                                    continue;
+                                }
+
                                 //_logger?.LogInformation($"LastAssociatedEventId: {lastAssociatedAt}.");
 
                                 if (activeMerge.AssociatedStreamIds != null && activeMerge.AssociatedStreamIds.Any())
@@ -58,7 +63,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                     foreach (var associatedStreamId in activeMerge.AssociatedStreamIds)
                                     {
                                         //Fetch events from associated stream after last merged at
-                                        var associatedStream = await _repository.GetStreamAsync(associatedStreamId, lastAssociatedAt);
+                                        var associatedStream = await _repository.GetStreamAsync(associatedStreamId, lastAssociatedAt??0);
 
                                         if (associatedStream != null && associatedStream.Events != null && associatedStream.Events.Any())
                                         {

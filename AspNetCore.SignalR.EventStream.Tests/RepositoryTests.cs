@@ -133,7 +133,7 @@ namespace AspNetCore.SignalR.EventStream.Tests
                 StreamId = myStream.Id,
                 SubscriberId = subsciberId,
                 ConnectionId = "AjsjslwAsssaAAAsVVV==",
-                LastAccessedEventId = 1
+                LastAccessedFromEventId = 1
             });
 
             //Act

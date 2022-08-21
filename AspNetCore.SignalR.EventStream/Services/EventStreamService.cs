@@ -85,7 +85,9 @@ namespace AspNetCore.SignalR.EventStream.Services
                 SubscriberId = subscriber.SubscriberId,
                 ConnectionId = subscriber.ConnectionId,
                 CreatedAt = subscriber.CreatedAt,
-                LastAccessedEventId = subscriber.LastAccessedEventId,
+                LastAccessedCurrentEventId = subscriber.LastAccessedCurrentEventId,
+                LastAccessedFromEventId = subscriber.LastAccessedFromEventId,
+                LastAccessedToEventId = subscriber.LastAccessedToEventId,
                 ReceiveMethod = subscriber.ReceiveMethod,
                 StreamId = subscriber.StreamId,
                 Stream = new EventStreamModel
@@ -103,14 +105,16 @@ namespace AspNetCore.SignalR.EventStream.Services
 
         public async Task UpdateSubscriberAsync(Guid subscriberId, UpdateSubscriberModel model)
         {
-            if (model.LastAccessedEventId.HasValue)
-            {
-                var subscriber = await _repository.GetSubscriberAsync(subscriberId);
+            var subscriber = await _repository.GetSubscriberAsync(subscriberId);
 
-                var @event = await _repository.GetEventAsync(subscriber.StreamId, model.LastAccessedEventId.Value <= 1 ? 0 : (model.LastAccessedEventId.Value - 1));
+            if (subscriber == null)
+                throw new InvalidOperationException($"Subscriber {subscriberId} not found.");
 
-                await _repository.UpdateSubscriptionLastAccessedAsync(subscriberId, @event.Id);
-            }
+            subscriber.LastAccessedFromEventId = model.LastAccessedFromEventId > 0 ? model.LastAccessedFromEventId - 1 : model.LastAccessedFromEventId;
+            subscriber.LastAccessedCurrentEventId = model.LastAccessedFromEventId > 0 ? model.LastAccessedFromEventId - 1 : model.LastAccessedFromEventId;
+            subscriber.LastAccessedToEventId = model.LastAccessedToEventId;
+
+            await _repository.UpdateAsync(subscriber);
         }
 
         public async Task DeleteEventStreamAsync(long id)

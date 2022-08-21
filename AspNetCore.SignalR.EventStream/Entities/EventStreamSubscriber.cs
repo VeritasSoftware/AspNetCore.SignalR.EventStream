@@ -8,7 +8,9 @@
         public Guid SubscriberKey { get; set; }
         public string? ConnectionId { get; set; }
         public string? ReceiveMethod { get; set; }
-        public long? LastAccessedEventId { get; set; } = 0;
+        public long? LastAccessedCurrentEventId { get; set; } = 0;
+        public long? LastAccessedFromEventId { get; set; } = 0;
+        public long? LastAccessedToEventId { get; set; } = 0;
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
 }

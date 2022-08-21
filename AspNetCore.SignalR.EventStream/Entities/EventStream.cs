@@ -5,7 +5,7 @@
         public Guid StreamId { get; set; }
         public string? Name { get; set; }
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-        public long? LastAssociatedEventId { get; set; } = 0;
+        public long? LastAssociatedEventId { get; set; } = null;
         public virtual ICollection<Event>? Events { get; set; }
     }
 }
