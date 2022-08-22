@@ -1,5 +1,6 @@
 using AspNetCore.SignalR.EventStream.Entities;
 using AspNetCore.SignalR.EventStream.Repositories;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -18,7 +19,15 @@ namespace AspNetCore.SignalR.EventStream.Tests
         {
             var services = new ServiceCollection();
 
-            services.AddEventStream();
+            var config = new ConfigurationBuilder()
+                            .AddJsonFile("appsettings.json")
+                            .Build();
+
+            services.AddEventStream(o =>
+            {
+                o.DatabaseType = DatabaseTypeOptions.Sqlite;
+                o.ConnectionString = config.GetConnectionString("EventStreamDatabase");
+            });
 
             ServiceProvider = services.BuildServiceProvider();
         }

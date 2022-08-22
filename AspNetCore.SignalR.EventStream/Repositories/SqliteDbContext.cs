@@ -6,10 +6,10 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 {
     public class SqliteDbContext : DbContext
     {
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Entities.EventStream> EventsStream { get; set; }
-        public DbSet<EventStreamAssociation> EventStreamsAssociation { get; set; }
-        public DbSet<EventStreamSubscriber> Subscribers { get; set; }
+        public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<Entities.EventStream> EventsStream { get; set; }
+        public virtual DbSet<EventStreamAssociation> EventStreamsAssociation { get; set; }
+        public virtual DbSet<EventStreamSubscriber> Subscribers { get; set; }
 
         public SqliteDbContext(DbContextOptions options) : base(options)
         {

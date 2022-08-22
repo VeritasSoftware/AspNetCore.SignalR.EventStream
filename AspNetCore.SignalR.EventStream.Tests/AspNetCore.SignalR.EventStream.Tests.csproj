@@ -25,4 +25,10 @@
     <ProjectReference Include="..\AspNetCore.SignalR.EventStream\AspNetCore.SignalR.EventStream.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
