@@ -1,4 +1,5 @@
 ﻿using AspNetCore.SignalR.EventStream.Authorization;
+using AspNetCore.SignalR.EventStream.Clients;
 using AspNetCore.SignalR.EventStream.HubFilters;
 using AspNetCore.SignalR.EventStream.Processors;
 using AspNetCore.SignalR.EventStream.Repositories;
@@ -82,14 +83,15 @@ namespace AspNetCore.SignalR.EventStream
 
             services.AddScoped<IAuthorizationHandler, AllowAnonymousAuthorizationRequirement>();
 
+            services.AddSingleton<IEventStreamHubClient>(o => new EventStreamHubClient(_options.EventStreamHubUrl,
+                                                                o.GetServiceOrNull<IConfiguration>()["EventStreamSecretKey"],
+                                                                o.GetService<ILogger<EventStreamHubClient>>()));
+
             return services;
         }
 
         public static IApplicationBuilder UseEventStream(this IApplicationBuilder app)
         {
-            var config = app.ApplicationServices.GetServiceOrNull<IConfiguration>();
-            var secretKey = config["EventStreamSecretKey"];
-
             var repository = app.ApplicationServices.GetServiceOrNull<IRepository>();
             var repository1 = app.ApplicationServices.GetServiceOrNull<IRepository>();
 
@@ -102,7 +104,9 @@ namespace AspNetCore.SignalR.EventStream
             var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
             var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
 
-            _subscriptionProcessor = new SubscriptionProcessor(repository, _options.EventStreamHubUrl, secretKey, logger)
+            var eventStreamHubClient = app.ApplicationServices.GetServiceOrNull<IEventStreamHubClient>();
+
+            _subscriptionProcessor = new SubscriptionProcessor(repository, eventStreamHubClient, logger)
             {
                 Start = true
             };

@@ -1,4 +1,5 @@
-﻿using AspNetCore.SignalR.EventStream.Models;
+﻿using AspNetCore.SignalR.EventStream.Clients;
+using AspNetCore.SignalR.EventStream.Models;
 using AspNetCore.SignalR.EventStream.Repositories;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -8,18 +9,17 @@ namespace AspNetCore.SignalR.EventStream.Processors
     {
         private readonly IRepository _repository;
         private static Thread _processorThread = null;
-        HubConnection _hubConnection = null;
+        private readonly IEventStreamHubClient _eventStreamHubClient;
         private readonly ILogger<SubscriptionProcessor>? _logger;
 
         public bool Start { get; set; } = false;
         public string? EventStreamHubUrl { get; set; }
         public string? SecretKey { get; set;}
 
-        public SubscriptionProcessor(IRepository repository, string eventStreamHubUrl, string secretKey, ILogger<SubscriptionProcessor>? logger = null)
+        public SubscriptionProcessor(IRepository repository, IEventStreamHubClient eventStreamHubClient, ILogger<SubscriptionProcessor>? logger = null)
         {
             _repository = repository;
-            this.EventStreamHubUrl = eventStreamHubUrl;
-            SecretKey = secretKey;
+            _eventStreamHubClient = eventStreamHubClient;
             _logger = logger;
         }
 
@@ -45,30 +45,12 @@ namespace AspNetCore.SignalR.EventStream.Processors
             {
                 try
                 {
-                    if ((_hubConnection == null) || (_hubConnection.State != HubConnectionState.Connected))
+                    if ((_eventStreamHubClient.HubConnection == null) || (_eventStreamHubClient.HubConnection.State != HubConnectionState.Connected))
                     {
-                        try
-                        {
-                            _logger?.LogInformation($"Starting event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
-
-                            _hubConnection = new HubConnectionBuilder()
-                            .WithUrl(this.EventStreamHubUrl)
-                            .WithAutomaticReconnect()
-                            .AddNewtonsoftJsonProtocol()
-                            .Build();
-
-                            await _hubConnection.StartAsync();
-
-                            _logger?.LogInformation($"Finished starting event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger?.LogError(ex, $"Error starting event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
-                            continue;
-                        }
+                        await _eventStreamHubClient.StartAsync();
                     }
 
-                    if (_hubConnection.State == HubConnectionState.Connected)
+                    if (_eventStreamHubClient.HubConnection.State == HubConnectionState.Connected)
                     {
                         var activeSubscriptions = await _repository.GetActiveSubscriptions();
 
@@ -125,7 +107,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                             }
                                         };
 
-                                        await _hubConnection.InvokeAsync("EventStreamEventAppeared", eventSubscriberModel, SecretKey);
+                                        await _eventStreamHubClient.SendAsync(eventSubscriberModel);
 
                                         _logger?.LogInformation($"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.");                                     
                                     }
@@ -150,22 +132,6 @@ namespace AspNetCore.SignalR.EventStream.Processors
         public async ValueTask DisposeAsync()
         {
             Start = false;
-
-            try
-            {
-                _logger?.LogInformation($"Stopping event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
-
-                if (_hubConnection != null)
-                {
-                    await _hubConnection.StopAsync();
-                    await _hubConnection.DisposeAsync();
-                }
-                _logger?.LogInformation($"Finished stopping event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, $"Error stopping event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
-            }
 
             try
             {
