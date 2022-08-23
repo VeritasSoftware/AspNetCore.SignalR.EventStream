@@ -117,13 +117,20 @@ namespace AspNetCore.SignalR.EventStream
                 }
 
                 logger.LogInformation("Event Stream Server shut down.");
-            });            
+            });
+
+            applicationLifeTime.ApplicationStarted.Register(async () =>
+            {               
+                logger.LogInformation("Event Stream Server started.");
+            });
 
             if (_options.DeleteDatabaseIfExists)
                 repository.EnsureDatabaseDeleted();
             repository.EnsureDatabaseCreated();
 
-            repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);            
+            logger.LogInformation("Deleting all subscriptions from database.");
+            repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
+            logger.LogInformation("Finished deleting all subscriptions from database.");
 
             var eventStreamHubClient = app.ApplicationServices.GetServiceOrNull<IEventStreamHubClient>();
 
