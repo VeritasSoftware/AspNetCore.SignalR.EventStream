@@ -122,6 +122,7 @@ namespace AspNetCore.SignalR.EventStream
             applicationLifeTime.ApplicationStarted.Register(async () =>
             {               
                 logger.LogInformation("Event Stream Server started.");
+                await Task.CompletedTask;
             });
 
             if (_options.DeleteDatabaseIfExists)
