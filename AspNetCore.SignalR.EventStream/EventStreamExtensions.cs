@@ -92,17 +92,38 @@ namespace AspNetCore.SignalR.EventStream
 
         public static IApplicationBuilder UseEventStream(this IApplicationBuilder app)
         {
+            var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
+            var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
+
             var repository = app.ApplicationServices.GetServiceOrNull<IRepository>();
             var repository1 = app.ApplicationServices.GetServiceOrNull<IRepository>();
+            var repository2 = app.ApplicationServices.GetServiceOrNull<IRepository>();
+
+            var applicationLifeTime = app.ApplicationServices.GetServiceOrNull<IHostApplicationLifetime>();
+
+            applicationLifeTime.ApplicationStopping.Register(async () =>
+            {
+                try
+                {
+                    logger.LogInformation("Deleting all subscriptions from database.");
+
+                    await repository2.DeleteAllSubscriptionsAsync();
+
+                    logger.LogInformation("Finished deleting all subscriptions from database.");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Deleting all subscriptions from database failed.");
+                }
+
+                logger.LogInformation("Event Stream Server shut down.");
+            });            
 
             if (_options.DeleteDatabaseIfExists)
                 repository.EnsureDatabaseDeleted();
             repository.EnsureDatabaseCreated();
 
-            repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
-
-            var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
-            var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
+            repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);            
 
             var eventStreamHubClient = app.ApplicationServices.GetServiceOrNull<IEventStreamHubClient>();
 

@@ -122,17 +122,6 @@ namespace AspNetCore.SignalR.EventStream.Processors
         {
             Start = false;
 
-            try
-            {
-                _logger?.LogInformation("Stopping thread.");
-                _processorThread.Abort();
-                _logger?.LogInformation("Finished stopping thread.");
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Error stopping thread.");
-            }
-
             await Task.CompletedTask;
         }
     }
