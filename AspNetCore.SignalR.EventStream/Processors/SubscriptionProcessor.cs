@@ -15,6 +15,8 @@ namespace AspNetCore.SignalR.EventStream.Processors
         public bool Start { get; set; } = false;
         public string? EventStreamHubUrl { get; set; }
         public string? SecretKey { get; set;}
+        
+        private string Name => typeof(SubscriptionProcessor).Name;
 
         public SubscriptionProcessor(IRepository repository, IEventStreamHubClient eventStreamHubClient, ILogger<SubscriptionProcessor>? logger = null)
         {
@@ -30,12 +32,12 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 Thread.CurrentThread.IsBackground = true;
 
                 /* run your code here */
-                _logger?.LogInformation("Starting SubscriptionProcessor process.");
+                _logger?.LogInformation($"Starting {Name} process.");
 
                 await this.ProcessAsync();
             });
 
-            _logger?.LogInformation("Starting SubscriptionProcessor thread.");
+            _logger?.LogInformation($"Starting {Name} thread.");
             _processorThread.Start();
         }
 
@@ -115,7 +117,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             }
                             catch (Exception ex)
                             {
-                                _logger?.LogError(ex, "Error in SubscriptionProcessor thread.");
+                                _logger?.LogError(ex, $"Error in {Name} thread.");
                                 continue;
                             }
                         }
@@ -123,7 +125,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogError(ex, "Error in SubscriptionProcessor thread.");
+                    _logger?.LogError(ex, $"Error in {Name} thread.");
                     continue;
                 }
             }
@@ -135,13 +137,13 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
             try
             {
-                _logger?.LogInformation("Stopping thread.");
+                _logger?.LogInformation($"Stopping { Name } thread.");
                 _processorThread.Abort();
-                _logger?.LogInformation("Finished stopping thread.");
+                _logger?.LogInformation($"Finished { Name } stopping thread.");
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Error stopping thread.");
+                _logger?.LogError(ex, $"Error stopping { Name } thread.");
             }
         }
     }
