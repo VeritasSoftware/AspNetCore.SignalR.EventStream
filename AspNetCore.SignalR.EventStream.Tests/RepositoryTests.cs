@@ -11,6 +11,7 @@ using Xunit;
 
 namespace AspNetCore.SignalR.EventStream.Tests
 {
+    [Collection("EventStreamUnitTests")]
     public class RepositoryTests
     {
         IServiceProvider ServiceProvider { get; }
@@ -35,6 +36,7 @@ namespace AspNetCore.SignalR.EventStream.Tests
         [Fact]
         public async Task GetStreamAsync_Success()
         {
+            //Arrange
             var context = ServiceProvider.GetRequiredService<SqliteDbContext>();
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
@@ -79,10 +81,12 @@ namespace AspNetCore.SignalR.EventStream.Tests
 
             var myStream1 = await repository.GetStreamAsync(streamName);
 
+            //Act
             var stream = await repository.GetStreamAsync(myStream1.Id, 1);
 
             var events = stream.Events;
 
+            //Assert
             Assert.Equal(streamId, stream.StreamId);
             Assert.Single(events);
             Assert.Equal(eventId1, events.First().EventId);
@@ -94,6 +98,7 @@ namespace AspNetCore.SignalR.EventStream.Tests
         [Fact]
         public async Task GetSubscriberAsync_Success()
         {
+            //Arrange
             var context = ServiceProvider.GetRequiredService<SqliteDbContext>();
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();

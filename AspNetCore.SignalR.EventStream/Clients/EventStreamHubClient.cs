@@ -10,7 +10,7 @@ namespace AspNetCore.SignalR.EventStream.Clients
 
         public string EventStreamHubUrl { get; set; }
         public string SecretKey { get; set; }
-        public HubConnection? HubConnection => _hubConnection;
+        public virtual bool IsConnected => _hubConnection != null && _hubConnection.State == HubConnectionState.Connected;
 
         public EventStreamHubClient(string eventStreamHubUrl, string secretKey, ILogger<EventStreamHubClient>? logger = null)
         {
@@ -44,7 +44,7 @@ namespace AspNetCore.SignalR.EventStream.Clients
             {
                 _logger?.LogError(ex, $"Error starting event stream hub connection. Hub url: {this.EventStreamHubUrl}.");
             }
-        }
+        }        
 
         public async ValueTask DisposeAsync()
         {

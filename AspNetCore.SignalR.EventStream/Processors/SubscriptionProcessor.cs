@@ -47,12 +47,12 @@ namespace AspNetCore.SignalR.EventStream.Processors
             {
                 try
                 {
-                    if ((_eventStreamHubClient.HubConnection == null) || (_eventStreamHubClient.HubConnection.State != HubConnectionState.Connected))
+                    if (!_eventStreamHubClient.IsConnected)
                     {
                         await _eventStreamHubClient.StartAsync();
                     }
 
-                    if (_eventStreamHubClient.HubConnection.State == HubConnectionState.Connected)
+                    if (_eventStreamHubClient.IsConnected)
                     {
                         var activeSubscriptions = await _repository.GetActiveSubscriptions();
 

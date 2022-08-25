@@ -5,7 +5,7 @@ namespace AspNetCore.SignalR.EventStream.Clients
 {
     public interface IEventStreamHubClient
     {
-        HubConnection? HubConnection { get; }
+        bool IsConnected { get; }
         Task StartAsync(CancellationToken cancellationToken = default(CancellationToken));
         Task SendAsync(EventStreamSubscriberModelResult modelResult);
     }
