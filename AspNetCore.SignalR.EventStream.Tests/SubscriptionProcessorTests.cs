@@ -103,7 +103,7 @@ namespace AspNetCore.SignalR.EventStream.Tests
                 IsJson = false
             });
 
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
 
             //Assert
             mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(1));
