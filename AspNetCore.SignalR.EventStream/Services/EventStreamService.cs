@@ -32,23 +32,23 @@ namespace AspNetCore.SignalR.EventStream.Services
             return model;
         }
 
-        public async Task<EventStreamModel> GetStreamAsync(string name)
+        public async Task<IEnumerable<EventStreamModel>> GetStreamsAsync(string name)
         {
-            var stream = await _repository.GetStreamAsync(name);
+            var streams = await _repository.GetStreamsAsync(name);
 
-            if (stream == null)
-                throw new InvalidOperationException($"Stream: {name} not found.");
+            if (streams == null || !streams.Any())
+                throw new InvalidOperationException($"Stream with Name containing {name} not found.");
 
-            var model = new EventStreamModel
+            var models = streams.Select(x => new EventStreamModel
             {
-                CreatedAt = stream.CreatedAt,
-                Id = stream.Id,
-                LastAssociatedEventId = stream.LastAssociatedEventId,
-                Name = stream.Name,
-                StreamId = stream.StreamId
-            };
+                CreatedAt = x.CreatedAt,
+                Id = x.Id,
+                LastAssociatedEventId = x.LastAssociatedEventId,
+                Name = x.Name,
+                StreamId = x.StreamId
+            });
 
-            return model;
+            return models;
         }
 
         public async Task<EventModel> GetEventAsync(long streamId, Guid id)

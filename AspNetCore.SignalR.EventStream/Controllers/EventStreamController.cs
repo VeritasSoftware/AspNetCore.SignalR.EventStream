@@ -41,17 +41,17 @@ namespace AspNetCore.SignalR.EventStream.Controllers
         }
 
         [HttpGet("streams/stream/{name}")]
-        public async Task<IActionResult> GetStream(string name)
+        public async Task<IActionResult> GetStreams(string name)
         {
             try
             {
-                _logger?.LogInformation($"Fetching stream {name}");
+                _logger?.LogInformation($"Fetching streams with Name containing {name}");
 
-                var stream = await _streamsService.GetStreamAsync(name);
+                var streams = await _streamsService.GetStreamsAsync(name);
 
-                _logger?.LogInformation($"Finished fetching stream {name}");
+                _logger?.LogInformation($"Finished fetching streams with Name containing {name}");
 
-                return Ok(stream);
+                return Ok(streams);
             }
             catch (Exception ex)
             {

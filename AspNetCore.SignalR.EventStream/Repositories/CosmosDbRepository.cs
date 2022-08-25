@@ -311,6 +311,17 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return eventStream;
         }
 
+        public async Task<IEnumerable<Entities.EventStream>> GetStreamsAsync(string streamName)
+        {
+            streamName = streamName.Trim().ToLower();
+
+            var eventStreams = await _context.EventsStream.AsNoTracking()
+                                                         .Where(es => es.Name.ToLower().Contains(streamName))
+                                                         .ToListAsync();
+
+            return eventStreams;
+        }
+
         public async Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions()
         {
             var subscribers = await _context.Subscribers.AsNoTracking().ToListAsync();
