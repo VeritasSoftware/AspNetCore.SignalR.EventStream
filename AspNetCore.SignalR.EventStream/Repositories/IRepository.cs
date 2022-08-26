@@ -20,7 +20,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         void EnsureDatabaseDeleted();
         void EnsureDatabaseCreated();
 
-        Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions();
+        Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptionsAsync();
         Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null, long? toEventId = null);
         Task<Event> GetEventAsync(long streamId, long eventId);
         Task<Event> GetEventAsync(long streamId, Guid eventId);
@@ -28,7 +28,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task<Entities.EventStream> GetStreamAsync(long streamId, long? fromEventId = null);
         Task<Entities.EventStream> GetStreamAsync(string streamName);
         Task<IEnumerable<Entities.EventStream>> GetStreamsAsync(string streamName);
-        Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreams();
+        Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync();
 
         Task<bool> DoesStreamExistAsync(string name);
         Task<bool> DoesStreamExistAsync(Guid streamId);

@@ -322,7 +322,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return eventStreams;
         }
 
-        public async Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions()
+        public async Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptionsAsync()
         {
             var subscribers = await _context.Subscribers.AsNoTracking().ToListAsync();
 
@@ -337,7 +337,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             });
         }
 
-        public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreams()
+        public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync()
         {
             var associations = await _context.EventStreamsAssociation.ToListAsync();
             return associations.GroupBy(s => s.StreamId)

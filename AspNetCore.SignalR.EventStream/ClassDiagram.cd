@@ -17,14 +17,14 @@
   <Class Name="AspNetCore.SignalR.EventStream.Entities.EventStreamSubscriber">
     <Position X="4.25" Y="4" Width="3.5" />
     <TypeIdentifier>
-      <HashCode>AAAgAAAAQAAAAAAgACAAAAAAAAAIAABAAAAAAAAAIAA=</HashCode>
+      <HashCode>QAAAAAAAwAAAAAAgBCAAAgAAAAAIAABAAAAAAAAAAAA=</HashCode>
       <FileName>Entities\EventStreamSubscriber.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Interface Name="AspNetCore.SignalR.EventStream.Repositories.IRepository">
-    <Position X="8.5" Y="0.5" Width="6.5" />
+    <Position X="8.5" Y="0.5" Width="7.5" />
     <TypeIdentifier>
-      <HashCode>AAAACAAAAAQAEAACIQAAAAEAAAgAEAgAIEAAAAAQAAA=</HashCode>
+      <HashCode>AAAACAEAAAQAEAACAQAAAAEAAAgAEAgABEAAAAMQAAA=</HashCode>
       <FileName>Repositories\IRepository.cs</FileName>
     </TypeIdentifier>
   </Interface>

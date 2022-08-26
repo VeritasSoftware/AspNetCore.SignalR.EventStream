@@ -54,7 +54,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                     if (_eventStreamHubClient.IsConnected)
                     {
-                        var activeSubscriptions = await _repository.GetActiveSubscriptions();
+                        var activeSubscriptions = await _repository.GetActiveSubscriptionsAsync();
 
                         foreach (var subscription in activeSubscriptions)
                         {

@@ -38,7 +38,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
             {
                 try
                 {
-                    var activeMergeStreams = await _repository.GetAssociatedStreams();
+                    var activeMergeStreams = await _repository.GetAssociatedStreamsAsync();
 
                     foreach (var activeMerge in activeMergeStreams)
                     {

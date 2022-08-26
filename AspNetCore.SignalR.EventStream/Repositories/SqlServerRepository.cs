@@ -248,7 +248,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return eventStreams;
         }
 
-        public async Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptions()
+        public async Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptionsAsync()
         {
             return await _context.Subscribers.Include(s => s.Stream)
                                              .Select(s => new ActiveSubscription
@@ -259,7 +259,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                              .ToListAsync();
         }
 
-        public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreams()
+        public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync()
         {
             return await _context.EventStreamsAssociation.AsNoTracking().Include(s => s.Stream)
                                                          .Include(s => s.AssociatedStream)
