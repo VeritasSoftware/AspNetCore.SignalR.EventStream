@@ -67,6 +67,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                     if (subscriber == null)
                                     {
+                                        _logger?.LogWarning($"Subscriber {subscription.SubscriptionId} not found.");
                                         return;
                                     }
 

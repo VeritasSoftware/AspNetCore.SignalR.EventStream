@@ -21,7 +21,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         void EnsureDatabaseCreated();
 
         Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptionsAsync();
-        Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null, long? toEventId = null);
+        Task<EventStreamSubscriber?> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null, long? toEventId = null);
         Task<Event> GetEventAsync(long streamId, long eventId);
         Task<Event> GetEventAsync(long streamId, Guid eventId);
         Task<Entities.EventStream> GetStreamAsync(Guid streamId);

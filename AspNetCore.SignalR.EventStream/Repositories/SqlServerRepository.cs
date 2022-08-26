@@ -271,7 +271,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                          .ToListAsync();
         }
 
-        public async Task<EventStreamSubscriber> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null, long? toEventId = null)
+        public async Task<EventStreamSubscriber?> GetSubscriberAsync(Guid subscriberId, long? fromEventId = null, long? toEventId = null)
         {
             if (fromEventId.HasValue)
             {
@@ -283,7 +283,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                            .AsNoTracking().FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
 
                 if (subscriber == null)
-                    throw new InvalidOperationException($"Subscriber {subscriberId} not found.");
+                    return null;
 
                 var events = subscriber.Stream.Events;
                 if (events.Any())
