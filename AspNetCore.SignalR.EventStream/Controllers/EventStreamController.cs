@@ -138,6 +138,26 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             }            
         }
 
+        [HttpPost("subscriptionprocessor")]
+        public async Task<IActionResult> SetSubscriptionProcessor([FromBody] SetSubscriptionProcessorModel model)
+        {
+            try
+            {
+                _logger?.LogInformation($"Setting subscription processor : {JsonSerializer.Serialize(model)}");
+
+                await _streamsService.SetSubscriptionProcessorAsync(model);
+
+                _logger?.LogInformation($"Finished setting subscription processor : {JsonSerializer.Serialize(model)}");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, $"{nameof(EventStreamController)} error.");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
         [HttpPut("subscribers/{id}")]
         public async Task<IActionResult> UpdateSubscriber(Guid id, [FromBody] UpdateSubscriberModel model)
         {

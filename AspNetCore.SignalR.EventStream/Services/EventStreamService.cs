@@ -1,5 +1,6 @@
 ﻿using AspNetCore.SignalR.EventStream.DomainEntities;
 using AspNetCore.SignalR.EventStream.Models;
+using AspNetCore.SignalR.EventStream.Processors;
 using AspNetCore.SignalR.EventStream.Repositories;
 
 namespace AspNetCore.SignalR.EventStream.Services
@@ -11,6 +12,35 @@ namespace AspNetCore.SignalR.EventStream.Services
         public EventStreamService(IRepository repository)
         {
             _repository = repository;
+        }
+
+        public async Task SetSubscriptionProcessorAsync(SetSubscriptionProcessorModel model)
+        {
+            if (EventStreamExtensions._subscriptionProcessor == null)
+            {
+                throw new InvalidOperationException($"{nameof(SubscriptionProcessor)} is null.");
+            }
+
+            if (model.MaxDegreeOfParallelism.HasValue)
+            {
+                EventStreamExtensions._subscriptionProcessor.MaxDegreeOfParallelism = model.MaxDegreeOfParallelism.Value;
+            }
+
+            if (model.Stop.HasValue && model.Stop.Value)
+            {
+                EventStreamExtensions._subscriptionProcessor.Start = false;
+                Thread.Sleep(1000);
+            }
+            if (model.Start.HasValue && model.Start.Value)
+            {
+                if (!EventStreamExtensions._subscriptionProcessor.Start)
+                {
+                    EventStreamExtensions._subscriptionProcessor.Start = true;
+                    EventStreamExtensions._subscriptionProcessor.Process();
+                }                
+            }
+
+            await Task.CompletedTask;
         }
 
         public async Task<EventStreamModel> GetStreamAsync(Guid id)

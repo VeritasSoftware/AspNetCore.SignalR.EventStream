@@ -30,9 +30,9 @@ namespace AspNetCore.SignalR.EventStream
 
     public static class EventStreamExtensions
     {
-        private static SubscriptionProcessor _subscriptionProcessor = null;
-        private static EventStreamProcessor _eventStreamProcessor = null;
-        private static EventStreamOptions _options = null;
+        public static SubscriptionProcessor? _subscriptionProcessor = null;
+        private static EventStreamProcessor? _eventStreamProcessor = null;
+        private static EventStreamOptions? _options = null;
 
         public static IServiceCollection AddAuthorization(this IServiceCollection services, Action<EventStreamHubAuthorizationBuilder> action)
         {
@@ -127,7 +127,7 @@ namespace AspNetCore.SignalR.EventStream
                 await Task.CompletedTask;
             });
 
-            if (_options.DeleteDatabaseIfExists)
+            if (_options != null && _options.DeleteDatabaseIfExists)
                 repository.EnsureDatabaseDeleted();
             repository.EnsureDatabaseCreated();
 

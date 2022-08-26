@@ -17,7 +17,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
         public int MaxDegreeOfParallelism { get; set; }
 
 
-        private string Name => nameof(SubscriptionProcessor);
+        public string Name => nameof(SubscriptionProcessor);
 
         public SubscriptionProcessor(IRepository repository, IEventStreamHubClient eventStreamHubClient, ILogger<SubscriptionProcessor>? logger = null)
         {
