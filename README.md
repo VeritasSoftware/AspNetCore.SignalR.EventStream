@@ -130,6 +130,7 @@ Eg.
 ```C#
 {
   "EventStreamSecretKey": "fce17eec-4913-48d6-b013-2583ab8583b3",
+  "SubscriptionProcessorMaxDegreeOfParallelism": 3,
   "ConnectionStrings": {
     //Sqlite
     //"EventStreamDatabase": "Data Source=.\\eventstreamdb.db"

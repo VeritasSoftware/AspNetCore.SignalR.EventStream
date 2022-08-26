@@ -92,6 +92,8 @@ namespace AspNetCore.SignalR.EventStream
 
         public static IApplicationBuilder UseEventStream(this IApplicationBuilder app)
         {
+            var config = app.ApplicationServices.GetServiceOrNull<IConfiguration>();
+
             var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
             var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
 
@@ -137,7 +139,8 @@ namespace AspNetCore.SignalR.EventStream
 
             _subscriptionProcessor = new SubscriptionProcessor(repository, eventStreamHubClient, logger)
             {
-                Start = true
+                Start = true,
+                MaxDegreeOfParallelism = config.GetValue<int>("SubscriptionProcessorMaxDegreeOfParallelism")
             };
 
             _subscriptionProcessor.Process();

@@ -67,7 +67,8 @@ namespace AspNetCore.SignalR.EventStream.Tests
 
             var subscriptionProcessor = new SubscriptionProcessor(repository1, mockHubClient.Object, mockLogger.Object)
             {
-                Start = true
+                Start = true,
+                MaxDegreeOfParallelism = 1,
             };
 
             //Act

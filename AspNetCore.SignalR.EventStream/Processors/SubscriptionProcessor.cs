@@ -1,7 +1,6 @@
 ﻿using AspNetCore.SignalR.EventStream.Clients;
 using AspNetCore.SignalR.EventStream.Models;
 using AspNetCore.SignalR.EventStream.Repositories;
-using Microsoft.AspNetCore.SignalR.Client;
 
 namespace AspNetCore.SignalR.EventStream.Processors
 {
@@ -15,8 +14,10 @@ namespace AspNetCore.SignalR.EventStream.Processors
         public bool Start { get; set; } = false;
         public string? EventStreamHubUrl { get; set; }
         public string? SecretKey { get; set;}
-        
-        private string Name => typeof(SubscriptionProcessor).Name;
+        public int MaxDegreeOfParallelism { get; set; }
+
+
+        private string Name => nameof(SubscriptionProcessor);
 
         public SubscriptionProcessor(IRepository repository, IEventStreamHubClient eventStreamHubClient, ILogger<SubscriptionProcessor>? logger = null)
         {
@@ -56,7 +57,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                     {
                         var activeSubscriptions = await _repository.GetActiveSubscriptionsAsync();
 
-                        foreach (var subscription in activeSubscriptions)
+                        Parallel.ForEach(activeSubscriptions, new ParallelOptions { MaxDegreeOfParallelism = MaxDegreeOfParallelism }, async (subscription) =>
                         {
                             try
                             {
@@ -64,7 +65,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                 if (subscriber == null)
                                 {
-                                    continue;
+                                    return;
                                 }
 
                                 //_logger?.LogInformation($"LastAccessedEventId: {subscriber.LastAccessedEventId}.");
@@ -116,16 +117,16 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                             1000,
                                             $"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.",
                                             null,
-                                            null);                                   
+                                            null);
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
                                 _logger?.LogError(ex, $"Error in {Name} thread.");
-                                continue;
+                                return;
                             }
-                        }
+                        });
                     }
                 }
                 catch (Exception ex)
