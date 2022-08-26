@@ -111,7 +111,12 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                         await _eventStreamHubClient.SendAsync(eventSubscriberModel);
 
-                                        _logger?.LogInformation($"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.");                                     
+                                        _logger?.Log(
+                                            LogLevel.Information,
+                                            1000,
+                                            $"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.",
+                                            null,
+                                            null);                                   
                                     }
                                 }
                             }
@@ -138,4 +143,10 @@ namespace AspNetCore.SignalR.EventStream.Processors
             await Task.CompletedTask;
         }
     }
+
+    public class SubscriptionProcessorState
+    {
+        public string Message { get; set; }
+    }
+
 }
