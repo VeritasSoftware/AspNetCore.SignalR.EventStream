@@ -7,7 +7,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
     public class SubscriptionProcessor : IAsyncDisposable
     {
         private readonly IRepository _repository;
-        private static Thread _processorThread = null;
+        private static Thread? _processorThread = null;
         private readonly IEventStreamHubClient _eventStreamHubClient;
         private readonly ILogger<SubscriptionProcessor>? _logger;
 
@@ -148,10 +148,4 @@ namespace AspNetCore.SignalR.EventStream.Processors
             await Task.CompletedTask;
         }
     }
-
-    public class SubscriptionProcessorState
-    {
-        public string Message { get; set; }
-    }
-
 }

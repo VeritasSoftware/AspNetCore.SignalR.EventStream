@@ -7,9 +7,10 @@ namespace AspNetCore.SignalR.EventStream.Processors
         private readonly IRepository _repository;
         private readonly ILogger<EventStreamProcessor>? _logger;
 
-        private static Thread _processorThread = null;        
+        private static Thread? _processorThread = null;        
 
         public bool Start { get; set; } = false;
+        public string Name => nameof(EventStreamProcessor);
 
         public EventStreamProcessor(IRepository repository, ILogger<EventStreamProcessor>? logger = null)
         {
@@ -24,11 +25,11 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 Thread.CurrentThread.IsBackground = true;
 
                 /* run your code here */
-                _logger?.LogInformation("Starting EventStreamProcessor process.");
+                _logger?.LogInformation($"Starting {Name} process.");
                 await this.ProcessAsync();
             });
 
-            _logger?.LogInformation("Starting EventStreamProcessor thread.");
+            _logger?.LogInformation($"Starting {Name} thread.");
             _processorThread.Start();
         }
 
@@ -105,14 +106,14 @@ namespace AspNetCore.SignalR.EventStream.Processors
                         }
                         catch (Exception ex)
                         {
-                            _logger?.LogError(ex, "Error in EventStreamProcessor thread.");
+                            _logger?.LogError(ex, $"Error in {Name} thread.");
                             continue;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogError(ex, "Error in EventStreamProcessor thread.");
+                    _logger?.LogError(ex, $"Error in {Name} thread.");
                     continue;
                 }                
             }
