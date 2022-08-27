@@ -30,7 +30,7 @@ conn.On(receiveMethod, new Type[] { typeof(string), typeof(object) }, (arg1, arg
     {
         dynamic parsedJson = JsonConvert.DeserializeObject(@event.ToString());
         var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
-        Console.WriteLine($"Received Event from Stream {parsedJson.streamName}:");
+        Console.WriteLine($"Received Event from Stream {parsedJson.StreamName}:");
         Console.WriteLine(evt);
     }    
     return Task.CompletedTask;

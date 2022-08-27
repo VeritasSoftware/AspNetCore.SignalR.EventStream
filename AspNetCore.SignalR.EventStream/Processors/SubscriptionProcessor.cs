@@ -11,7 +11,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
         private readonly IEventStreamHubClient _eventStreamHubClient;
         private readonly ILogger<SubscriptionProcessor>? _logger;
 
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource? _cancellationTokenSource;
         private bool _start = false;
 
         public bool Start
@@ -32,12 +32,14 @@ namespace AspNetCore.SignalR.EventStream.Processors
         public string? SecretKey { get; set;}
         public int MaxDegreeOfParallelism { get; set; }
 
+        private readonly IServiceProvider _serviceProvider;
 
         public string Name => nameof(SubscriptionProcessor);
 
-        public SubscriptionProcessor(IRepository repository, IEventStreamHubClient eventStreamHubClient, ILogger<SubscriptionProcessor>? logger = null)
+        public SubscriptionProcessor(IServiceProvider serviceProvider, IEventStreamHubClient eventStreamHubClient, ILogger<SubscriptionProcessor>? logger = null)
         {
-            _repository = repository;
+            _repository = serviceProvider.GetRequiredService<IRepository>();
+            _serviceProvider = serviceProvider;
             _eventStreamHubClient = eventStreamHubClient;
             _logger = logger;
         }
@@ -82,7 +84,9 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                 {
                                     try
                                     {
-                                        var subscriber = await _repository.GetSubscriberAsync(subscription.SubscriptionId);
+                                        var repository = _serviceProvider.GetRequiredService<IRepository>();
+
+                                        var subscriber = await repository.GetSubscriberAsync(subscription.SubscriptionId);
 
                                         if (subscriber == null)
                                         {
@@ -92,7 +96,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                                         //_logger?.LogInformation($"LastAccessedEventId: {subscriber.LastAccessedEventId}.");
 
-                                        var subsciptionWithEvents = await _repository.GetSubscriberAsync(subscription.SubscriptionId,
+                                        var subsciptionWithEvents = await repository.GetSubscriberAsync(subscription.SubscriptionId,
                                                                                         subscriber.LastAccessedCurrentEventId > subscriber.LastAccessedFromEventId ?
                                                                                             subscriber.LastAccessedCurrentEventId : subscriber.LastAccessedFromEventId, subscriber.LastAccessedToEventId);
 
