@@ -52,6 +52,8 @@ namespace AspNetCore.SignalR.EventStream.Tests
             var eventId1 = Guid.NewGuid();
             var subscriberId = Guid.NewGuid();
             var subscriberKey = Guid.NewGuid();
+            var subscriberId1 = Guid.NewGuid();
+            var subscriberKey1 = Guid.NewGuid();
 
             var mockLogger = new Mock<ILogger<SubscriptionProcessor>>();
 
@@ -91,6 +93,15 @@ namespace AspNetCore.SignalR.EventStream.Tests
                 SubscriberKey = subscriberKey
             });
 
+            await repository.AddAsync(new EventStreamSubscriber
+            {
+                ConnectionId = "uqweruiwpqoerffs",
+                ReceiveMethod = "MyReceive1",
+                StreamId = stream.Id,
+                SubscriberId = subscriberId1,
+                SubscriberKey = subscriberKey1
+            });
+
             await repository.AddAsync(new Event
             {
                 StreamId = stream.Id,
@@ -113,9 +124,10 @@ namespace AspNetCore.SignalR.EventStream.Tests
             Thread.Sleep(100);
 
             //Assert
-            mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(1));
+            mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(2));
 
             mockLogger.Verify(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscriber {subscriberId}.", null, null), Times.Once);
+            mockLogger.Verify(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscriber {subscriberId1}.", null, null), Times.Once);
 
             mockLogger.Reset();
 
@@ -130,7 +142,7 @@ namespace AspNetCore.SignalR.EventStream.Tests
             });
 
             //Assert
-            mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(1));
+            mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(2));
 
             mockLogger.VerifyAll();
 
