@@ -58,7 +58,9 @@ namespace AspNetCore.SignalR.EventStream.Tests
             var mockLogger = new Mock<ILogger<SubscriptionProcessor>>();
 
             mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscriber {subscriberId}.", null, null)).Verifiable();
+            mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscriber {subscriberId1}.", null, null)).Verifiable();
             mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (1) to subscriber {subscriberId}.", null, null)).Verifiable();
+            mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (1) to subscriber {subscriberId1}.", null, null)).Verifiable();
 
             var mockHubClient = new Mock<IEventStreamHubClient>();
             mockHubClient.SetupGet(x => x.IsConnected).Returns(true);
