@@ -181,7 +181,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                                .And(search.CreatedStart.HasValue, x => x.CreatedAt >= search.CreatedStart.Value)
                                                                .And(search.CreatedEnd.HasValue, x => x.CreatedAt <= search.CreatedEnd.Value)
                                                                .ToExpressionPredicate())
-                                                               .Take(search.MaxReturnRecords ?? 50)
+                                                               .Take(search.MaxReturnRecords.Value)
                                                                .ToListAsync();            
         }
 
