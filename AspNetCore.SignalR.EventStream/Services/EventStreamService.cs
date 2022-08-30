@@ -144,6 +144,9 @@ namespace AspNetCore.SignalR.EventStream.Services
             subscriber.LastAccessedToEventId = model.LastAccessedToEventId;
 
             await _repository.UpdateAsync(subscriber);
+
+            if (EventStreamExtensions._subscriptionProcessor != null)
+                await EventStreamExtensions._subscriptionProcessor.ProcessSubscriber(subscriberId);
         }
 
         public async Task DeleteEventStreamAsync(long id)

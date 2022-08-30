@@ -146,6 +146,71 @@ namespace AspNetCore.SignalR.EventStream.Processors
             }
         }
 
+        public async Task ProcessSubscriber(Guid subscriberId)
+        {
+            var repository = _serviceProvider.GetRequiredService<IRepository>();
+
+            var subscriber = await repository.GetSubscriberAsync(subscriberId);
+
+            if (subscriber == null)
+            {
+                _logger?.LogWarning($"Subscriber {subscriberId} not found.");
+                return;
+            }
+
+            var subsciptionWithEvents = await repository.GetSubscriberAsync(subscriberId,
+                                                            subscriber.LastAccessedCurrentEventId > subscriber.LastAccessedFromEventId ?
+                                                                subscriber.LastAccessedCurrentEventId : subscriber.LastAccessedFromEventId, subscriber.LastAccessedToEventId);
+
+            if (subsciptionWithEvents != null)
+            {
+                if (subsciptionWithEvents.Stream.Events != null && subsciptionWithEvents.Stream.Events.Any())
+                {
+                    _logger?.LogInformation($"Streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.");
+
+                    var eventSubscriberModel = new EventStreamSubscriberModelResult
+                    {
+                        ConnectionId = subsciptionWithEvents.ConnectionId,
+                        CreatedAt = subsciptionWithEvents.CreatedAt,
+                        ReceiveMethod = subsciptionWithEvents.ReceiveMethod,
+                        StreamId = subsciptionWithEvents.StreamId,
+                        SubscriberId = subsciptionWithEvents.SubscriberId,
+                        LastAccessedEventId = subsciptionWithEvents.LastAccessedFromEventId,
+                        Stream = new EventStreamModelResult
+                        {
+                            Name = subsciptionWithEvents.Stream.Name,
+                            Events = subsciptionWithEvents.Stream.Events.Select(x => new EventModelResult
+                            {
+                                Data = x.Data,
+                                Id = x.Id,
+                                EventId = x.EventId,
+                                IsJson = x.IsJson,
+                                JsonData = x.JsonData,
+                                MetaData = x.MetaData,
+                                StreamId = subsciptionWithEvents.Stream.StreamId,
+                                StreamName = subsciptionWithEvents.Stream.Name,
+                                OriginalEventId = x.OriginalEventId,
+                                Type = x.Type,
+                                CreatedAt = x.CreatedAt
+                            }).ToList(),
+                            CreatedAt = subsciptionWithEvents.Stream.CreatedAt,
+                            StreamId = subsciptionWithEvents.Stream.StreamId
+                        }
+                    };
+
+                    await _eventStreamHubClient.SendAsync(eventSubscriberModel);
+
+                    _logger?.Log(
+                        LogLevel.Information,
+                        1000,
+                        $"Finished streaming events ({subsciptionWithEvents.Stream.Events.Count()}) to subscriber {subscriber.SubscriberId}.",
+                        null,
+                        null);
+
+                }
+            }
+        }
+
         public async ValueTask DisposeAsync()
         {
             await Task.CompletedTask;
