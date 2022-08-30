@@ -9,11 +9,11 @@ namespace AspNetCore.SignalR.EventStream.Repositories
     public class CosmosDbRepository : IRepository
     {
         private readonly CosmosDbContext _context;
-        private readonly ISubscriptionProcessorEventHandler _processor;
+        private readonly ISubscriptionProcessorNotifier _processor;
 
         private static object _lock = new object();
 
-        public CosmosDbRepository(CosmosDbContext context, ISubscriptionProcessorEventHandler processor)
+        public CosmosDbRepository(CosmosDbContext context, ISubscriptionProcessorNotifier processor)
         {
             _context = context;
             _processor = processor;

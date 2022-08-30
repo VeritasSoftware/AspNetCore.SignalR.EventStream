@@ -69,9 +69,9 @@ namespace AspNetCore.SignalR.EventStream.Tests
             var repository = ServiceProvider.GetRequiredService<IRepository>();
             var repository1 = ServiceProvider.GetRequiredService<IRepository>();
 
-            var subscriptionProcessorEventHandler = ServiceProvider.GetRequiredService<ISubscriptionProcessorEventHandler>();           
+            var subscriptionProcessorNotifier = ServiceProvider.GetRequiredService<ISubscriptionProcessorNotifier>();           
 
-            var subscriptionProcessor = new SubscriptionProcessor(ServiceProvider, mockHubClient.Object, subscriptionProcessorEventHandler, mockLogger.Object)
+            var subscriptionProcessor = new SubscriptionProcessor(ServiceProvider, mockHubClient.Object, subscriptionProcessorNotifier, mockLogger.Object)
             {
                 MaxDegreeOfParallelism = 1,
             };

@@ -8,11 +8,11 @@ namespace AspNetCore.SignalR.EventStream.Repositories
     public class SqliteRepository : IRepository
     {
         private readonly SqliteDbContext _context;
-        private readonly ISubscriptionProcessorEventHandler _processor;
+        private readonly ISubscriptionProcessorNotifier _processor;
 
         private static object _lock = new object();
 
-        public SqliteRepository(SqliteDbContext context, ISubscriptionProcessorEventHandler processor)
+        public SqliteRepository(SqliteDbContext context, ISubscriptionProcessorNotifier processor)
         {
             _context = context;
             _processor = processor;

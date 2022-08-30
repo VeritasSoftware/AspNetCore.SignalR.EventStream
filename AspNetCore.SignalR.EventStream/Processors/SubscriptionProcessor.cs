@@ -9,7 +9,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
         private readonly IRepository _repository;
         private static Thread? _processorThread = null;
         private readonly IEventStreamHubClient _eventStreamHubClient;
-        private readonly ISubscriptionProcessorEventHandler _subscriptionProcessorEventHandler;
+        private readonly ISubscriptionProcessorNotifier _subscriptionProcessorEventHandler;
         private readonly ILogger<SubscriptionProcessor>? _logger;
 
         private CancellationTokenSource? _cancellationTokenSource;
@@ -51,7 +51,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
         public string Name => nameof(SubscriptionProcessor);
 
         public SubscriptionProcessor(IServiceProvider serviceProvider, IEventStreamHubClient eventStreamHubClient, 
-                            ISubscriptionProcessorEventHandler subscriptionProcessorEventHandler, 
+                            ISubscriptionProcessorNotifier subscriptionProcessorEventHandler, 
                             ILogger<SubscriptionProcessor>? logger = null)
         {
             _repository = serviceProvider.GetRequiredService<IRepository>();

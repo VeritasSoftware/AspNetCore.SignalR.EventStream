@@ -2,7 +2,7 @@
 
 namespace AspNetCore.SignalR.EventStream.Processors
 {
-    public class SubscriptionProcessorEventHandler : ISubscriptionProcessorEventHandler
+    public class SubscriptionProcessorNotifier : ISubscriptionProcessorNotifier
     {
         public event Func<IEnumerable<Event>, Task> OnEventsAdded;
 

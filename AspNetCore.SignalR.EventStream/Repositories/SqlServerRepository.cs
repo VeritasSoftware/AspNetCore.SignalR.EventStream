@@ -8,11 +8,11 @@ namespace AspNetCore.SignalR.EventStream.Repositories
     public class SqlServerRepository : IRepository
     {
         private readonly SqlServerDbContext _context;
-        private readonly ISubscriptionProcessorEventHandler _processor;
+        private readonly ISubscriptionProcessorNotifier _processor;
 
         private static object _lock = new object();
 
-        public SqlServerRepository(SqlServerDbContext context, ISubscriptionProcessorEventHandler processor)
+        public SqlServerRepository(SqlServerDbContext context, ISubscriptionProcessorNotifier processor)
         {
             _context = context;
             _processor = processor;
