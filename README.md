@@ -1,5 +1,7 @@
 # AspNetCore.SignalR.EventStream
 
+##.Net Event Sourcing solution
+
 ## Event Streaming using SignalR web sockets
 
 The framework allows you to build your own Event Stream Server.
