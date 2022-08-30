@@ -1,5 +1,6 @@
 ﻿using AspNetCore.SignalR.EventStream.DomainEntities;
 using AspNetCore.SignalR.EventStream.Entities;
+using AspNetCore.SignalR.EventStream.Processors;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,12 +9,14 @@ namespace AspNetCore.SignalR.EventStream.Repositories
     public class CosmosDbRepository : IRepository
     {
         private readonly CosmosDbContext _context;
+        private readonly ISubscriptionProcessorEventHandler _processor;
 
         private static object _lock = new object();
 
-        public CosmosDbRepository(CosmosDbContext context)
+        public CosmosDbRepository(CosmosDbContext context, ISubscriptionProcessorEventHandler processor)
         {
             _context = context;
+            _processor = processor;
         }
 
         public void EnsureDatabaseDeleted()
@@ -56,7 +59,13 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                         _context.SaveChanges();
 
                         maxId++;
-                    }                    
+                    }
+
+                    var eventIds = events.Select(e => e.EventId).ToList();
+
+                    var savedEvents = _context.Events.Where(e => eventIds.Contains(e.EventId)).OrderBy(e => e.Id).ToList();
+
+                    _processor.OnEventsAddedAsync(savedEvents).Wait();
                 }
                 catch (Exception ex)
                 {
@@ -335,6 +344,17 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                 StreamId = streams.Single(st => st.Id == s.StreamId).StreamId,
                 SubscriptionId = s.SubscriberId
             });
+        }
+
+        public async Task<IEnumerable<EventStreamSubscriber>> GetActiveSubscriptionsAsync(long streamId)
+        {
+            var subscribers = await _context.Subscribers.AsNoTracking().Where(s => s.StreamId == streamId).ToListAsync();
+
+            var stream = await _context.EventsStream.FirstOrDefaultAsync(es => es.Id == streamId);
+
+            subscribers.ForEach(s => s.Stream = stream);
+
+            return subscribers;
         }
 
         public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync()

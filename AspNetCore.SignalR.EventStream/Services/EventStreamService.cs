@@ -29,14 +29,13 @@ namespace AspNetCore.SignalR.EventStream.Services
             if (model.Stop.HasValue && model.Stop.Value)
             {
                 EventStreamExtensions._subscriptionProcessor.Start = false;
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
             if (model.Start.HasValue && model.Start.Value)
             {
                 if (!EventStreamExtensions._subscriptionProcessor.Start)
                 {
                     EventStreamExtensions._subscriptionProcessor.Start = true;
-                    EventStreamExtensions._subscriptionProcessor.Process();
                 }                
             }
 

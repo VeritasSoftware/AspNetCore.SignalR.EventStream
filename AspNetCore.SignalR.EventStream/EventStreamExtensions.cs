@@ -58,17 +58,17 @@ namespace AspNetCore.SignalR.EventStream
             }
             else if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
             {
-                services.AddTransient<IRepository, CosmosDbRepository>();
+                services.AddTransient<IRepository, CosmosDbRepository>(sp => new CosmosDbRepository(sp.GetRequiredService<CosmosDbContext>(), sp.GetRequiredService<ISubscriptionProcessorEventHandler>()));
                 services.AddDbContext<CosmosDbContext>(o => o.UseCosmos(_options.ConnectionString, "EventStream"), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
             else if (_options.DatabaseType == DatabaseTypeOptions.SqlServer)
             {
-                services.AddTransient<IRepository, SqlServerRepository>();
+                services.AddTransient<IRepository, SqlServerRepository>(sp => new SqlServerRepository(sp.GetRequiredService<SqlServerDbContext>(), sp.GetRequiredService<ISubscriptionProcessorEventHandler>()));
                 services.AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
             else
             {
-                services.AddTransient<IRepository, SqliteRepository>();
+                services.AddTransient<IRepository, SqliteRepository>(sp => new SqliteRepository(sp.GetRequiredService<SqliteDbContext>(), sp.GetRequiredService<ISubscriptionProcessorEventHandler>()));
                 services.AddDbContext<SqliteDbContext>(o => o.UseSqlite(_options.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
 
@@ -86,6 +86,8 @@ namespace AspNetCore.SignalR.EventStream
             services.AddSingleton<IEventStreamHubClient>(o => new EventStreamHubClient(_options.EventStreamHubUrl,
                                                                 o.GetServiceOrNull<IConfiguration>()["EventStreamSecretKey"],
                                                                 o.GetService<ILogger<EventStreamHubClient>>()));
+
+            services.AddSingleton<ISubscriptionProcessorEventHandler, SubscriptionProcessorEventHandler>();
 
             return services;
         }
@@ -136,14 +138,13 @@ namespace AspNetCore.SignalR.EventStream
             logger.LogInformation("Finished deleting all subscriptions from database.");
 
             var eventStreamHubClient = app.ApplicationServices.GetServiceOrNull<IEventStreamHubClient>();
+            var subscriptionProcessorEventHandler = app.ApplicationServices.GetRequiredService<ISubscriptionProcessorEventHandler>();
 
-            _subscriptionProcessor = new SubscriptionProcessor(app.ApplicationServices, eventStreamHubClient, logger)
+            _subscriptionProcessor = new SubscriptionProcessor(app.ApplicationServices, eventStreamHubClient, subscriptionProcessorEventHandler, logger)
             {
                 Start = true,
                 MaxDegreeOfParallelism = config.GetValue<int>("SubscriptionProcessorMaxDegreeOfParallelism")
             };
-
-            _subscriptionProcessor.Process();
 
             _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
             {

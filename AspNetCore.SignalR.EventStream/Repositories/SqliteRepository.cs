@@ -1,5 +1,6 @@
 ﻿using AspNetCore.SignalR.EventStream.DomainEntities;
 using AspNetCore.SignalR.EventStream.Entities;
+using AspNetCore.SignalR.EventStream.Processors;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.SignalR.EventStream.Repositories
@@ -7,12 +8,14 @@ namespace AspNetCore.SignalR.EventStream.Repositories
     public class SqliteRepository : IRepository
     {
         private readonly SqliteDbContext _context;
+        private readonly ISubscriptionProcessorEventHandler _processor;
 
         private static object _lock = new object();
 
-        public SqliteRepository(SqliteDbContext context)
+        public SqliteRepository(SqliteDbContext context, ISubscriptionProcessorEventHandler processor)
         {
             _context = context;
+            _processor = processor;
         }
 
         public void EnsureDatabaseDeleted()
@@ -26,19 +29,25 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             _context.Database.Migrate();
         }
 
-        public async Task AddAsync(params Event[] @event)
+        public async Task AddAsync(params Event[] events)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    _context.Events.AddRange(@event);
+                    _context.Events.AddRange(events);
 
                     await _context.SaveChangesAsync();
 
                     lock (_lock)
                     {
                         transaction.Commit();
+
+                        var eventIds = events.Select(e => e.EventId).ToList();
+
+                        var savedEvents = _context.Events.Where(e => eventIds.Contains(e.EventId)).OrderBy(e => e.Id).ToList();
+
+                         _processor.OnEventsAddedAsync(savedEvents).Wait();
                     }
                 }
                 catch (Exception ex)
@@ -258,6 +267,13 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                  StreamId = s.Stream.StreamId,
                                                  SubscriptionId = s.SubscriberId
                                              })
+                                             .ToListAsync();
+        }
+
+        public async Task<IEnumerable<EventStreamSubscriber>> GetActiveSubscriptionsAsync(long streamId)
+        {
+            return await _context.Subscribers.Include(s => s.Stream)
+                                             .Where(s => s.StreamId == streamId)
                                              .ToListAsync();
         }
 
