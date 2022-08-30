@@ -8,7 +8,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
     {
         private readonly IRepository _repository;
         private readonly IEventStreamHubClient _eventStreamHubClient;
-        private readonly ISubscriptionProcessorNotifier _subscriptionProcessorEventHandler;
+        private readonly ISubscriptionProcessorNotifier _subscriptionProcessorNotifier;
         private readonly ILogger<SubscriptionProcessor>? _logger;
 
         private CancellationTokenSource? _cancellationTokenSource;
@@ -26,14 +26,14 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 {
                     _cancellationTokenSource?.Cancel();
                     _logger?.LogInformation("Detaching On Events Added Notifier.");
-                    _subscriptionProcessorEventHandler.OnEventsAdded -= OnEventsAddedHandler;
+                    _subscriptionProcessorNotifier.OnEventsAdded -= OnEventsAddedHandler;
                     _logger?.LogInformation("Finished detaching On Events Added Notifier.");
                     _logger.LogInformation($"{Name} stopped.");
                 }
                 else
                 {
                     _logger?.LogInformation("Attaching On Events Added Notifier.");
-                    _subscriptionProcessorEventHandler.OnEventsAdded += OnEventsAddedHandler;
+                    _subscriptionProcessorNotifier.OnEventsAdded += OnEventsAddedHandler;
                     _logger?.LogInformation("Finished attaching On Events Added Notifier.");
                     _logger.LogInformation($"{Name} started.");
                 }                
@@ -50,13 +50,13 @@ namespace AspNetCore.SignalR.EventStream.Processors
         public string Name => nameof(SubscriptionProcessor);
 
         public SubscriptionProcessor(IServiceProvider serviceProvider, IEventStreamHubClient eventStreamHubClient, 
-                            ISubscriptionProcessorNotifier subscriptionProcessorEventHandler, 
+                            ISubscriptionProcessorNotifier subscriptionProcessorNotifier, 
                             ILogger<SubscriptionProcessor>? logger = null)
         {
             _repository = serviceProvider.GetRequiredService<IRepository>();
             _serviceProvider = serviceProvider;
             _eventStreamHubClient = eventStreamHubClient;
-            _subscriptionProcessorEventHandler = subscriptionProcessorEventHandler;
+            _subscriptionProcessorNotifier = subscriptionProcessorNotifier;
             _logger = logger;
         }
 
