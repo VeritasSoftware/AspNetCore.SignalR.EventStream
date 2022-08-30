@@ -272,5 +272,33 @@ namespace AspNetCore.SignalR.EventStream.Services
 
             return streamIdGuid;
         }
+
+        public async IAsyncEnumerable<EventModel> SearchEventsAsync(SearchEventsModel searchEventsModel)
+        {
+            var events = await _repository.SearchEventsAsync(new SearchEventsEntity
+            {
+                CreatedEnd = searchEventsModel.CreatedEnd,
+                CreatedStart = searchEventsModel.CreatedStart,
+                MaxReturnRecords = searchEventsModel.MaxReturnRecords,
+                StreamId = searchEventsModel.StreamId,
+                Type = searchEventsModel.Type,
+            });
+
+            foreach (var e in events)
+            {
+                var eventModel = new EventModel
+                {
+                    Data = e.Data,
+                    IsJson = e.IsJson,
+                    JsonData = e.JsonData,
+                    MetaData = e.MetaData,
+                    StreamId = e.Stream.StreamId,
+                    StreamName = e.Stream.Name,
+                    Type = e.Type
+                };
+
+                yield return eventModel;
+            }
+        }
     }
 }

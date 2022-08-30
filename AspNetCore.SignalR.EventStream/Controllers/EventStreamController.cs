@@ -138,6 +138,26 @@ namespace AspNetCore.SignalR.EventStream.Controllers
             }            
         }
 
+        [HttpPost("events/search")]
+        public IActionResult SearchEvents([FromBody] SearchEventsModel searchEventsModel)
+        {
+            try
+            {
+                _logger?.LogInformation($"Searching events : {JsonSerializer.Serialize(searchEventsModel)}");
+
+                var events = _streamsService.SearchEventsAsync(searchEventsModel);
+
+                _logger?.LogInformation($"Finished searching events : {JsonSerializer.Serialize(searchEventsModel)}");
+
+                return Ok(events);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, $"{nameof(EventStreamController)} error.");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
         [HttpPost("subscriptionprocessor")]
         public async Task<IActionResult> SetSubscriptionProcessor([FromBody] SetSubscriptionProcessorModel model)
         {

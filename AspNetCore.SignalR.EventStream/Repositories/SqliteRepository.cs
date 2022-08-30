@@ -174,6 +174,17 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                                                                        .ToExpressionPredicate()).ToListAsync();
         }
 
+        public async Task<IEnumerable<Event>> SearchEventsAsync(SearchEventsEntity search)
+        {
+            return await _context.Events.Include(e => e.Stream).Where(builder => builder.Initial(x => x.StreamId == search.StreamId)
+                                                               .And(!string.IsNullOrEmpty(search.Type), x => x.Type.ToLower().Contains(search.Type.ToLower()))
+                                                               .And(search.CreatedStart.HasValue, x => x.CreatedAt >= search.CreatedStart.Value)
+                                                               .And(search.CreatedEnd.HasValue, x => x.CreatedAt <= search.CreatedEnd.Value)
+                                                               .ToExpressionPredicate())
+                                                               .Take(search.MaxReturnRecords ?? 50)
+                                                               .ToListAsync();            
+        }
+
         public async Task DeleteEventStreamAsync(long id)
         {
             var stream = await _context.EventsStream.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);

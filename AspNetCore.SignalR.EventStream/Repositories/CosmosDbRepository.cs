@@ -205,6 +205,11 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<IEnumerable<Event>> SearchEventsAsync(SearchEventsEntity search)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task DeleteEventStreamAsync(long id)
         {
             var stream = await _context.EventsStream.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);

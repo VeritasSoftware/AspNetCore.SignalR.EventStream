@@ -13,5 +13,6 @@ namespace AspNetCore.SignalR.EventStream.Services
         Task<EventModel> GetEventAsync(long streamId, Guid id);
         Task<EventStreamModel> GetStreamAsync(Guid id);
         Task<IEnumerable<EventStreamModel>> GetStreamsAsync(string name);
+        IAsyncEnumerable<EventModel> SearchEventsAsync(SearchEventsModel searchEventsModel);
     }
 }
