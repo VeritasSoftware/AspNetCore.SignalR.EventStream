@@ -26,16 +26,16 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 if (!value)
                 {
                     _cancellationTokenSource?.Cancel();
-                    _logger?.LogInformation("Detaching On Events Added Handler");
+                    _logger?.LogInformation("Detaching On Events Added Notifier.");
                     _subscriptionProcessorEventHandler.OnEventsAdded -= OnEventsAddedHandler;
-                    _logger?.LogInformation("Finished detaching On Events Added Handler");
+                    _logger?.LogInformation("Finished detaching On Events Added Notifier.");
                     _logger.LogInformation($"{Name} stopped.");
                 }
                 else
                 {
-                    _logger?.LogInformation("Attaching On Events Added Handler");
+                    _logger?.LogInformation("Attaching On Events Added Notifier.");
                     _subscriptionProcessorEventHandler.OnEventsAdded += OnEventsAddedHandler;
-                    _logger?.LogInformation("Finished attaching On Events Added Handler");
+                    _logger?.LogInformation("Finished attaching On Events Added Notifier.");
                     _logger.LogInformation($"{Name} started.");
                 }                
 
