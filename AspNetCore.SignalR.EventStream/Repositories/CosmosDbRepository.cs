@@ -33,6 +33,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
         public async Task AddAsync(params Event[] events)
         {
+            List<CosmosEvent>? savedEvents = null;
+
             lock (_lock)
             {
                 try
@@ -65,15 +67,19 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
                     var eventIds = events.Select(e => e.EventId).ToList();
 
-                    var savedEvents = _context.Events.Where(e => eventIds.Contains(e.EventId)).OrderBy(e => e.Id).ToList();
+                    savedEvents = _context.Events.Where(e => eventIds.Contains(e.EventId)).OrderBy(e => e.Id).ToList();
 
-                    _subscriptionProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();
-                    _eventStreamProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();
+                    _subscriptionProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();                    
                 }
                 catch (Exception ex)
                 {
                     throw;
                 }                
+            }
+
+            if (savedEvents != null && savedEvents.Any())
+            {
+                await _eventStreamProcessorNotifier.OnEventsAddedAsync(savedEvents);
             }
 
             await Task.CompletedTask;

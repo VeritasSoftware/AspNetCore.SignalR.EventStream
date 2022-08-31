@@ -41,17 +41,18 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
                     await _context.SaveChangesAsync();
 
+                    var eventIds = events.Select(e => e.EventId).ToList();
+
+                    var savedEvents = await _context.Events.Where(e => eventIds.Contains(e.EventId)).OrderBy(e => e.Id).ToListAsync();
+
                     lock (_lock)
                     {
-                        transaction.Commit();
+                        transaction.Commit();                        
 
-                        var eventIds = events.Select(e => e.EventId).ToList();
+                        _subscriptionProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();                        
+                    }
 
-                        var savedEvents = _context.Events.Where(e => eventIds.Contains(e.EventId)).OrderBy(e => e.Id).ToList();
-
-                        _subscriptionProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();
-                        _eventStreamProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();
-                    }                    
+                    await _eventStreamProcessorNotifier.OnEventsAddedAsync(savedEvents);
                 }
                 catch (Exception ex)
                 {
