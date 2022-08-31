@@ -4,118 +4,123 @@ namespace AspNetCore.SignalR.EventStream.Processors
 {
     public class EventStreamProcessor : IAsyncDisposable
     {
-        private readonly IRepository _repository;
-        private readonly ILogger<EventStreamProcessor>? _logger;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IEventStreamProcessorNotifier _notifier;
+        private readonly ILogger<EventStreamProcessor>? _logger; 
 
-        private static Thread? _processorThread = null;        
+        private bool _start = false;
 
-        public bool Start { get; set; } = false;
+        public bool Start
+        {
+            get
+            {
+                return _start;
+            }
+            set
+            {
+                if (!value)
+                {
+                    _logger?.LogInformation("Detaching On Events Added Notifier.");
+                    _notifier.OnEventsAdded -= OnEventsAddedHandler;
+                    _logger?.LogInformation("Finished detaching On Events Added Notifier.");
+                    _logger.LogInformation($"{Name} stopped.");
+                }
+                else
+                {
+                    _logger?.LogInformation("Attaching On Events Added Notifier.");
+                    _notifier.OnEventsAdded += OnEventsAddedHandler;
+                    _logger?.LogInformation("Finished attaching On Events Added Notifier.");
+                    _logger.LogInformation($"{Name} started.");
+                }
+
+                _start = value;
+            }
+        }
         public string Name => nameof(EventStreamProcessor);
 
-        public EventStreamProcessor(IRepository repository, ILogger<EventStreamProcessor>? logger = null)
+        public EventStreamProcessor(IServiceProvider serviceProvider, IEventStreamProcessorNotifier notifier, ILogger<EventStreamProcessor>? logger = null)
         {
-            _repository = repository;
+            _serviceProvider = serviceProvider;
+            _notifier = notifier;
             _logger = logger;
         }
-
-        public void Process()
+        
+        private async Task OnEventsAddedHandler(IEnumerable<Entities.Event> events)
         {
-            _processorThread = new Thread(async () =>
+            try
             {
-                Thread.CurrentThread.IsBackground = true;
+                var repository = _serviceProvider.GetRequiredService<IRepository>();
 
-                /* run your code here */
-                _logger?.LogInformation($"Starting {Name} process.");
-                await this.ProcessAsync();
-            });
+                var streamId = events.First().StreamId;
+                var mergeStream = await repository.GetStreamAsync(streamId);
+                var streamName = mergeStream.Name;
 
-            _logger?.LogInformation($"Starting {Name} thread.");
-            _processorThread.Start();
-        }
+                var activeMergeStreams = await repository.GetAssociatedStreamsAsync(streamId);
 
-        private async Task ProcessAsync()
-        {
-            while (Start)
-            {
-                try
+                foreach (var activeMerge in activeMergeStreams)
                 {
-                    var activeMergeStreams = await _repository.GetAssociatedStreamsAsync();
-
-                    foreach (var activeMerge in activeMergeStreams)
+                    try
                     {
-                        try
+                        if (activeMerge.AssociatedStreamIds != null && activeMerge.AssociatedStreamIds.Any())
                         {
-                            var stream = await _repository.GetStreamAsync(activeMerge.StreamId);
+                            var stream = await repository.GetStreamAsync(activeMerge.StreamId);
 
-                            if (stream != null)
+                            if (stream == null)
                             {
-                                //Get last merged datetime from stream
-                                var lastAssociatedAt = stream.LastAssociatedEventId;
+                                throw new InvalidOperationException($"Stream {activeMerge.StreamId} not found.");
+                            }
 
-                                if (lastAssociatedAt.HasValue && lastAssociatedAt.Value <= 0)
+                            foreach (var associatedStreamId in activeMerge.AssociatedStreamIds)
+                            {
+                                //Fetch events from associated stream after last merged at
+
+                                if (events.Any())
                                 {
-                                    continue;
-                                }
+                                    var eventEntities = new List<Entities.Event>();
 
-                                //_logger?.LogInformation($"LastAssociatedEventId: {lastAssociatedAt}.");
+                                    _logger?.LogInformation($"Adding new events ({events.Count()}) from associated stream {streamName} to stream {stream.Name}.");
 
-                                if (activeMerge.AssociatedStreamIds != null && activeMerge.AssociatedStreamIds.Any())
-                                {
-                                    foreach (var associatedStreamId in activeMerge.AssociatedStreamIds)
+                                    foreach (var @event in events)
                                     {
-                                        //Fetch events from associated stream after last merged at
-                                        var associatedStream = await _repository.GetStreamAsync(associatedStreamId, lastAssociatedAt??0);
-
-                                        if (associatedStream != null && associatedStream.Events != null && associatedStream.Events.Any())
+                                        var @newEvent = new Entities.Event
                                         {
-                                            var events = new List<Entities.Event>();
+                                            StreamId = activeMerge.StreamId,
+                                            Data = @event.Data,
+                                            JsonData = @event.JsonData,
+                                            MetaData = @event.MetaData,
+                                            IsJson = @event.IsJson,
+                                            Type = @event.Type,
+                                            OriginalEventId = @event.EventId
+                                        };
 
-                                            _logger?.LogInformation($"Adding new events ({associatedStream.Events.Count()}) from associated stream {associatedStream.Name} to stream {stream.Name}.");
-
-                                            foreach (var @event in associatedStream.Events)
-                                            {
-                                                var @newEvent = new Entities.Event
-                                                {                                                    
-                                                    StreamId = stream.Id,
-                                                    Data = @event.Data,
-                                                    JsonData = @event.JsonData,
-                                                    MetaData = @event.MetaData,
-                                                    IsJson = @event.IsJson,
-                                                    Type = @event.Type,
-                                                    OriginalEventId = @event.EventId
-                                                };
-
-                                                 events.Add(@newEvent);                                                
-                                            }
-                                            
-                                            //Create new Events
-                                            await _repository.AddAsync(events.ToArray());
-
-                                            _logger?.LogInformation($"Finished adding new events ({associatedStream.Events.Count()}) from associated stream {associatedStream.Name} to stream {stream.Name}.");                                            
-
-                                            var lastEventId = events.Last().EventId;
-
-                                            var lastEvent = await _repository.GetEventAsync(stream.Id, lastEventId);
-
-                                            stream.LastAssociatedEventId = lastEvent?.Id;
-                                            await _repository.UpdateAsync(stream);
-                                        }                                        
+                                        eventEntities.Add(@newEvent);
                                     }
+
+                                    //Create new Events
+                                    await repository.AddAsync(eventEntities.ToArray());
+
+                                    _logger?.LogInformation($"Finished adding new events ({events.Count()}) from associated stream {streamName} to stream {stream.Name}.");
+
+                                    var lastEventId = eventEntities.Last().EventId;
+
+                                    var lastEvent = await repository.GetEventAsync(stream.Id, lastEventId);
+
+                                    stream.LastAssociatedEventId = lastEvent?.Id;
+                                    await repository.UpdateAsync(stream);
                                 }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger?.LogError(ex, $"Error in {Name} thread.");
-                            continue;
-                        }
+                        }                        
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogError(ex, $"Error in {Name} thread.");
+                        continue;
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger?.LogError(ex, $"Error in {Name} thread.");
-                    continue;
-                }                
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, $"Error in {Name} thread.");
             }
         }
 

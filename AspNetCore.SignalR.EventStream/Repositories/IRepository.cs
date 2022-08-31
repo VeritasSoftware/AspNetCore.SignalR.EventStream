@@ -30,6 +30,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         Task<Entities.EventStream> GetStreamAsync(string streamName);
         Task<IEnumerable<Entities.EventStream>> GetStreamsAsync(string streamName);
         Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync();
+        Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync(long streamId);
 
         Task<bool> DoesStreamExistAsync(string name);
         Task<bool> DoesStreamExistAsync(Guid streamId);

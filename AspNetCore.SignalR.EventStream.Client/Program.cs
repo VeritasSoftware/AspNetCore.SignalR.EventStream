@@ -36,6 +36,17 @@ conn.On(receiveMethod, new Type[] { typeof(string), typeof(object) }, (arg1, arg
     return Task.CompletedTask;
 }, new object());
 
+Console.WriteLine($"Subscribing to Stream {streamName}.");
+await conn.InvokeAsync("Subscribe", new
+{
+    StreamName = streamName,
+    Type = eventType,
+    ReceiveMethod = receiveMethod,
+    SubscriberId = subscriberId,
+    SubscriberKey = subscriberKey,
+    LastAccessedEventId = 0
+});
+
 Console.WriteLine($"Publishing to Stream {streamName}.");
 await conn.InvokeAsync("Publish", streamName, new[]
 {
@@ -98,16 +109,6 @@ await conn.InvokeAsync("Publish", associateStreamName, new[]
         IsJson = false
     }
 });
-
-Console.WriteLine($"Subscribing to Stream {streamName}.");
-await conn.InvokeAsync("Subscribe", new {
-                                        StreamName = streamName,
-                                        Type = eventType,
-                                        ReceiveMethod = receiveMethod,
-                                        SubscriberId = subscriberId,
-                                        SubscriberKey = subscriberKey,
-                                        LastAccessedEventId = 0
-                                    });
 
 ////Console.ReadLine();
 

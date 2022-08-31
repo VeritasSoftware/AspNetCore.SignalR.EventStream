@@ -58,17 +58,23 @@ namespace AspNetCore.SignalR.EventStream
             }
             else if (_options.DatabaseType == DatabaseTypeOptions.CosmosDb)
             {
-                services.AddTransient<IRepository, CosmosDbRepository>(sp => new CosmosDbRepository(sp.GetRequiredService<CosmosDbContext>(), sp.GetRequiredService<ISubscriptionProcessorNotifier>()));
+                services.AddTransient<IRepository, CosmosDbRepository>(sp => new CosmosDbRepository(sp.GetRequiredService<CosmosDbContext>(),
+                                                                                                    sp.GetRequiredService<ISubscriptionProcessorNotifier>(),
+                                                                                                    sp.GetRequiredService<IEventStreamProcessorNotifier>()));
                 services.AddDbContext<CosmosDbContext>(o => o.UseCosmos(_options.ConnectionString, "EventStream"), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
             else if (_options.DatabaseType == DatabaseTypeOptions.SqlServer)
             {
-                services.AddTransient<IRepository, SqlServerRepository>(sp => new SqlServerRepository(sp.GetRequiredService<SqlServerDbContext>(), sp.GetRequiredService<ISubscriptionProcessorNotifier>()));
+                services.AddTransient<IRepository, SqlServerRepository>(sp => new SqlServerRepository(sp.GetRequiredService<SqlServerDbContext>(),
+                                                                                                      sp.GetRequiredService<ISubscriptionProcessorNotifier>(),
+                                                                                                      sp.GetRequiredService<IEventStreamProcessorNotifier>()));
                 services.AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
             else
             {
-                services.AddTransient<IRepository, SqliteRepository>(sp => new SqliteRepository(sp.GetRequiredService<SqliteDbContext>(), sp.GetRequiredService<ISubscriptionProcessorNotifier>()));
+                services.AddTransient<IRepository, SqliteRepository>(sp => new SqliteRepository(sp.GetRequiredService<SqliteDbContext>(), 
+                                                                                                sp.GetRequiredService<ISubscriptionProcessorNotifier>(),
+                                                                                                sp.GetRequiredService<IEventStreamProcessorNotifier>()));
                 services.AddDbContext<SqliteDbContext>(o => o.UseSqlite(_options.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
 
@@ -87,7 +93,8 @@ namespace AspNetCore.SignalR.EventStream
                                                                 o.GetServiceOrNull<IConfiguration>()["EventStreamSecretKey"],
                                                                 o.GetService<ILogger<EventStreamHubClient>>()));
 
-            services.AddSingleton<ISubscriptionProcessorNotifier, SubscriptionProcessorNotifier>();
+            services.AddSingleton<ISubscriptionProcessorNotifier, Notifier>();
+            services.AddSingleton<IEventStreamProcessorNotifier, Notifier>();
 
             return services;
         }
@@ -138,20 +145,19 @@ namespace AspNetCore.SignalR.EventStream
             logger.LogInformation("Finished deleting all subscriptions from database.");
 
             var eventStreamHubClient = app.ApplicationServices.GetServiceOrNull<IEventStreamHubClient>();
-            var subscriptionProcessorNotifier = app.ApplicationServices.GetRequiredService<ISubscriptionProcessorNotifier>();
+            var notifier = app.ApplicationServices.GetRequiredService<ISubscriptionProcessorNotifier>();
+            var notifier1 = app.ApplicationServices.GetRequiredService<IEventStreamProcessorNotifier>();
 
-            _subscriptionProcessor = new SubscriptionProcessor(app.ApplicationServices, eventStreamHubClient, subscriptionProcessorNotifier, logger)
+            _subscriptionProcessor = new SubscriptionProcessor(app.ApplicationServices, eventStreamHubClient, notifier, logger)
             {
                 Start = true,
                 MaxDegreeOfParallelism = config.GetValue<int>("SubscriptionProcessorMaxDegreeOfParallelism")
             };
 
-            _eventStreamProcessor = new EventStreamProcessor(repository1, logger1)
+            _eventStreamProcessor = new EventStreamProcessor(app.ApplicationServices, notifier1, logger1)
             {
                 Start = true
             };
-
-            _eventStreamProcessor.Process();
 
             return app;
         }

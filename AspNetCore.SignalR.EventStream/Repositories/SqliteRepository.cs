@@ -8,14 +8,16 @@ namespace AspNetCore.SignalR.EventStream.Repositories
     public class SqliteRepository : IRepository
     {
         private readonly SqliteDbContext _context;
-        private readonly ISubscriptionProcessorNotifier _processor;
+        private readonly ISubscriptionProcessorNotifier _subscriptionProcessorNotifier;
+        private readonly IEventStreamProcessorNotifier _eventStreamProcessorNotifier;
 
         private static object _lock = new object();
 
-        public SqliteRepository(SqliteDbContext context, ISubscriptionProcessorNotifier processor)
+        public SqliteRepository(SqliteDbContext context, ISubscriptionProcessorNotifier subscriptionProcessorNotifier, IEventStreamProcessorNotifier eventStreamProcessorNotifier)
         {
             _context = context;
-            _processor = processor;
+            _subscriptionProcessorNotifier = subscriptionProcessorNotifier;
+            _eventStreamProcessorNotifier = eventStreamProcessorNotifier;
         }
 
         public void EnsureDatabaseDeleted()
@@ -47,7 +49,8 @@ namespace AspNetCore.SignalR.EventStream.Repositories
 
                         var savedEvents = _context.Events.Where(e => eventIds.Contains(e.EventId)).OrderBy(e => e.Id).ToList();
 
-                         _processor.OnEventsAddedAsync(savedEvents).Wait();
+                        _subscriptionProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();
+                        _eventStreamProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();
                     }
                 }
                 catch (Exception ex)
@@ -292,6 +295,19 @@ namespace AspNetCore.SignalR.EventStream.Repositories
         {
             return await _context.EventStreamsAssociation.AsNoTracking().Include(s => s.Stream)
                                                          .Include(s => s.AssociatedStream)
+                                                         .GroupBy(s => s.StreamId, (x, y) => new ActiveAssociatedStreams
+                                                         {
+                                                             StreamId = x,
+                                                             AssociatedStreamIds = y.Select(z => z.AssociatedStreamId)
+                                                         })
+                                                         .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync(long streamId)
+        {
+            return await _context.EventStreamsAssociation.AsNoTracking().Include(s => s.Stream)
+                                                         .Include(s => s.AssociatedStream)
+                                                         .Where(s => s.AssociatedStreamId == streamId)
                                                          .GroupBy(s => s.StreamId, (x, y) => new ActiveAssociatedStreams
                                                          {
                                                              StreamId = x,
