@@ -21,11 +21,40 @@
       <FileName>Entities\EventStreamSubscriber.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="AspNetCore.SignalR.EventStream.Processors.Notifier">
+    <Position X="17" Y="4.75" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Processors\Notifier.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
   <Interface Name="AspNetCore.SignalR.EventStream.Repositories.IRepository">
     <Position X="8.5" Y="0.5" Width="7.5" />
     <TypeIdentifier>
-      <HashCode>AAAACAEAAAQAEAACAQAAAAEAAAgAEAgABEAAAAMQAAA=</HashCode>
+      <HashCode>AAAACAEAIAQAEAACAQAAAAEAAAgAEAgABEAAAAMQAAA=</HashCode>
       <FileName>Repositories\IRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AspNetCore.SignalR.EventStream.Processors.INotifier">
+    <Position X="17" Y="0.75" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Processors\INotifier.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AspNetCore.SignalR.EventStream.Processors.ISubscriptionProcessorNotifier" Collapsed="true">
+    <Position X="16.25" Y="3.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Processors\INotifier.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AspNetCore.SignalR.EventStream.Processors.IEventStreamProcessorNotifier" Collapsed="true">
+    <Position X="19.5" Y="3.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Processors\INotifier.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Font Name="Segoe UI" Size="9" />

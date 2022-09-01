@@ -246,19 +246,6 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             }
         }
 
-        public async Task<Event> GetEventAsync(long streamId, long eventId)
-        {
-            var @event = await _context.Events.WithPartitionKey(streamId.ToString()).AsNoTracking()
-                                              .FirstOrDefaultAsync(e => e.Id == eventId);
-
-            if (@event != null)
-            {
-                @event.Stream = await _context.EventsStream.SingleAsync(s => s.Id == @event.StreamId);
-            }
-
-            return @event;
-        }
-
         public async Task<Event> GetEventAsync(long streamId, Guid eventId)
         {
             var @event = await _context.Events.WithPartitionKey(streamId.ToString()).AsNoTracking()
@@ -345,21 +332,6 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             return eventStreams;
         }
 
-        public async Task<IEnumerable<ActiveSubscription>> GetActiveSubscriptionsAsync()
-        {
-            var subscribers = await _context.Subscribers.AsNoTracking().ToListAsync();
-
-            var streamIds = subscribers.Select(s => s.StreamId);
-
-            var streams = await _context.EventsStream.Where(s => streamIds.Contains(s.Id)).ToListAsync();
-
-            return subscribers.Select(s => new ActiveSubscription
-            {
-                StreamId = streams.Single(st => st.Id == s.StreamId).StreamId,
-                SubscriptionId = s.SubscriberId
-            });
-        }
-
         public async Task<IEnumerable<EventStreamSubscriber>> GetActiveSubscriptionsAsync(long streamId)
         {
             var subscribers = await _context.Subscribers.AsNoTracking().Where(s => s.StreamId == streamId).ToListAsync();
@@ -369,17 +341,6 @@ namespace AspNetCore.SignalR.EventStream.Repositories
             subscribers.ForEach(s => s.Stream = stream);
 
             return subscribers;
-        }
-
-        public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync()
-        {
-            var associations = await _context.EventStreamsAssociation.ToListAsync();
-            return associations.GroupBy(s => s.StreamId)
-                                .Select(s => new ActiveAssociatedStreams
-                                {
-                                    StreamId = s.Key,
-                                    AssociatedStreamIds = s.Select(z => z.AssociatedStreamId)
-                                });
         }
 
         public async Task<IEnumerable<ActiveAssociatedStreams>> GetAssociatedStreamsAsync(long streamId)
