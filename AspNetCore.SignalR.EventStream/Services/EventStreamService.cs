@@ -21,15 +21,9 @@ namespace AspNetCore.SignalR.EventStream.Services
                 throw new InvalidOperationException($"{nameof(SubscriptionProcessor)} is null.");
             }
 
-            if (model.MaxDegreeOfParallelism.HasValue)
-            {
-                EventStreamExtensions._subscriptionProcessor.MaxDegreeOfParallelism = model.MaxDegreeOfParallelism.Value;
-            }
-
             if (model.Stop.HasValue && model.Stop.Value)
             {
                 EventStreamExtensions._subscriptionProcessor.Start = false;
-                Thread.Sleep(100);
             }
             if (model.Start.HasValue && model.Start.Value)
             {
@@ -117,7 +111,6 @@ namespace AspNetCore.SignalR.EventStream.Services
                 LastAccessedCurrentEventId = subscriber.LastAccessedCurrentEventId,
                 LastAccessedFromEventId = subscriber.LastAccessedFromEventId,
                 LastAccessedToEventId = subscriber.LastAccessedToEventId,
-                ReceiveMethod = subscriber.ReceiveMethod,
                 StreamId = subscriber.StreamId,
                 Stream = new EventStreamModel
                 {

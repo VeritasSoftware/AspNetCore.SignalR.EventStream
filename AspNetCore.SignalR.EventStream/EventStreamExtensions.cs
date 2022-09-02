@@ -150,8 +150,7 @@ namespace AspNetCore.SignalR.EventStream
 
             _subscriptionProcessor = new SubscriptionProcessor(app.ApplicationServices, eventStreamHubClient, notifier, logger)
             {
-                Start = true,
-                MaxDegreeOfParallelism = config.GetValue<int>("SubscriptionProcessorMaxDegreeOfParallelism")
+                Start = true
             };
 
             _eventStreamProcessor = new EventStreamProcessor(app.ApplicationServices, notifier1, logger1)

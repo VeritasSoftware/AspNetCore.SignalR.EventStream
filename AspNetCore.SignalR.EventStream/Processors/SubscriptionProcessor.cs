@@ -10,8 +10,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
         private readonly IEventStreamHubClient _eventStreamHubClient;
         private readonly ISubscriptionProcessorNotifier _notifier;
         private readonly ILogger<SubscriptionProcessor>? _logger;
-
-        private CancellationTokenSource? _cancellationTokenSource;
+        private readonly IServiceProvider _serviceProvider;
         private bool _start = false;
 
         public bool Start
@@ -24,7 +23,6 @@ namespace AspNetCore.SignalR.EventStream.Processors
             {
                 if (!value)
                 {
-                    _cancellationTokenSource?.Cancel();
                     _logger?.LogInformation("Detaching On Events Added Notifier.");
                     _notifier.OnEventsAdded -= OnEventsAddedHandler;
                     _logger?.LogInformation("Finished detaching On Events Added Notifier.");
@@ -42,10 +40,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
             }
         }
         public string? EventStreamHubUrl { get; set; }
-        public string? SecretKey { get; set;}
-        public int MaxDegreeOfParallelism { get; set; }
-
-        private readonly IServiceProvider _serviceProvider;
+        public string? SecretKey { get; set;}        
 
         public string Name => nameof(SubscriptionProcessor);
 
@@ -71,71 +66,50 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                 if (_eventStreamHubClient.IsConnected)
                 {
-                    var streamId = events.First().StreamId;
+                    var streamIdInt = events.First().StreamId;
 
-                    var activeSubscriptions = await _repository.GetActiveSubscriptionsAsync(streamId);
+                    var stream = await _repository.GetStreamAsync(streamIdInt);
+
+                    if (stream == null)
+                        throw new InvalidOperationException($"Stream {streamIdInt} not found.");
+
+                    var streamId = stream.StreamId;
+                    var streamName = stream.Name;
+
+                    var activeSubscriptions = await _repository.GetActiveSubscriptionsAsync(streamIdInt);
 
                     if (activeSubscriptions.Any())
                     {
-                        using (_cancellationTokenSource = new CancellationTokenSource())
+                        _logger?.LogInformation($"Streaming events ({events.Count()}) to subscribers ({activeSubscriptions.Count()}) of stream {streamName}.");
+
+                        var result = new EventStreamSubscriberModelResult
                         {
-                            Parallel.ForEach(activeSubscriptions, new ParallelOptions { MaxDegreeOfParallelism = MaxDegreeOfParallelism, CancellationToken = _cancellationTokenSource.Token },
-                            async (subscription) =>
+                            Events = events.Select(x => new EventModelResult
                             {
-                                try
-                                {
-                                    var repository = _serviceProvider.GetRequiredService<IRepository>();
+                                Data = x.Data,
+                                Id = x.Id,
+                                EventId = x.EventId,
+                                IsJson = x.IsJson,
+                                JsonData = x.JsonData,
+                                MetaData = x.MetaData,
+                                StreamId = streamId,
+                                StreamName = streamName,
+                                OriginalEventId = x.OriginalEventId,
+                                Type = x.Type,
+                                CreatedAt = x.CreatedAt
+                            }).ToList(),
+                            ConnectionIds = activeSubscriptions.Select(x => x.ConnectionId).ToList(),
+                            StreamName = streamName
+                        };                        
 
-                                    _logger?.LogInformation($"Streaming events ({events.Count()}) to subscriber {subscription.SubscriberId}.");
+                        await _eventStreamHubClient.SendAsync(result);
 
-                                    var eventSubscriberModel = new EventStreamSubscriberModelResult
-                                    {
-                                        ConnectionId = subscription.ConnectionId,
-                                        CreatedAt = subscription.CreatedAt,
-                                        ReceiveMethod = subscription.ReceiveMethod,
-                                        StreamId = subscription.StreamId,
-                                        SubscriberId = subscription.SubscriberId,
-                                        LastAccessedEventId = subscription.LastAccessedFromEventId,
-                                        Stream = new EventStreamModelResult
-                                        {
-                                            Name = subscription.Stream.Name,
-                                            Events = events.Select(x => new EventModelResult
-                                            {
-                                                Data = x.Data,
-                                                Id = x.Id,
-                                                EventId = x.EventId,
-                                                IsJson = x.IsJson,
-                                                JsonData = x.JsonData,
-                                                MetaData = x.MetaData,
-                                                StreamId = subscription.Stream.StreamId,
-                                                StreamName = subscription.Stream.Name,
-                                                OriginalEventId = x.OriginalEventId,
-                                                Type = x.Type,
-                                                CreatedAt = x.CreatedAt
-                                            }).ToList(),
-                                            CreatedAt = subscription.Stream.CreatedAt,
-                                            StreamId = subscription.Stream.StreamId
-                                        }
-                                    };
-
-                                    await _eventStreamHubClient.SendAsync(eventSubscriberModel);
-
-                                    _logger?.Log(
-                                        LogLevel.Information,
-                                        1000,
-                                        $"Finished streaming events ({events.Count()}) to subscriber {subscription.SubscriberId}.",
-                                        null,
-                                        null);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger?.LogError(ex, $"Error in {Name} thread.");
-                                    return;
-                                }
-                            });
-                        }
-
-                        _cancellationTokenSource = null;
+                        _logger?.Log(
+                                    LogLevel.Information,
+                                    1000,
+                                    $"Finished streaming events ({events.Count()}) to subscribers ({activeSubscriptions.Count()}) of stream {streamName}.",
+                                    null,
+                                    null);
                     }
                 }
             }
@@ -169,32 +143,22 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
                     var eventSubscriberModel = new EventStreamSubscriberModelResult
                     {
-                        ConnectionId = subsciptionWithEvents.ConnectionId,
-                        CreatedAt = subsciptionWithEvents.CreatedAt,
-                        ReceiveMethod = subsciptionWithEvents.ReceiveMethod,
-                        StreamId = subsciptionWithEvents.StreamId,
-                        SubscriberId = subsciptionWithEvents.SubscriberId,
-                        LastAccessedEventId = subsciptionWithEvents.LastAccessedFromEventId,
-                        Stream = new EventStreamModelResult
+                        ConnectionIds = new List<string> { subsciptionWithEvents.ConnectionId },
+                        Events = subsciptionWithEvents.Stream.Events.Select(x => new EventModelResult
                         {
-                            Name = subsciptionWithEvents.Stream.Name,
-                            Events = subsciptionWithEvents.Stream.Events.Select(x => new EventModelResult
-                            {
-                                Data = x.Data,
-                                Id = x.Id,
-                                EventId = x.EventId,
-                                IsJson = x.IsJson,
-                                JsonData = x.JsonData,
-                                MetaData = x.MetaData,
-                                StreamId = subsciptionWithEvents.Stream.StreamId,
-                                StreamName = subsciptionWithEvents.Stream.Name,
-                                OriginalEventId = x.OriginalEventId,
-                                Type = x.Type,
-                                CreatedAt = x.CreatedAt
-                            }).ToList(),
-                            CreatedAt = subsciptionWithEvents.Stream.CreatedAt,
-                            StreamId = subsciptionWithEvents.Stream.StreamId
-                        }
+                            Data = x.Data,
+                            Id = x.Id,
+                            EventId = x.EventId,
+                            IsJson = x.IsJson,
+                            JsonData = x.JsonData,
+                            MetaData = x.MetaData,
+                            StreamId = subsciptionWithEvents.Stream.StreamId,
+                            StreamName = subsciptionWithEvents.Stream.Name,
+                            OriginalEventId = x.OriginalEventId,
+                            Type = x.Type,
+                            CreatedAt = x.CreatedAt
+                        }).ToList(),
+                        StreamName  = subsciptionWithEvents.Stream.Name
                     };
 
                     await _eventStreamHubClient.SendAsync(eventSubscriberModel);

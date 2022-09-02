@@ -57,10 +57,8 @@ namespace AspNetCore.SignalR.EventStream.Tests
 
             var mockLogger = new Mock<ILogger<SubscriptionProcessor>>();
 
-            mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscriber {subscriberId}.", null, null)).Verifiable();
-            mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscriber {subscriberId1}.", null, null)).Verifiable();
-            mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (1) to subscriber {subscriberId}.", null, null)).Verifiable();
-            mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (1) to subscriber {subscriberId1}.", null, null)).Verifiable();
+            mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscribers (2) of stream {streamName}.", null, null)).Verifiable();
+            mockLogger.Setup(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (1) to subscribers (2) of stream {streamName}.", null, null)).Verifiable();
 
             var mockHubClient = new Mock<IEventStreamHubClient>();
             mockHubClient.SetupGet(x => x.IsConnected).Returns(true);
@@ -69,12 +67,9 @@ namespace AspNetCore.SignalR.EventStream.Tests
             var repository = ServiceProvider.GetRequiredService<IRepository>();
             var repository1 = ServiceProvider.GetRequiredService<IRepository>();
 
-            var subscriptionProcessorNotifier = ServiceProvider.GetRequiredService<ISubscriptionProcessorNotifier>();           
+            var subscriptionProcessorNotifier = ServiceProvider.GetRequiredService<ISubscriptionProcessorNotifier>();
 
-            var subscriptionProcessor = new SubscriptionProcessor(ServiceProvider, mockHubClient.Object, subscriptionProcessorNotifier, mockLogger.Object)
-            {
-                MaxDegreeOfParallelism = 1,
-            };
+            var subscriptionProcessor = new SubscriptionProcessor(ServiceProvider, mockHubClient.Object, subscriptionProcessorNotifier, mockLogger.Object);
 
             //Act
             subscriptionProcessor.Start = true;            
@@ -90,7 +85,6 @@ namespace AspNetCore.SignalR.EventStream.Tests
             await repository.AddAsync(new EventStreamSubscriber
             {
                 ConnectionId = "asdjklfkafjfwsxx",
-                ReceiveMethod = "MyReceive",
                 StreamId = stream.Id,
                 SubscriberId = subscriberId,
                 SubscriberKey = subscriberKey
@@ -99,7 +93,6 @@ namespace AspNetCore.SignalR.EventStream.Tests
             await repository.AddAsync(new EventStreamSubscriber
             {
                 ConnectionId = "uqweruiwpqoerffs",
-                ReceiveMethod = "MyReceive1",
                 StreamId = stream.Id,
                 SubscriberId = subscriberId1,
                 SubscriberKey = subscriberKey1
@@ -127,10 +120,9 @@ namespace AspNetCore.SignalR.EventStream.Tests
             Thread.Sleep(100);
 
             //Assert
-            mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(2));
+            mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(1));
 
-            mockLogger.Verify(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscriber {subscriberId}.", null, null), Times.Once);
-            mockLogger.Verify(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscriber {subscriberId1}.", null, null), Times.Once);
+            mockLogger.Verify(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (2) to subscribers (2) of stream {streamName}.", null, null), Times.Once);
 
             await repository.AddAsync(new Entities.Event
             {
@@ -143,10 +135,9 @@ namespace AspNetCore.SignalR.EventStream.Tests
             });
 
             //Assert
-            mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(4));
+            mockHubClient.Verify(x => x.SendAsync(It.IsAny<EventStreamSubscriberModelResult>()), Times.Exactly(2));
 
-            mockLogger.Verify(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (1) to subscriber {subscriberId}.", null, null), Times.Once);
-            mockLogger.Verify(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (1) to subscriber {subscriberId1}.", null, null), Times.Once);
+            mockLogger.Verify(m => m.Log(LogLevel.Information, 1000, $"Finished streaming events (1) to subscribers (2) of stream {streamName}.", null, null), Times.Once);
 
             mockLogger.VerifyAll();
 

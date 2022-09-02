@@ -110,7 +110,6 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                     await _repository.AddAsync(new EventStreamSubscriber
                     {
                         ConnectionId = this.Context.ConnectionId,
-                        ReceiveMethod = model.ReceiveMethod,
                         SubscriberId = model.SubscriberId,
                         SubscriberKey = model.SubscriberKey,
                         StreamId = stream.Id,
@@ -132,7 +131,6 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                     await _repository.AddAsync(new EventStreamSubscriber
                     {
                         ConnectionId = this.Context.ConnectionId,
-                        ReceiveMethod = model.ReceiveMethod,
                         SubscriberId = model.SubscriberId,
                         SubscriberKey = model.SubscriberKey,
                         StreamId = newStream.Id,
@@ -195,18 +193,18 @@ namespace AspNetCore.SignalR.EventStream.Hubs
 
                 if (string.Compare(secretKey, configSecretKey, StringComparison.Ordinal) == 0)
                 {
-                    var eventsArrayJson = System.Text.Json.JsonSerializer.Serialize(subscriber.Stream.Events);
+                    var eventsArrayJson = System.Text.Json.JsonSerializer.Serialize(subscriber.Events);
 
-                    _logger?.LogInformation($"Sending {subscriber.Stream.Events.Count} events to subscriber {subscriber.SubscriberId}. ConnectionId: {this.Context.ConnectionId}.");
+                    _logger?.LogInformation($"Sending events ({subscriber.Events.Count()}) to subscribers ({subscriber.ConnectionIds.Count}) of stream {subscriber.StreamName}. ConnectionId: {this.Context.ConnectionId}.");
 
-                    await base.Clients.Client(subscriber.ConnectionId).SendAsync(subscriber.ReceiveMethod, eventsArrayJson, new object());
+                    await base.Clients.Clients(subscriber.ConnectionIds).SendAsync(subscriber.StreamName, eventsArrayJson, new object());
 
-                    _logger?.LogInformation($"Finished sending {subscriber.Stream.Events.Count} events to subscriber {subscriber.SubscriberId}. ConnectionId: {this.Context.ConnectionId}.");
+                    _logger?.LogInformation($"Finished sending events ({subscriber.Events.Count()}) to subscribers ({subscriber.ConnectionIds.Count}) of stream {subscriber.StreamName}. ConnectionId: {this.Context.ConnectionId}.");
                 }                
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"Error sending {subscriber.Stream.Events.Count} events to subscriber {subscriber.SubscriberId}. ConnectionId: {this.Context.ConnectionId}.");
+                _logger?.LogError(ex, $"Error sending events ({subscriber.Events.Count()}) to subscribers ({subscriber.ConnectionIds.Count}) of stream {subscriber.StreamName}. ConnectionId: {this.Context.ConnectionId}.");
             }
         }
     }

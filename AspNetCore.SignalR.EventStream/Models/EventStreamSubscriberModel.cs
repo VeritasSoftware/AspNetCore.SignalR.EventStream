@@ -16,13 +16,8 @@
 
     public class EventStreamSubscriberModelResult
     {
-        public long Id { get; set; }
-        public long StreamId { get; set; }
-        public virtual EventStreamModelResult Stream { get; set; }
-        public Guid SubscriberId { get; set; }
-        public string? ConnectionId { get; set; }
-        public string? ReceiveMethod { get; set; }
-        public long? LastAccessedEventId { get; set; }
-        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+        public string StreamName { get; set; } = string.Empty;
+        public ICollection<string> ConnectionIds { get; set; } = new List<string>();
+        public IEnumerable<EventModel> Events { get; set; } = new List<EventModel>();
     }
 }

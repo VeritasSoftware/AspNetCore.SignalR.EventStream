@@ -1,6 +1,6 @@
 # AspNetCore.SignalR.EventStream
 
-## .Net Event Sourcing solution using SignalR web sockets
+## .Net Event Sourcing framework using SignalR web sockets
 
 The framework allows you to build your own Event Stream Server.
 
@@ -130,7 +130,6 @@ Eg.
 ```C#
 {
   "EventStreamSecretKey": "fce17eec-4913-48d6-b013-2583ab8583b3",
-  "SubscriptionProcessorMaxDegreeOfParallelism": 3,
   "ConnectionStrings": {
     //Sqlite
     //"EventStreamDatabase": "Data Source=.\\eventstreamdb.db"
@@ -202,20 +201,18 @@ var subscriberId = Guid.NewGuid();
 var subscriberKey = Guid.NewGuid();
 var streamName = "MyStream";
 var eventType = "MyEvent";
-
-var receiveMethod = "ReceiveMyStreamEvent";
 ```
 
 #### Subscribe
 
-To subscribe to a stream, set up the **ReceiveMethod** event.
+To subscribe to a stream, set up the **StreamName** as the event name.
 
 The Server can stream multiple events (in an JSON string array).
 
 You can access these events in the handler as shown below.
 
 ```c#
-conn.On(receiveMethod, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
+conn.On(streamName, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
 {
     var events = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
 
@@ -236,7 +233,6 @@ Then, call the **Subscribe** method on the Hub.
 await conn.InvokeAsync("Subscribe", new {
                                         StreamName = streamName,
                                         Type = eventType,
-                                        ReceiveMethod = receiveMethod,
                                         SubscriberId = subscriberId,
                                         SubscriberKey = subscriberKey,
                                         LastAccessedEventId = 0
