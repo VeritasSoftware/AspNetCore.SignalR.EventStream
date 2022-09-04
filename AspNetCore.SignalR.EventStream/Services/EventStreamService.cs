@@ -84,12 +84,16 @@ namespace AspNetCore.SignalR.EventStream.Services
             return new EventModel
             {
                 Data = @event.Data,
+                Base64StringData = @event.Base64StringData,
                 IsJson = @event.IsJson,
+                IsBase64String = @event.IsBase64String,
                 JsonData = @event.JsonData,
                 MetaData = @event.MetaData,
+                Base64StringMetaData = @event.Base64StringMetaData,
                 StreamId = @event.Stream.StreamId,
                 StreamName = @event.Stream.Name,
-                Type = @event.Type
+                Type = @event.Type,
+                Description = @event.Description                
             };
         }
 
@@ -282,12 +286,16 @@ namespace AspNetCore.SignalR.EventStream.Services
                 var eventModel = new EventModel
                 {
                     Data = e.Data,
+                    Base64StringMetaData = e.Base64StringMetaData,
                     IsJson = e.IsJson,
+                    IsBase64String = e.IsBase64String,
                     JsonData = e.JsonData,
                     MetaData = e.MetaData,
+                    Base64StringData = e.Base64StringData,
                     StreamId = e.Stream.StreamId,
                     StreamName = e.Stream.Name,
-                    Type = e.Type
+                    Type = e.Type,
+                    Description = e.Description
                 };
 
                 yield return eventModel;

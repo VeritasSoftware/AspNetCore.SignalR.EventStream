@@ -18,6 +18,6 @@
     {
         public string StreamName { get; set; } = string.Empty;
         public ICollection<string> ConnectionIds { get; set; } = new List<string>();
-        public IEnumerable<EventModel> Events { get; set; } = new List<EventModel>();
+        public IEnumerable<EventModelResult> Events { get; set; } = new List<EventModelResult>();
     }
 }

@@ -51,10 +51,14 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                         var eventEntity = new Event
                         {
                             Data = @event.Data,
+                            Base64StringData = @event.Base64StringData,
                             MetaData = @event.MetaData,
+                            Base64StringMetaData = @event.Base64StringMetaData,
                             JsonData = @event.JsonData,
                             IsJson = @event.IsJson,
+                            IsBase64String = @event.IsBase64String,
                             Type = @event.Type,
+                            Description = @event.Description,
                             StreamId = newStream.Id
                         };
 
@@ -72,10 +76,14 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                         var eventEntity = new Event
                         {
                             Data = @event.Data,
+                            Base64StringData = @event.Base64StringData,
                             MetaData = @event.MetaData,
+                            Base64StringMetaData = @event.Base64StringMetaData,
                             JsonData = @event.JsonData,
                             IsJson = @event.IsJson,
+                            IsBase64String = @event.IsBase64String,
                             Type = @event.Type,
+                            Description = @event.Description,
                             StreamId = stream.Id
                         };
 

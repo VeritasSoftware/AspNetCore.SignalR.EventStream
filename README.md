@@ -276,17 +276,21 @@ The Received Event JSON is as shown in example below:
 
 ```javascript
 {
-  "id": 5,
-  "eventId": "24b15082-42ed-48e9-8465-a9ff678092ff",
-  "originalEventId": null,
-  "createdAt": "2022-08-09T09:56:15.4542+10:00",
-  "type": "MyEvent",
-  "data": "eyJhIjoiMSJ9",
-  "jsonData": null,
-  "metaData": "e30=",
-  "isJson": false,
-  "streamId": "a2b7fc17-151a-436d-97a5-8b8febfd2776",
-  "streamName": "MyStream"
+  "Id": 1,
+  "EventId": "9233420c-bd4c-40b4-8015-c822944b24b1",
+  "OriginalEventId": null,
+  "CreatedAt": "2022-09-04T16:08:33.134102+10:00",
+  "Description": null,
+  "Type": "MyEvent0",
+  "Data": "eyJhIjoiMSJ9",
+  "Base64StringData": null,
+  "JsonData": null,
+  "MetaData": "e30=",
+  "Base64StringMetaData": null,
+  "IsJson": false,
+  "IsBase64String": false,
+  "StreamId": "ef897228-9fda-41dd-bd4d-6659b70b3983",
+  "StreamName": "MyStream"
 }
 ```
 

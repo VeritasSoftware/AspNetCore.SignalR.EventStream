@@ -87,15 +87,19 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             Events = events.Select(x => new EventModelResult
                             {
                                 Data = x.Data,
+                                Base64StringData = x.Base64StringData,
                                 Id = x.Id,
                                 EventId = x.EventId,
                                 IsJson = x.IsJson,
+                                IsBase64String = x.IsBase64String,
                                 JsonData = x.JsonData,
                                 MetaData = x.MetaData,
+                                Base64StringMetaData = x.Base64StringMetaData,
                                 StreamId = streamId,
                                 StreamName = streamName,
                                 OriginalEventId = x.OriginalEventId,
                                 Type = x.Type,
+                                Description = x.Description,
                                 CreatedAt = x.CreatedAt
                             }).ToList(),
                             ConnectionIds = activeSubscriptions.Select(x => x.ConnectionId).ToList(),
@@ -147,15 +151,19 @@ namespace AspNetCore.SignalR.EventStream.Processors
                         Events = subsciptionWithEvents.Stream.Events.Select(x => new EventModelResult
                         {
                             Data = x.Data,
+                            Base64StringData = x.Base64StringData,
                             Id = x.Id,
                             EventId = x.EventId,
-                            IsJson = x.IsJson,
+                            IsJson = x.IsJson,                            
+                            IsBase64String = x.IsBase64String,
                             JsonData = x.JsonData,
                             MetaData = x.MetaData,
+                            Base64StringMetaData = x.Base64StringMetaData,
                             StreamId = subsciptionWithEvents.Stream.StreamId,
                             StreamName = subsciptionWithEvents.Stream.Name,
                             OriginalEventId = x.OriginalEventId,
                             Type = x.Type,
+                            Description = x.Description,
                             CreatedAt = x.CreatedAt
                         }).ToList(),
                         StreamName  = subsciptionWithEvents.Stream.Name
