@@ -8,9 +8,18 @@ Read more on Event Sourcing [here](/Docs/README_EventSourcing.md).
 
 **SignalR** uses web sockets for real-time, 2-way communication between Client & Server.
 
-Read more on SignalR [here](https://docs.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-6.0).
+Read more on SignalR:
 
-The framework implements Event Sourcing using SignalR web sockets as the communication protocol. 
+* [here](https://docs.microsoft.com/en-us/aspnet/signalr/overview/getting-started/introduction-to-signalr)
+* [here](https://docs.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-6.0).
+
+The framework implements Event Sourcing using SignalR web sockets as the communication protocol.
+
+Advantages of using SignalR web sockets:
+
+* If you want a browser to be able to connect to the Server. So, web apps can easily communicate with the Server.
+* You can leverage the built in security.
+* SignalR is an industry standard. With client libraries available for all platforms like Javascript, Java, Python, Mac OS, Windows etc.
 
 This framework allows you to build your own Event Stream Server.
 
