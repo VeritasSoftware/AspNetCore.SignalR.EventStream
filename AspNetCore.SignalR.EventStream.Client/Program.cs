@@ -20,9 +20,7 @@ var subscriberKey = Guid.NewGuid();
 var streamName = "MyStream";
 var eventType = "MyEvent";
 
-var receiveMethod = "ReceiveMyStreamEvent";
-
-conn.On(receiveMethod, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
+conn.On(streamName, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
 {
     var events = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
 
@@ -41,7 +39,6 @@ await conn.InvokeAsync("Subscribe", new
 {
     StreamName = streamName,
     Type = eventType,
-    ReceiveMethod = receiveMethod,
     SubscriberId = subscriberId,
     SubscriberKey = subscriberKey,
     LastAccessedEventId = 0

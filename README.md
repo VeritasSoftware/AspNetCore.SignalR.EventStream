@@ -2,6 +2,8 @@
 
 ## .Net Event Sourcing framework using SignalR web sockets
 
+**Event sourcing** stores the state of a database object as a sequence of events – essentially a new event for each time the object changed state, from the beginning of the object’s existence.
+
 Read more on Event Sourcing [here](/Docs/README_EventSourcing.md).
 
 This framework allows you to build your own Event Stream Server.
