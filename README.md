@@ -6,6 +6,12 @@
 
 Read more on Event Sourcing [here](/Docs/README_EventSourcing.md).
 
+**SignalR** uses web sockets for real-time communication.
+
+Read more on SignalR [here](https://docs.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-6.0).
+
+The framework implements Event Sourcing using SignalR web sockets as the communication protocol. 
+
 This framework allows you to build your own Event Stream Server.
 
 ### Features
