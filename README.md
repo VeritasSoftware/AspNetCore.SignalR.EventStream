@@ -6,7 +6,7 @@
 
 Read more on Event Sourcing [here](/Docs/README_EventSourcing.md).
 
-**SignalR** uses web sockets for real-time communication.
+**SignalR** uses web sockets for real-time, 2-way communication between Client & Server.
 
 Read more on SignalR [here](https://docs.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-6.0).
 
