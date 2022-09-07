@@ -30,8 +30,8 @@ namespace AspNetCore.SignalR.EventStream
 
     public static class EventStreamExtensions
     {
-        public static SubscriptionProcessor? _subscriptionProcessor = null;
-        private static EventStreamProcessor? _eventStreamProcessor = null;
+        public static ISubscriptionProcessor? _subscriptionProcessor = null;
+        private static IEventStreamProcessor? _eventStreamProcessor = null;
         private static EventStreamOptions? _options = null;
 
         public static IServiceCollection AddAuthorization(this IServiceCollection services, Action<EventStreamHubAuthorizationBuilder> action)
@@ -96,6 +96,9 @@ namespace AspNetCore.SignalR.EventStream
             services.AddSingleton<ISubscriptionProcessorNotifier, Notifier>();
             services.AddSingleton<IEventStreamProcessorNotifier, Notifier>();
 
+            services.AddSingleton<ISubscriptionProcessor, SubscriptionProcessor>();
+            services.AddSingleton<IEventStreamProcessor, EventStreamProcessor>();
+
             return services;
         }
 
@@ -103,12 +106,10 @@ namespace AspNetCore.SignalR.EventStream
         {
             var config = app.ApplicationServices.GetServiceOrNull<IConfiguration>();
 
-            var logger = app.ApplicationServices.GetServiceOrNull<ILogger<SubscriptionProcessor>>();
-            var logger1 = app.ApplicationServices.GetServiceOrNull<ILogger<EventStreamProcessor>>();
+            var logger = app.ApplicationServices.GetServiceOrNull<ILogger<Program>>();
 
             var repository = app.ApplicationServices.GetServiceOrNull<IRepository>();
             var repository1 = app.ApplicationServices.GetServiceOrNull<IRepository>();
-            var repository2 = app.ApplicationServices.GetServiceOrNull<IRepository>();
 
             var applicationLifeTime = app.ApplicationServices.GetServiceOrNull<IHostApplicationLifetime>();
 
@@ -118,7 +119,7 @@ namespace AspNetCore.SignalR.EventStream
                 {
                     logger.LogInformation("Deleting all subscriptions from database.");
 
-                    await repository2.DeleteAllSubscriptionsAsync();
+                    await repository1.DeleteAllSubscriptionsAsync();
 
                     logger.LogInformation("Finished deleting all subscriptions from database.");
                 }
@@ -144,19 +145,11 @@ namespace AspNetCore.SignalR.EventStream
             repository.DeleteAllSubscriptionsAsync().ConfigureAwait(false);
             logger.LogInformation("Finished deleting all subscriptions from database.");
 
-            var eventStreamHubClient = app.ApplicationServices.GetServiceOrNull<IEventStreamHubClient>();
-            var notifier = app.ApplicationServices.GetRequiredService<ISubscriptionProcessorNotifier>();
-            var notifier1 = app.ApplicationServices.GetRequiredService<IEventStreamProcessorNotifier>();
+            _subscriptionProcessor = app.ApplicationServices.GetRequiredService<ISubscriptionProcessor>();
+            _subscriptionProcessor.Start = true;
 
-            _subscriptionProcessor = new SubscriptionProcessor(app.ApplicationServices, eventStreamHubClient, notifier, logger)
-            {
-                Start = true
-            };
-
-            _eventStreamProcessor = new EventStreamProcessor(app.ApplicationServices, notifier1, logger1)
-            {
-                Start = true
-            };
+            _eventStreamProcessor = app.ApplicationServices.GetRequiredService<IEventStreamProcessor>();
+            _eventStreamProcessor.Start = true;
 
             return app;
         }

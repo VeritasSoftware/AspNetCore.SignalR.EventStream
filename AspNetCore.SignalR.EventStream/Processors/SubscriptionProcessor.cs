@@ -4,7 +4,7 @@ using AspNetCore.SignalR.EventStream.Repositories;
 
 namespace AspNetCore.SignalR.EventStream.Processors
 {
-    public class SubscriptionProcessor : IAsyncDisposable
+    public class SubscriptionProcessor : IAsyncDisposable, ISubscriptionProcessor
     {
         private readonly IRepository _repository;
         private readonly IEventStreamHubClient _eventStreamHubClient;
@@ -16,7 +16,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
         public bool Start
         {
             get
-            {                
+            {
                 return _start;
             }
             set
@@ -34,18 +34,18 @@ namespace AspNetCore.SignalR.EventStream.Processors
                     _notifier.OnEventsAdded += OnEventsAddedHandler;
                     _logger?.LogInformation("Finished attaching On Events Added Notifier.");
                     _logger.LogInformation($"{Name} started.");
-                }                
+                }
 
                 _start = value;
             }
         }
         public string? EventStreamHubUrl { get; set; }
-        public string? SecretKey { get; set;}        
+        public string? SecretKey { get; set; }
 
         public string Name => nameof(SubscriptionProcessor);
 
-        public SubscriptionProcessor(IServiceProvider serviceProvider, IEventStreamHubClient eventStreamHubClient, 
-                            ISubscriptionProcessorNotifier notifier, 
+        public SubscriptionProcessor(IServiceProvider serviceProvider, IEventStreamHubClient eventStreamHubClient,
+                            ISubscriptionProcessorNotifier notifier,
                             ILogger<SubscriptionProcessor>? logger = null)
         {
             _repository = serviceProvider.GetRequiredService<IRepository>();
@@ -104,7 +104,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             }).ToList(),
                             ConnectionIds = activeSubscriptions.Select(x => x.ConnectionId).ToList(),
                             StreamName = streamName
-                        };                        
+                        };
 
                         await _eventStreamHubClient.SendAsync(result);
 
@@ -154,7 +154,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             Base64StringData = x.Base64StringData,
                             Id = x.Id,
                             EventId = x.EventId,
-                            IsJson = x.IsJson,                            
+                            IsJson = x.IsJson,
                             IsBase64String = x.IsBase64String,
                             JsonData = x.JsonData,
                             MetaData = x.MetaData,
@@ -166,7 +166,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                             Description = x.Description,
                             CreatedAt = x.CreatedAt
                         }).ToList(),
-                        StreamName  = subsciptionWithEvents.Stream.Name
+                        StreamName = subsciptionWithEvents.Stream.Name
                     };
 
                     await _eventStreamHubClient.SendAsync(eventSubscriberModel);

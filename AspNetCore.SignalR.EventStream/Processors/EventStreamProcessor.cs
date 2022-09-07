@@ -2,11 +2,11 @@
 
 namespace AspNetCore.SignalR.EventStream.Processors
 {
-    public class EventStreamProcessor : IAsyncDisposable
+    public class EventStreamProcessor : IAsyncDisposable, IEventStreamProcessor
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IEventStreamProcessorNotifier _notifier;
-        private readonly ILogger<EventStreamProcessor>? _logger; 
+        private readonly ILogger<EventStreamProcessor>? _logger;
 
         private bool _start = false;
 
@@ -44,7 +44,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
             _notifier = notifier;
             _logger = logger;
         }
-        
+
         private async Task OnEventsAddedHandler(IEnumerable<Entities.Event> events)
         {
             try
@@ -109,7 +109,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
                                     await repository.UpdateAsync(stream);
                                 }
                             }
-                        }                        
+                        }
                     }
                     catch (Exception ex)
                     {
