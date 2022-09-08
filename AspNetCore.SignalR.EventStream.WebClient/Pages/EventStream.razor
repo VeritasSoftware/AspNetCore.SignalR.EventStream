@@ -1,0 +1,63 @@
+﻿@using Microsoft.AspNetCore.SignalR.Client;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq
+
+@foreach(var evt in eventsReceived)
+{
+    <p>@evt</p>
+}
+
+@code {
+    public List<dynamic> eventsReceived = new List<dynamic>();
+
+    async Task<HubConnection> EventStreamConnect()
+    {
+        var conn = new HubConnectionBuilder()
+                .WithUrl("https://localhost:5001/eventstreamhub")
+                .WithAutomaticReconnect(new TimeSpan[] { TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(120) })
+                .AddNewtonsoftJsonProtocol()
+                .Build();
+
+        await conn.StartAsync();
+
+        return conn;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var conn = await EventStreamConnect();
+
+        var subscriberId = Guid.NewGuid();
+        var subscriberKey = Guid.NewGuid();
+        var streamName = "MyStream";
+        var eventType = "MyEvent";
+
+        conn.On(streamName, new Type[] { typeof(string), typeof(object) }, async (arg1, arg2) =>
+        {
+            var events = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
+
+            foreach(var @event in events)
+            {
+                dynamic parsedJson = JsonConvert.DeserializeObject(@event.ToString());
+                var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
+
+                eventsReceived.Add(evt);
+
+                StateHasChanged();
+                
+                Console.WriteLine(evt);
+            }    
+            await Task.CompletedTask;
+        }, new object());
+
+        Console.WriteLine($"Subscribing to Stream {streamName}.");
+        await conn.InvokeAsync("Subscribe", new
+        {
+            StreamName = streamName,
+            Type = eventType,
+            SubscriberId = subscriberId,
+            SubscriberKey = subscriberKey,
+            LastAccessedEventId = 0
+        });
+    }
+}

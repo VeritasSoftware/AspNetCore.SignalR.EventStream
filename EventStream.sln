@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.SignalR.EventStr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.SignalR.EventStream.Client", "AspNetCore.SignalR.EventStream.Client\AspNetCore.SignalR.EventStream.Client.csproj", "{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.SignalR.EventStream.WebClient", "AspNetCore.SignalR.EventStream.WebClient\AspNetCore.SignalR.EventStream.WebClient.csproj", "{7B9421C5-A536-4C42-9270-7812678EC308}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF6B0D03-2FB6-46F0-B444-CEC6A8E1B030}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B9421C5-A536-4C42-9270-7812678EC308}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B9421C5-A536-4C42-9270-7812678EC308}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B9421C5-A536-4C42-9270-7812678EC308}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B9421C5-A536-4C42-9270-7812678EC308}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

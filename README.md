@@ -287,6 +287,8 @@ await conn.InvokeAsync("Unsubscribe", streamName, subscriberId, subscriberKey);
 
 ![Event Stream Client](/Docs/Client.jpg)
 
+![Event Stream Web Client](/Docs/WebClient.jpg)
+
 ### Event JSON
 
 The Received Event JSON is as shown in example below:
