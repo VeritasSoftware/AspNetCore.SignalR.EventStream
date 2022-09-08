@@ -285,7 +285,11 @@ To unsubscribe from a stream, call the **Unsubscribe** method on the Hub.
 await conn.InvokeAsync("Unsubscribe", streamName, subscriberId, subscriberKey);
 ```
 
+### Sample Client application:
+
 ![Event Stream Client](/Docs/Client.jpg)
+
+### Sample Client Web application:
 
 ![Event Stream Web Client](/Docs/WebClient.jpg)
 
