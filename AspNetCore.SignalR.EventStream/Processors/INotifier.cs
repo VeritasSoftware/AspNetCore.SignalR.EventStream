@@ -13,7 +13,7 @@ namespace AspNetCore.SignalR.EventStream.Processors
 
     }
 
-    public interface IEventStreamProcessorNotifier : INotifier
+    public interface IAssociateStreamProcessorNotifier : INotifier
     {
 
     }

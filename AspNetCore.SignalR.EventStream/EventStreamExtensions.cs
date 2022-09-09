@@ -31,7 +31,7 @@ namespace AspNetCore.SignalR.EventStream
     public static class EventStreamExtensions
     {
         public static ISubscriptionProcessor? _subscriptionProcessor = null;
-        private static IEventStreamProcessor? _eventStreamProcessor = null;
+        private static IAssociateStreamProcessor? _associateStreamProcessor = null;
         private static EventStreamOptions? _options = null;
 
         public static IServiceCollection AddAuthorization(this IServiceCollection services, Action<EventStreamHubAuthorizationBuilder> action)
@@ -60,21 +60,21 @@ namespace AspNetCore.SignalR.EventStream
             {
                 services.AddTransient<IRepository, CosmosDbRepository>(sp => new CosmosDbRepository(sp.GetRequiredService<CosmosDbContext>(),
                                                                                                     sp.GetRequiredService<ISubscriptionProcessorNotifier>(),
-                                                                                                    sp.GetRequiredService<IEventStreamProcessorNotifier>()));
+                                                                                                    sp.GetRequiredService<IAssociateStreamProcessorNotifier>()));
                 services.AddDbContext<CosmosDbContext>(o => o.UseCosmos(_options.ConnectionString, "EventStream"), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
             else if (_options.DatabaseType == DatabaseTypeOptions.SqlServer)
             {
                 services.AddTransient<IRepository, SqlServerRepository>(sp => new SqlServerRepository(sp.GetRequiredService<SqlServerDbContext>(),
                                                                                                       sp.GetRequiredService<ISubscriptionProcessorNotifier>(),
-                                                                                                      sp.GetRequiredService<IEventStreamProcessorNotifier>()));
+                                                                                                      sp.GetRequiredService<IAssociateStreamProcessorNotifier>()));
                 services.AddDbContext<SqlServerDbContext>(o => o.UseSqlServer(_options.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
             else
             {
                 services.AddTransient<IRepository, SqliteRepository>(sp => new SqliteRepository(sp.GetRequiredService<SqliteDbContext>(), 
                                                                                                 sp.GetRequiredService<ISubscriptionProcessorNotifier>(),
-                                                                                                sp.GetRequiredService<IEventStreamProcessorNotifier>()));
+                                                                                                sp.GetRequiredService<IAssociateStreamProcessorNotifier>()));
                 services.AddDbContext<SqliteDbContext>(o => o.UseSqlite(_options.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
             }
 
@@ -94,10 +94,10 @@ namespace AspNetCore.SignalR.EventStream
                                                                 o.GetService<ILogger<EventStreamHubClient>>()));
 
             services.AddSingleton<ISubscriptionProcessorNotifier, Notifier>();
-            services.AddSingleton<IEventStreamProcessorNotifier, Notifier>();
+            services.AddSingleton<IAssociateStreamProcessorNotifier, Notifier>();
 
             services.AddSingleton<ISubscriptionProcessor, SubscriptionProcessor>();
-            services.AddSingleton<IEventStreamProcessor, EventStreamProcessor>();
+            services.AddSingleton<IAssociateStreamProcessor, AssociateStreamProcessor>();
 
             return services;
         }
@@ -148,8 +148,8 @@ namespace AspNetCore.SignalR.EventStream
             _subscriptionProcessor = app.ApplicationServices.GetRequiredService<ISubscriptionProcessor>();
             _subscriptionProcessor.Start = true;
 
-            _eventStreamProcessor = app.ApplicationServices.GetRequiredService<IEventStreamProcessor>();
-            _eventStreamProcessor.Start = true;
+            _associateStreamProcessor = app.ApplicationServices.GetRequiredService<IAssociateStreamProcessor>();
+            _associateStreamProcessor.Start = true;
 
             return app;
         }

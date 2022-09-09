@@ -2,11 +2,11 @@
 
 namespace AspNetCore.SignalR.EventStream.Processors
 {
-    public class EventStreamProcessor : IAsyncDisposable, IEventStreamProcessor
+    public class AssociateStreamProcessor : IAsyncDisposable, IAssociateStreamProcessor
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly IEventStreamProcessorNotifier _notifier;
-        private readonly ILogger<EventStreamProcessor>? _logger;
+        private readonly IAssociateStreamProcessorNotifier _notifier;
+        private readonly ILogger<AssociateStreamProcessor>? _logger;
 
         private bool _start = false;
 
@@ -23,22 +23,22 @@ namespace AspNetCore.SignalR.EventStream.Processors
                     _logger?.LogInformation("Detaching On Events Added Notifier.");
                     _notifier.OnEventsAdded -= OnEventsAddedHandler;
                     _logger?.LogInformation("Finished detaching On Events Added Notifier.");
-                    _logger.LogInformation($"{Name} stopped.");
+                    _logger?.LogInformation($"{Name} stopped.");
                 }
                 else
                 {
                     _logger?.LogInformation("Attaching On Events Added Notifier.");
                     _notifier.OnEventsAdded += OnEventsAddedHandler;
                     _logger?.LogInformation("Finished attaching On Events Added Notifier.");
-                    _logger.LogInformation($"{Name} started.");
+                    _logger?.LogInformation($"{Name} started.");
                 }
 
                 _start = value;
             }
         }
-        public string Name => nameof(EventStreamProcessor);
+        public string Name => nameof(AssociateStreamProcessor);
 
-        public EventStreamProcessor(IServiceProvider serviceProvider, IEventStreamProcessorNotifier notifier, ILogger<EventStreamProcessor>? logger = null)
+        public AssociateStreamProcessor(IServiceProvider serviceProvider, IAssociateStreamProcessorNotifier notifier, ILogger<AssociateStreamProcessor>? logger = null)
         {
             _serviceProvider = serviceProvider;
             _notifier = notifier;

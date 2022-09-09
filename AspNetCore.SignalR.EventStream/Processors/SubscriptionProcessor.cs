@@ -26,14 +26,14 @@ namespace AspNetCore.SignalR.EventStream.Processors
                     _logger?.LogInformation("Detaching On Events Added Notifier.");
                     _notifier.OnEventsAdded -= OnEventsAddedHandler;
                     _logger?.LogInformation("Finished detaching On Events Added Notifier.");
-                    _logger.LogInformation($"{Name} stopped.");
+                    _logger?.LogInformation($"{Name} stopped.");
                 }
                 else
                 {
                     _logger?.LogInformation("Attaching On Events Added Notifier.");
                     _notifier.OnEventsAdded += OnEventsAddedHandler;
                     _logger?.LogInformation("Finished attaching On Events Added Notifier.");
-                    _logger.LogInformation($"{Name} started.");
+                    _logger?.LogInformation($"{Name} started.");
                 }
 
                 _start = value;

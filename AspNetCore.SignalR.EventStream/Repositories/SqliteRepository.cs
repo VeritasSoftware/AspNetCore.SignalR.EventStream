@@ -9,15 +9,15 @@ namespace AspNetCore.SignalR.EventStream.Repositories
     {
         private readonly SqliteDbContext _context;
         private readonly ISubscriptionProcessorNotifier _subscriptionProcessorNotifier;
-        private readonly IEventStreamProcessorNotifier _eventStreamProcessorNotifier;
+        private readonly IAssociateStreamProcessorNotifier _associateStreamProcessorNotifier;
 
         private static object _lock = new object();
 
-        public SqliteRepository(SqliteDbContext context, ISubscriptionProcessorNotifier subscriptionProcessorNotifier, IEventStreamProcessorNotifier eventStreamProcessorNotifier)
+        public SqliteRepository(SqliteDbContext context, ISubscriptionProcessorNotifier subscriptionProcessorNotifier, IAssociateStreamProcessorNotifier associateStreamProcessorNotifier)
         {
             _context = context;
             _subscriptionProcessorNotifier = subscriptionProcessorNotifier;
-            _eventStreamProcessorNotifier = eventStreamProcessorNotifier;
+            _associateStreamProcessorNotifier = associateStreamProcessorNotifier;
         }
 
         public void EnsureDatabaseDeleted()
@@ -52,7 +52,7 @@ namespace AspNetCore.SignalR.EventStream.Repositories
                         _subscriptionProcessorNotifier.OnEventsAddedAsync(savedEvents).Wait();                        
                     }
 
-                    await _eventStreamProcessorNotifier.OnEventsAddedAsync(savedEvents);
+                    await _associateStreamProcessorNotifier.OnEventsAddedAsync(savedEvents);
                 }
                 catch (Exception ex)
                 {

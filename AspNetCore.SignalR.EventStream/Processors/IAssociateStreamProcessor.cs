@@ -1,7 +1,7 @@
 ﻿
 namespace AspNetCore.SignalR.EventStream.Processors
 {
-    public interface IEventStreamProcessor
+    public interface IAssociateStreamProcessor
     {
         string Name { get; }
         bool Start { get; set; }
