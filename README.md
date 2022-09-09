@@ -291,7 +291,7 @@ The Client Console app and the Client Web app,
 
 are both subscribing to the same stream.
 
-The console app publishes Events to the stream.
+The Console app, also, publishes Events to the stream.
 
 Both the apps, receive the Events in real-time.
 
