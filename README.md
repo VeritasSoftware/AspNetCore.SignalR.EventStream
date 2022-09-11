@@ -52,7 +52,7 @@ A normal flow would look like the below sequence diagram UML.
 
 ![Event Stream Sequence Diagram UML](/Docs/NormalFlow-SequenceDiagramUML.jpg)
 
-### Setting up your Server
+## Setting up your Server
 
 You can create your own Event Stream Server.
 
@@ -179,7 +179,7 @@ The SignalR Hub is secured by default. With **policies**.
 
 In your Server, you can set up **Authorization** to the SignalR Hub. Read [**Hub Authorization**](Docs/README_HubAuthorization.md).
 
-#### Administration of Server
+### Administration of Server
 
 The Server hosts endpoints to perform various administrative tasks.
 
@@ -195,13 +195,13 @@ You can do so by calling the **streams/{id}** endpoint.
 
 You can replay events in a stream. Read [**Replay events**](Docs/README_Rewind_FastForward.md).
 
-#### Sample Server
+### Sample Server
 
 There is a sample Server app included in the solution.
 
 ![Event Stream Server](/Docs/Server.jpg)
 
-### Setting up your Client in C#
+## Setting up your Client in C#
 
 Add a Nuget package (**Microsoft.AspNetCore.SignalR.Client**) to your project.
 
@@ -225,7 +225,7 @@ var streamName = "MyStream";
 var eventType = "MyEvent";
 ```
 
-#### Subscribe
+### Subscribe
 
 To subscribe to a stream, set up the **StreamName** as the event name.
 
@@ -264,7 +264,7 @@ The **SubscriberKey** is a Guid.
 
 This key has to be provided when Unsubscribing.
 
-#### Publish
+### Publish
 
 To publish an Event, call the **Publish** method on the Hub.
 
@@ -280,7 +280,7 @@ await conn.InvokeAsync("Publish", streamName, new[]
 });
 ```
 
-#### Unsubscribe
+### Unsubscribe
 
 To unsubscribe from a stream, call the **Unsubscribe** method on the Hub.
 
@@ -300,7 +300,7 @@ Both the apps, receive the Events in real-time.
 
 ![Event Stream Clients](/Docs/Clients.jpg)
 
-### Event JSON
+## Event JSON
 
 The Received Event JSON is as shown in example below:
 
