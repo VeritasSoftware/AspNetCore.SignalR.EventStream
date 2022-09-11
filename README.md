@@ -252,15 +252,14 @@ conn.On(streamName, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) 
 Then, call the **Subscribe** method on the Hub.
 
 ```c#
-await conn.InvokeAsync("Subscribe", new {
-                                        StreamName = streamName,
-                                        Type = eventType,
-                                        SubscriberId = subscriberId,
-                                        SubscriberKey = subscriberKey,
-                                        LastAccessedEventId = 0
-                                    });
+await conn.InvokeAsync("Subscribe", new
+{
+    StreamName = streamName,
+    SubscriberId = subscriberId,
+    SubscriberKey = subscriberKey
+});
 ```
-The **SubscriberKey** is a Guid.
+The **SubscriberId** & **SubscriberKey** are Guids.
 
 This key has to be provided when Unsubscribing.
 

@@ -121,7 +121,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                         SubscriberId = model.SubscriberId,
                         SubscriberKey = model.SubscriberKey,
                         StreamId = stream.Id,
-                        LastAccessedFromEventId = model.LastAccessedEventId < 0 ? 0 : model.LastAccessedEventId
+                        LastAccessedFromEventId = 0
                     }); ;
                 }
                 else
@@ -142,7 +142,7 @@ namespace AspNetCore.SignalR.EventStream.Hubs
                         SubscriberId = model.SubscriberId,
                         SubscriberKey = model.SubscriberKey,
                         StreamId = newStream.Id,
-                        LastAccessedFromEventId = model.LastAccessedEventId < 0 ? 0 : model.LastAccessedEventId
+                        LastAccessedFromEventId = 0
                     });
                 }
 

@@ -2,10 +2,8 @@
 {
     public class SubscribeModel
     {
-        public string StreamName { get; set; }
-        public string Type { get; set; }
+        public string StreamName { get; set; } = string.Empty;
         public Guid SubscriberId { get; set; }
         public Guid SubscriberKey { get; set; }
-        public int LastAccessedEventId { get; set; }
     }
 }
