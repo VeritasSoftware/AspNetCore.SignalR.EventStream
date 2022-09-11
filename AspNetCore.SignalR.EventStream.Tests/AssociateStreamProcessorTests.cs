@@ -43,6 +43,7 @@ namespace AspNetCore.SignalR.EventStream.Tests
 
             //Start processor
             var processor = ServiceProvider.GetRequiredService<IAssociateStreamProcessor>();
+            //Act
             processor.Start = true;
 
             var repository = ServiceProvider.GetRequiredService<IRepository>();

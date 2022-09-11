@@ -7,8 +7,14 @@
     <p>@evt</p>
 }
 
+@foreach(var evt in eventsReceived1)
+{
+    <p>@evt</p>
+}
+
 @code {
     public List<dynamic> eventsReceived = new List<dynamic>();
+    public List<dynamic> eventsReceived1 = new List<dynamic>();
 
     async Task<HubConnection> EventStreamConnect()
     {
@@ -25,18 +31,37 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var conn = await EventStreamConnect();
+        var conn = new HubConnectionBuilder()
+                        .WithUrl("https://localhost:5001/eventstreamhub")
+                        .WithAutomaticReconnect(new TimeSpan[] { TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(120) })
+                        .AddNewtonsoftJsonProtocol()
+                        .Build();
+
+        await conn.StartAsync();
+
+        var conn1 = new HubConnectionBuilder()
+                        .WithUrl("https://localhost:5001/eventstreamhub")
+                        .WithAutomaticReconnect(new TimeSpan[] { TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(120) })
+                        .AddNewtonsoftJsonProtocol()
+                        .Build();
+
+        await conn1.StartAsync();
 
         var subscriberId = Guid.NewGuid();
         var subscriberKey = Guid.NewGuid();
         var streamName = "MyStream";
         var eventType = "MyEvent";
 
-        conn.On(streamName, new Type[] { typeof(string), typeof(object) }, async (arg1, arg2) =>
+        var subscriberId1 = Guid.NewGuid();
+        var subscriberKey1 = Guid.NewGuid();
+        var streamName1 = "MyStream1";
+        var eventType1 = "MyEvent1";
+
+        conn.On(streamName, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
         {
             var events = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
 
-            foreach(var @event in events)
+            foreach (var @event in events)
             {
                 dynamic parsedJson = JsonConvert.DeserializeObject(@event.ToString());
                 var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
@@ -44,10 +69,30 @@
                 eventsReceived.Add(evt);
 
                 StateHasChanged();
-                
+
+                Console.WriteLine($"Received Event from Stream {parsedJson.StreamName}:");
                 Console.WriteLine(evt);
-            }    
-            await Task.CompletedTask;
+            }
+            return Task.CompletedTask;
+        }, new object());
+
+        conn1.On(streamName1, new Type[] { typeof(string), typeof(object) }, (arg1, arg2) =>
+        {
+            var events = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
+
+            foreach (var @event in events)
+            {
+                dynamic parsedJson = JsonConvert.DeserializeObject(@event.ToString());
+                var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
+
+                eventsReceived1.Add(evt);
+
+                StateHasChanged();
+
+                Console.WriteLine($"Received Event from Stream {parsedJson.StreamName}:");
+                Console.WriteLine(evt);
+            }
+            return Task.CompletedTask;
         }, new object());
 
         Console.WriteLine($"Subscribing to Stream {streamName}.");
@@ -59,5 +104,51 @@
             SubscriberKey = subscriberKey,
             LastAccessedEventId = 0
         });
+
+        Console.WriteLine($"Subscribing to Stream {streamName1}.");
+        await conn1.InvokeAsync("Subscribe", new
+        {
+            StreamName = streamName1,
+            Type = eventType1,
+            SubscriberId = subscriberId1,
+            SubscriberKey = subscriberKey1,
+            LastAccessedEventId = 0
+        });
+
+
+        //var conn = await EventStreamConnect();
+
+        //var subscriberId = Guid.NewGuid();
+        //var subscriberKey = Guid.NewGuid();
+        //var streamName = "MyStream";
+        //var eventType = "MyEvent";
+
+        //conn.On(streamName, new Type[] { typeof(string), typeof(object) }, async (arg1, arg2) =>
+        //{
+        //    var events = JsonConvert.DeserializeObject<object[]>(arg1[0].ToString());
+
+        //    foreach(var @event in events)
+        //    {
+        //        dynamic parsedJson = JsonConvert.DeserializeObject(@event.ToString());
+        //        var evt = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
+
+        //        eventsReceived.Add(evt);
+
+        //        StateHasChanged();
+                
+        //        Console.WriteLine(evt);
+        //    }    
+        //    await Task.CompletedTask;
+        //}, new object());
+
+        //Console.WriteLine($"Subscribing to Stream {streamName}.");
+        //await conn.InvokeAsync("Subscribe", new
+        //{
+        //    StreamName = streamName,
+        //    Type = eventType,
+        //    SubscriberId = subscriberId,
+        //    SubscriberKey = subscriberKey,
+        //    LastAccessedEventId = 0
+        //});
     }
 }

@@ -7,8 +7,6 @@ namespace AspNetCore.SignalR.EventStream.Processors
         string Name { get; }
         string? SecretKey { get; set; }
         bool Start { get; set; }
-
-        ValueTask DisposeAsync();
         Task ProcessSubscriber(Guid subscriberId);
     }
 }

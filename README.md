@@ -15,11 +15,14 @@ Read more on SignalR:
 
 The framework implements Event Sourcing using SignalR web sockets as the communication protocol.
 
-Advantages of using SignalR web sockets:
+### Advantages of using SignalR web sockets:
 
-* If you want a browser to be able to connect to the Server. So, web apps can easily communicate with the Server.
+* Browser based web app Clients can easily communicate with the Server. Besides, normal apps.
+* Web sockets only need an internet connection for Client-Server communication. So, no special network infrastructure is needed.
 * You can leverage the built in security.
 * SignalR is an industry standard. With client libraries available for all platforms like Javascript, Java, Python, Mac OS, Windows etc.
+
+## Framework
 
 This framework allows you to build your own Event Stream Server.
 

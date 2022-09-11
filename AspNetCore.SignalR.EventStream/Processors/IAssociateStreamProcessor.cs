@@ -5,7 +5,5 @@ namespace AspNetCore.SignalR.EventStream.Processors
     {
         string Name { get; }
         bool Start { get; set; }
-
-        ValueTask DisposeAsync();
     }
 }
