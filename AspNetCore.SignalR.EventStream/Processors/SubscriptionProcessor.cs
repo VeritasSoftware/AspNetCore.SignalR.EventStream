@@ -68,18 +68,13 @@ namespace AspNetCore.SignalR.EventStream.Processors
                 {
                     var streamIdInt = events.First().StreamId;
 
-                    var stream = await _repository.GetStreamAsync(streamIdInt);
-
-                    if (stream == null)
-                        throw new InvalidOperationException($"Stream {streamIdInt} not found.");
-
-                    var streamId = stream.StreamId;
-                    var streamName = stream.Name;
-
-                    var activeSubscriptions = await _repository.GetActiveSubscriptionsAsync(streamIdInt);
+                    var activeSubscriptions = await _repository.GetActiveSubscriptionsAsync(streamIdInt);                    
 
                     if (activeSubscriptions.Any())
                     {
+                        var streamId = activeSubscriptions.First().Stream.StreamId;
+                        var streamName = activeSubscriptions.First().Stream.Name;
+
                         _logger?.LogInformation($"Streaming events ({events.Count()}) to subscribers ({activeSubscriptions.Count()}) of stream {streamName}.");
 
                         var result = new EventStreamSubscriberModelResult

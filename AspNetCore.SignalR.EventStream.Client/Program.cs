@@ -38,10 +38,8 @@ Console.WriteLine($"Subscribing to Stream {streamName}.");
 await conn.InvokeAsync("Subscribe", new
 {
     StreamName = streamName,
-    Type = eventType,
     SubscriberId = subscriberId,
-    SubscriberKey = subscriberKey,
-    LastAccessedEventId = 0
+    SubscriberKey = subscriberKey
 });
 
 Console.WriteLine($"Publishing to Stream {streamName}.");
