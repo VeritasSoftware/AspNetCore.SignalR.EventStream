@@ -322,5 +322,3 @@ The Received Event JSON is as shown in example below:
   "StreamName": "MyStream"
 }
 ```
-
-## This project is a work in progress!

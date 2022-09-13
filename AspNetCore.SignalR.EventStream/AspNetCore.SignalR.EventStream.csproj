@@ -5,6 +5,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<LangVersion>Latest</LangVersion>
+	<IsPackable>true</IsPackable>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Authors>Shantanu</Authors>
+	<Company />
+	<Description>Event Sourcing framework using SignalR web sockets.</Description>
+	<PackageProjectUrl>https://github.com/VeritasSoftware/AspNetCore.SignalR.EventStream</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/VeritasSoftware/AspNetCore.SignalR.EventStream</RepositoryUrl>
+	<PackageReleaseNotes>Initial release</PackageReleaseNotes>
+	<PackageReadmeFile>README_Nuget.md</PackageReadmeFile>
+	<Copyright>MIT License</Copyright>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
@@ -31,6 +41,13 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
 			<Version>5.0.17</Version>
 		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\Docs\README_Nuget.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 	<ItemGroup>
